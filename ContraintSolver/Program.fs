@@ -5,16 +5,14 @@ module Main =
 
         [<EntryPoint>]
         let main args =
-            let x = Variable("x", {a = 1m; b = 5m})
-            let y = Variable("y", {a = -10m; b = 5m})
-            let z = Variable("z", {a = 0m; b = 1m})
+            let v1 = Variable("x", {a = 0m; b = 2m})
+            let v2 = Variable("y", {a = 1m; b = 3m})
 
-            let c1 = Constraint("x-y=0")
-            let c2 = Constraint("y+z=x")
+            let c1 = Constraint.VarPlusVarEqConstConstraint(v1, v2, 5m) :> Constraint.T
+            let c2 = Constraint.VarPlusVarEqConstConstraint(v1, v2, 2m) :> Constraint.T
 
-            let y = Set [ c1, x; c1, y; c2, x; c2, y; c2, z ]
+            let y = Set [ c1, v1; c1, v2; c2, v1; c2, v2 ] // Set of (constraint, variable) pairs.
             let h = Solver.hc3 y
-
-            printf "%A" h
+            printfn "Done."
             Console.ReadKey() |> ignore
             0

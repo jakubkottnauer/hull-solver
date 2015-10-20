@@ -15,6 +15,15 @@ type Interval =
 
     member this.Middle = (this.a + this.b) / 2m
 
+    member this.Intersect (other : Interval) = 
+        let interB = Math.Min(this.b, other.b)
+        let interA = Math.Max(this.a, other.a)
+
+        match interA <= interB with
+        | true -> { a = interA; b = interB}
+        | false -> Interval.Zero
+
+
     /// Generic binary operation over two intervals compliant with pivotal rule of interval mathematics -
     /// operation should result in widest possible interval
     static member operation f (x : Interval, y : Interval) =

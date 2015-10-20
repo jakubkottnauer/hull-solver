@@ -50,8 +50,8 @@
     <Compile Include="AssemblyInfo.fs" />
     <None Include="App.config" />
     <Compile Include="Interval.fs" />
-    <Compile Include="Constraint.fs" />
     <Compile Include="Variable.fs" />
+    <Compile Include="Constraint.fs" />
     <Compile Include="Solver.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
