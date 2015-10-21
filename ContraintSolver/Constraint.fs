@@ -8,7 +8,7 @@ module Constraint =
     type T(expression:string) =
         member this.Expression = expression
 
-        abstract member Propagate : Variable -> Variable
+        abstract member Propagate : string -> Variable list -> Variable
 
         override this.Equals(y) =
             match y with
@@ -24,30 +24,24 @@ module Constraint =
               | _ -> 0
 
     /// A "x + y = c" constraint.
-    type VarPlusVarEqConstConstraint(x: Variable, y: Variable, c: decimal) =
-        inherit T(x.Name + " + " + y.Name + " = " + c.ToString())
+    type VarPlusVarEqConstConstraint(x: string, y: string, c: decimal) =
+        inherit T(x + " + " + y + " = " + c.ToString())
         member this.X = x
         member this.Y = y
         member this.C = c
 
-        override this.Propagate v : Variable =
-            let XplusY = this.X.Domain + this.Y.Domain
-            let CminusX = this.C - this.X.Domain
-            let CminusY = this.C - this.Y.Domain
-            let narrowedX = XplusY.Intersect this.X.Domain
-            let narrowedY = CminusX.Intersect this.Y.Domain
-            
-            // TODO: Update variables in this constraint with the narrowed values.
+        override this.Propagate (v : string) (allVars : Variable list) =
+            let varX = List.find (fun (item:Variable) -> item.Name = "x") allVars
+            let varY = List.find (fun (item:Variable) -> item.Name = "y") allVars
 
-            match v.Name with // TODO: Fix hardcoded variable names - right now only "x" and "y" are supported.
+            let XplusY = varX.Domain + varY.Domain
+            let CminusX = this.C - varX.Domain
+            let CminusY = this.C - varY.Domain
+            let narrowedX = XplusY.Intersect varX.Domain
+            let narrowedY = CminusX.Intersect varY.Domain
+
+            match v with // TODO: Fix hardcoded variable names - right now only "x" and "y" are supported.
             | "x" ->
-                Variable(v.Name, narrowedX)
+                Variable(v, narrowedX)
             | "y" ->
-                Variable(v.Name, narrowedY)
-
-    /// A "x - y = c" constraint.
-    type VarMinusVarEqConstConstraint(x: Variable, y: Variable, c: decimal) =
-        inherit T(x.Name + " - " + y.Name + " = " + c.ToString())
-
-        override this.Propagate v : Variable =
-            v
+                Variable(v, narrowedY)
