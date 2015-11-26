@@ -8,7 +8,7 @@ module Constraint =
     type T(expression:string) =
         member this.Expression = expression
 
-        abstract member Propagate : string -> Variable list -> Variable
+        abstract member Propagate : Variable -> Variable list -> Variable
 
         override this.Equals(y) =
             match y with
@@ -23,25 +23,29 @@ module Constraint =
               | :? T as other -> compare x.Expression other.Expression
               | _ -> 0
 
-    /// A "x + y = c" constraint.
-    type VarPlusVarEqConstConstraint(x: string, y: string, c: decimal) =
-        inherit T(x + " + " + y + " = " + c.ToString())
+    /// A "x + y = z" constraint.
+    type VarPlusVarEqVarConstraint(x: string, y: string, c: string) =
+        inherit T(x + " + " + y + " = " + c)
         member this.X = x
         member this.Y = y
         member this.C = c
 
-        override this.Propagate (v : string) (allVars : Variable list) =
+        override this.Propagate (pair : Variable) (allVars : Variable list) =
             let varX = List.find (fun (item:Variable) -> item.Name = "x") allVars
             let varY = List.find (fun (item:Variable) -> item.Name = "y") allVars
+            let varZ = List.find (fun (item:Variable) -> item.Name = "z") allVars
 
             let XplusY = varX.Domain + varY.Domain
-            let CminusX = this.C - varX.Domain
-            let CminusY = this.C - varY.Domain
-            let narrowedX = XplusY.Intersect varX.Domain
-            let narrowedY = CminusX.Intersect varY.Domain
+            let ZminusX = varZ.Domain - varX.Domain
+            let ZminusY = varZ.Domain - varY.Domain
+            let narrowedX = ZminusY.Intersect varX.Domain
+            let narrowedY = ZminusX.Intersect varY.Domain
+            let narrowedZ = XplusY.Intersect varZ.Domain
 
-            match v with // TODO: Fix hardcoded variable names - right now only "x" and "y" are supported.
+            match pair.Name with // TODO: Fix hardcoded variable names - right now only "x" and "y" are supported.
             | "x" ->
-                Variable(v, narrowedX)
+                Variable(pair.Name, narrowedX)
             | "y" ->
-                Variable(v, narrowedY)
+                Variable(pair.Name, narrowedY)
+            | "z" ->
+                Variable(pair.Name, narrowedZ)

@@ -7,11 +7,13 @@ module Main =
         let main args =
             let v1 = Variable("x", {a = 0m; b = 2m})
             let v2 = Variable("y", {a = 1m; b = 3m})
-            let variables = [v1; v2]
+            let v3 = Variable("z", {a = 4m; b = 6m})
 
-            let c1 = Constraint.VarPlusVarEqConstConstraint("x", "y", 5m) :> Constraint.T
+            let variables = [v1; v2; v3]
 
-            let constraintVariablePairs = Set [ c1, "x"; c1, "y"; ] // Set of (constraint, variable name) pairs.
+            let c1 = Constraint.VarPlusVarEqVarConstraint("x", "y", "z") :> Constraint.T
+
+            let constraintVariablePairs = Set [ c1, "x"; c1, "y"; c1, "z" ] // Set of (constraint, variable name) pairs.
 
             Solver.hc3 constraintVariablePairs variables
             |> List.map (fun item -> printfn "%s [%f;%f]" item.Name item.Domain.a item.Domain.b) 

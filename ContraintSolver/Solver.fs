@@ -27,7 +27,7 @@ module Solver =
             let variable = allVars
                            |> List.find (fun (item:Variable) -> item.Name = variableName)
 
-            let reducedVariable = cons.Propagate variableName allVars
+            let reducedVariable = cons.Propagate variable allVars
 
             printfn "%A" cons.Expression
 
