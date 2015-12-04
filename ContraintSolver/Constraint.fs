@@ -5,8 +5,10 @@ open System
 module Constraint =
 
     [<AbstractClass>]
-    type T(expression:string) =
+    type T(expression:string, variableNames: string list) =
         member this.Expression = expression
+
+        member this.VariableNames = variableNames
 
         abstract member Propagate : Variable -> Variable list -> Variable
 
@@ -24,16 +26,17 @@ module Constraint =
               | _ -> 0
 
     /// A "x + y = z" constraint.
-    type VarPlusVarEqVarConstraint(x: string, y: string, c: string) =
-        inherit T(x + " + " + y + " = " + c)
-        member this.X = x
-        member this.Y = y
-        member this.C = c
+    type VarPlusVarEqVarConstraint(x: string, y: string, z: string) =
+        inherit T(x + " + " + y + " = " + z, [x; y; z])
 
-        override this.Propagate (pair : Variable) (allVars : Variable list) =
-            let varX = List.find (fun (item:Variable) -> item.Name = "x") allVars
-            let varY = List.find (fun (item:Variable) -> item.Name = "y") allVars
-            let varZ = List.find (fun (item:Variable) -> item.Name = "z") allVars
+        let mutable X = x
+        let mutable Y = y
+        let mutable Z = z
+
+        override this.Propagate (var : Variable) (allVars : Variable list) =
+            let varX = allVars |> List.find (fun (item:Variable) -> item.Name = x) 
+            let varY = allVars |> List.find (fun (item:Variable) -> item.Name = y)
+            let varZ = allVars |> List.find (fun (item:Variable) -> item.Name = z)
 
             let XplusY = varX.Domain + varY.Domain
             let ZminusX = varZ.Domain - varX.Domain
@@ -41,11 +44,12 @@ module Constraint =
             let narrowedX = ZminusY.Intersect varX.Domain
             let narrowedY = ZminusX.Intersect varY.Domain
             let narrowedZ = XplusY.Intersect varZ.Domain
-
-            match pair.Name with // TODO: Fix hardcoded variable names - right now only "x" and "y" are supported.
-            | "x" ->
-                Variable(pair.Name, narrowedX)
-            | "y" ->
-                Variable(pair.Name, narrowedY)
-            | "z" ->
-                Variable(pair.Name, narrowedZ)
+       
+            if var.Name = X then
+                Variable(var.Name, narrowedX)
+            elif var.Name = Y then
+                Variable(var.Name, narrowedY)
+            elif var.Name = Z then
+                Variable(var.Name, narrowedZ)
+            else
+                raise <| new ArgumentException("Invalid variable")

@@ -13,11 +13,15 @@ module Main =
 
             let c1 = Constraint.VarPlusVarEqVarConstraint("x", "y", "z") :> Constraint.T
 
-            let constraintVariablePairs = Set [ c1, "x"; c1, "y"; c1, "z" ] // Set of (constraint, variable name) pairs.
+            let constraints = [c1]
 
-            Solver.hc3 constraintVariablePairs variables
-            |> List.map (fun item -> printfn "%s [%f;%f]" item.Name item.Domain.a item.Domain.b) 
-            |> ignore
+            //let constraintVariablePairs = Set [ c1, "x"; c1, "y"; c1, "z" ] // Set of (constraint, variable name) pairs.
 
-            Console.ReadKey() |> ignore
+            Solver.hc3 constraints variables
+                |> List.map (fun item -> printfn "%s [%f;%f]" item.Name item.Domain.a item.Domain.b) 
+                |> ignore
+
+            Console.ReadKey() 
+                |> ignore
+
             0
