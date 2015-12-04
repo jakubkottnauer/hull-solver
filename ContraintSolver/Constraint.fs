@@ -34,22 +34,23 @@ module Constraint =
         let mutable Z = z
 
         override this.Propagate (var : Variable) (allVars : Variable list) =
-            let varX = allVars |> List.find (fun (item:Variable) -> item.Name = x) 
+            let varX = allVars |> List.find (fun (item:Variable) -> item.Name = x)
             let varY = allVars |> List.find (fun (item:Variable) -> item.Name = y)
             let varZ = allVars |> List.find (fun (item:Variable) -> item.Name = z)
 
-            let XplusY = varX.Domain + varY.Domain
-            let ZminusX = varZ.Domain - varX.Domain
-            let ZminusY = varZ.Domain - varY.Domain
-            let narrowedX = ZminusY.Intersect varX.Domain
-            let narrowedY = ZminusX.Intersect varY.Domain
-            let narrowedZ = XplusY.Intersect varZ.Domain
-       
             if var.Name = X then
-                Variable(var.Name, narrowedX)
+                let ZminusY = varZ.Domain - varY.Domain
+                let domain = ZminusY.Intersect varX.Domain
+                Variable(var.Name, domain)
+
             elif var.Name = Y then
-                Variable(var.Name, narrowedY)
+                let ZminusX = varZ.Domain - varX.Domain
+                let domain = ZminusX.Intersect varY.Domain
+                Variable(var.Name, domain)
+
             elif var.Name = Z then
-                Variable(var.Name, narrowedZ)
+                let XplusY = varX.Domain + varY.Domain
+                let domain = XplusY.Intersect varZ.Domain
+                Variable(var.Name, domain)
             else
                 raise <| new ArgumentException("Invalid variable")
