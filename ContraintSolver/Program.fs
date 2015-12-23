@@ -35,11 +35,10 @@ module Main =
         let constraints = [c1]
         
         Problem(constraints, variables)
-            |> Solver.solve
-            |> List.map (fun item -> printfn "%s [%f;%f]" item.Name item.Domain.a item.Domain.b)
-            |> ignore
+        |> Solver.solve
+        |> ignore
 
         Console.ReadKey()
-            |> ignore
+        |> ignore
 
         0

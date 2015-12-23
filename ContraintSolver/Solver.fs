@@ -16,8 +16,8 @@ module Solver =
     /// "q" represents the "queue" (not a FIFO queue) of pairs to be processed.
     /// "c" contains all of the pairs.
     let rec private hc3Rec (q : (Constraint * string) Set) (c : (Constraint * string) Set) allVars =
-        match q with
-        | this when this.Count = 0 ->
+        match q.Count with
+        | 0 ->
             allVars
 
         | _ ->
@@ -34,7 +34,7 @@ module Solver =
             printfn "%A; reducing domain of %A" cons.Expression variableName
 
             match reducedVariable.Domain with
-            | this when this.a = 0m && this.b = 0m ->
+            | {a = 0m; b = 0m} ->
                 allVars // The CSP is inconsistent, terminate.
 
             | this when variable.Domain.a = this.a && variable.Domain.b = this.b ->
@@ -42,7 +42,7 @@ module Solver =
 
             | _ ->
                let allVars = reducedVariable::(allVars
-                                                    |> List.filter (fun item -> item.Name <> reducedVariable.Name))
+                                               |> List.filter (fun item -> item.Name <> reducedVariable.Name))
 
                let constraintsWithVar = c
                                         |> Set.filter(fun (c, v) -> v = variable.Name)
@@ -66,9 +66,22 @@ module Solver =
             |> List.collect collectTuple
             |> Set.ofList
 
-        hc3Rec q q p.Variables
+        let reducedVariables = hc3Rec q q p.Variables
 
+        Problem(p.Constraints, reducedVariables)
 
-    /// Entry function of the solver which solves the given NCSP by perfoming a branch-and-bound algorithm.
-    let solve p = 
-        hc3 p
+    /// Entry function of the solver which solves the given NCSP by performing a branch-and-prune algorithm.
+    let rec solve (p: Problem) =
+        let epsilon = 1m
+
+        printfn "%f" p.Size
+
+        if p.Size > epsilon then
+            let reducedProblem = hc3 p
+            let halves = reducedProblem.Halve
+            fst halves |> solve
+            snd halves |> solve
+        else
+            p.Variables
+            |> List.map (fun item -> printfn "%s [%f;%f]" item.Name item.Domain.a item.Domain.b)
+            |> ignore

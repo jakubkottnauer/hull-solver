@@ -25,6 +25,8 @@ module DomainTypes =
             | true -> { a = interA; b = interB}
             | false -> Interval.Zero
 
+        member this.Length = this.b - this.a
+
         /// Generic binary operation over two intervals compliant with pivotal rule of interval mathematics -
         /// operation should result in the widest possible interval.
         static member operation f (x : Interval, y : Interval) =
@@ -138,3 +140,19 @@ module DomainTypes =
     type Problem(c: Constraint list, v: Variable list) =
         member this.Variables = v
         member this.Constraints = c
+
+
+        /// Returns the current size of the box formed by the variables' domains of the problem.
+        /// Calculated as the product of individual lengths of the domains.
+        member this.Size =
+            this.Variables 
+            |> Array.ofList
+            |> Array.fold (fun acc elem -> acc * elem.Domain.Length) 1m
+
+        /// Splits the problem into two halves by halving the first variable's domain.
+        member this.Halve = 
+            let head = this.Variables.Head
+
+            let half1 = Variable(head.Name, {a = head.Domain.a; b = head.Domain.Middle}) :: this.Variables.Tail
+            let half2 = Variable(head.Name, {a = head.Domain.Middle; b = head.Domain.b}) :: this.Variables.Tail
+            (Problem(this.Constraints, half1), Problem(this.Constraints, half2))
