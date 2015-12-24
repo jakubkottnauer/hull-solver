@@ -2,8 +2,7 @@
 
 open System
 
-
-module DomainTypes = 
+module DomainTypes =
     /// An interval
     ///
     ///   let i = { a = -1m; b = 1m }
@@ -23,9 +22,11 @@ module DomainTypes =
 
             match interA <= interB with
             | true -> { a = interA; b = interB}
-            | false -> Interval.Zero
+            | false -> Interval.Empty
 
-        member this.Length = this.b - this.a
+        member this.Length = if this.IsEmpty then 0m elif abs(this.b - this.a) > 0m then abs(this.b - this.a) else 1m
+
+        member this.IsEmpty = this.a > this.b
 
         /// Generic binary operation over two intervals compliant with pivotal rule of interval mathematics -
         /// operation should result in the widest possible interval.
@@ -38,6 +39,8 @@ module DomainTypes =
         static member zeroLength (x : decimal) = { a = x; b = x}
 
         static member Zero =  Interval.zeroLength 0m
+
+        static member Empty = {a = 1m; b = -1m}
 
         static member (/) (x : Interval, y : Interval) =
             if y.a < 0m && y.b > 0m then failwith "Divisor must not be zero."
@@ -91,6 +94,7 @@ module DomainTypes =
 
         member this.VariableNames = variableNames
 
+        /// Enforces (propagates) the constraint on the variable domains.
         abstract member Propagate : Variable -> Variable list -> Variable
 
         override this.Equals(y) =
@@ -134,23 +138,22 @@ module DomainTypes =
                 let domain = XplusY.Intersect varZ.Domain
                 Variable(var.Name, domain)
             else
-                raise <| new ArgumentException("Invalid variable")
+                raise <| new ArgumentException("Invalid variable.")
 
     /// An NCSP problem to be solved.
     type Problem(c: Constraint list, v: Variable list) =
         member this.Variables = v
         member this.Constraints = c
 
-
         /// Returns the current size of the box formed by the variables' domains of the problem.
         /// Calculated as the product of individual lengths of the domains.
         member this.Size =
-            this.Variables 
+            this.Variables
             |> Array.ofList
             |> Array.fold (fun acc elem -> acc * elem.Domain.Length) 1m
 
         /// Splits the problem into two halves by halving the first variable's domain.
-        member this.Halve = 
+        member this.Halve =
             let head = this.Variables.Head
 
             let half1 = Variable(head.Name, {a = head.Domain.a; b = head.Domain.Middle}) :: this.Variables.Tail

@@ -24,16 +24,16 @@ module Main =
 
         // let constraints = processInput []
 
-        let v1 = Variable("x", {a = 0m; b = 2m})
-        let v2 = Variable("y", {a = 1m; b = 3m})
-        let v3 = Variable("z", {a = 4m; b = 6m})
+        let v1 = Variable("x", {a = 0m; b = 200000m})
+        let v2 = Variable("y", {a = 1m; b = 30000m})
+        let v3 = Variable("z", {a = 5m; b = 5m})
 
         let variables = [v1; v2; v3]
 
         let c1 = VarPlusVarEqVarConstraint("x", "y", "z") :> Constraint
 
         let constraints = [c1]
-        
+
         Problem(constraints, variables)
         |> Solver.solve
         |> ignore

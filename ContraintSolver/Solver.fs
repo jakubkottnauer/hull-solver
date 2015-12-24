@@ -34,7 +34,7 @@ module Solver =
             printfn "%A; reducing domain of %A" cons.Expression variableName
 
             match reducedVariable.Domain with
-            | {a = 0m; b = 0m} ->
+            |  this when this.IsEmpty ->
                 allVars // The CSP is inconsistent, terminate.
 
             | this when variable.Domain.a = this.a && variable.Domain.b = this.b ->
@@ -55,7 +55,7 @@ module Solver =
                hc3Rec unitedQueue c allVars
 
     /// Function which prepares data for the main HC3 algorithm.
-    let private hc3 (p:Problem) =
+    let private hc3 (p : Problem) =
         let collectTuple (x, items) =
             items
             |> List.map (fun y -> x, y)
@@ -71,8 +71,8 @@ module Solver =
         Problem(p.Constraints, reducedVariables)
 
     /// Entry function of the solver which solves the given NCSP by performing a branch-and-prune algorithm.
-    let rec solve (p: Problem) =
-        let epsilon = 1m
+    let rec solve (p : Problem) =
+        let epsilon = 5m
 
         printfn "%f" p.Size
 
