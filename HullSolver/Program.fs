@@ -25,7 +25,7 @@ module Main =
         let tokens = text.Split([|"in"|], StringSplitOptions.None)
         let tokens2 = tokens.[1].Split([|"["; "]"|], StringSplitOptions.None)
         let tokens3 = tokens2.[1].Split(',')
-        Variable(tokens.[0], { a = decimal tokens3.[0]; b = decimal tokens3.[1]})
+        Variable(tokens.[0], { a = double tokens3.[0]; b = double tokens3.[1]})
 
     let private parseFile (path:string) =
         let lines = System.IO.File.ReadAllLines(path)

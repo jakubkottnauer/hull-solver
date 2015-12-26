@@ -11,11 +11,11 @@ module DomainTypes =
     /// 'a' must be less than or equal to 'b'.
     type Interval =
         {
-            a : decimal
-            b : decimal
+            a : double
+            b : double
         }
 
-        member this.Middle = (this.a + this.b) / 2m
+        member this.Middle = (this.a + this.b) / 2.0
 
         member this.Intersect other =
             let interB = Math.Min(this.b, other.b)
@@ -30,15 +30,15 @@ module DomainTypes =
             { a = Math.Min(this.a, other.a); b = Math.Max(this.b, other.b)}
 
         member this.Invert =
-            let inv (x:decimal) =
+            let inv (x:double) =
                 match x with
-                | 0m -> Decimal.MaxValue
-                | this when x = Decimal.MaxValue -> 0m
-                | _ -> 1m/x
+                | 0.0 -> Double.PositiveInfinity
+                | Double.PositiveInfinity -> 0.0
+                | _ -> 1.0/x
 
             {a = inv(this.a); b = inv(this.b)}
 
-        member this.Length = if this.IsEmpty then 0m elif abs(this.b - this.a) > 0m then abs(this.b - this.a) else 1m
+        member this.Length = if this.IsEmpty then 0.0 elif abs(this.b - this.a) > 0.0 then abs(this.b - this.a) else 1.0
 
         member this.IsEmpty = this.a > this.b
 
@@ -46,18 +46,18 @@ module DomainTypes =
         /// operation should result in the widest possible interval.
         static member operation f (x : Interval, y : Interval) =
             let list = [f x.a y.a; f x.a y.b; f x.b y.a; f x.b y.b]
-            let min (xs : decimal seq) = Seq.fold (fun (acc : decimal) x -> Math.Min(acc,x)) Decimal.MaxValue xs
-            let max (xs : decimal seq) = Seq.fold (fun (acc : decimal) x -> Math.Max(acc,x)) Decimal.MinValue xs
+            let min (xs : double seq) = Seq.fold (fun (acc : double) x -> Math.Min(acc,x)) Double.MaxValue xs
+            let max (xs : double seq) = Seq.fold (fun (acc : double) x -> Math.Max(acc,x)) Double.MinValue xs
             { a =  min list; b = max list}
 
-        static member zeroLength (x : decimal) = { a = x; b = x}
+        static member zeroLength (x : double) = { a = x; b = x}
 
-        static member Zero =  Interval.zeroLength 0m
+        static member Zero =  Interval.zeroLength 0.0
 
-        static member Empty = {a = 1m; b = -1m}
+        static member Empty = {a = 1.0; b = -1.0}
 
         static member (/) (x : Interval, y : Interval) =
-            if y.a < 0m && y.b > 0m then failwith "Divisor must not be zero."
+            if y.a < 0.0 && y.b > 0.0 then failwith "Divisor must not be zero."
             Interval.operation (fun x y-> x/y) (x,y)
 
         static member (+) (x : Interval, y : Interval) = { a = x.a + y.a; b = x.b + y.b}
@@ -66,21 +66,21 @@ module DomainTypes =
 
         static member (*) (x : Interval, y : Interval) = Interval.operation (fun x y -> x*y) (x,y)
 
-        static member (*) (x : Interval, y : decimal) = x * Interval.zeroLength(y)
+        static member (*) (x : Interval, y : double) = x * Interval.zeroLength(y)
 
-        static member (/) (x : Interval, y : decimal) = x / Interval.zeroLength(y)
+        static member (/) (x : Interval, y : double) = x / Interval.zeroLength(y)
 
-        static member (+) (x : Interval, y : decimal) = x + Interval.zeroLength(y)
+        static member (+) (x : Interval, y : double) = x + Interval.zeroLength(y)
 
-        static member (-) (x : Interval, y : decimal) = x - Interval.zeroLength(y)
+        static member (-) (x : Interval, y : double) = x - Interval.zeroLength(y)
 
-        static member (*) (x : decimal, y : Interval) = Interval.zeroLength(x) * y
+        static member (*) (x : double, y : Interval) = Interval.zeroLength(x) * y
 
-        static member (/) (x : decimal, y : Interval) = Interval.zeroLength(x) / y
+        static member (/) (x : double, y : Interval) = Interval.zeroLength(x) / y
 
-        static member (+) (x : decimal, y : Interval) = Interval.zeroLength(x) + y
+        static member (+) (x : double, y : Interval) = Interval.zeroLength(x) + y
 
-        static member (-) (x : decimal, y : Interval) = Interval.zeroLength(x) - y
+        static member (-) (x : double, y : Interval) = Interval.zeroLength(x) - y
 
         static member (~-) (x : Interval) = { a = -x.b; b = -x.a}
 
@@ -178,7 +178,7 @@ module DomainTypes =
 
             printfn "%s * %s = %s; reducing domain of %s" varX.Name varY.Name varZ.Name var.Name
 
-            let zeroToInfty = {a = 0m; b = Decimal.MaxValue}
+            let zeroToInfty = {a = 0.0; b = Double.PositiveInfinity}
 
             if var.Name = X then
                 if varZ.Domain = Interval.Zero then
@@ -211,7 +211,7 @@ module DomainTypes =
         member this.Size =
             this.Variables
             |> Array.ofList
-            |> Array.fold (fun acc elem -> acc * elem.Domain.Length) 1m
+            |> Array.fold (fun acc elem -> acc * elem.Domain.Length) 1.0
 
         /// Splits the problem into two halves by halving the first variable's domain.
         member this.Halve =
