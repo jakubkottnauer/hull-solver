@@ -11,3 +11,5 @@ x in [0,20]
 y in [1,10]
 z in [5,5]
 ```
+
+Only primitive constraints with addition and multiplication are supported at the moment. 

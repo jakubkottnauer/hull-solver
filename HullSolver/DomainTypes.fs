@@ -3,6 +3,7 @@
 open System
 
 module DomainTypes =
+
     /// An interval
     ///
     ///   let i = { a = -1m; b = 1m }
@@ -16,13 +17,26 @@ module DomainTypes =
 
         member this.Middle = (this.a + this.b) / 2m
 
-        member this.Intersect (other : Interval) =
+        member this.Intersect other =
             let interB = Math.Min(this.b, other.b)
             let interA = Math.Max(this.a, other.a)
 
             match interA <= interB with
             | true -> { a = interA; b = interB}
             | false -> Interval.Empty
+
+        // Presuming that the two intervals have non-zero intersection.
+        member this.Union other =
+            { a = Math.Min(this.a, other.a); b = Math.Max(this.b, other.b)}
+
+        member this.Invert =
+            let inv (x:decimal) =
+                match x with
+                | 0m -> Decimal.MaxValue
+                | this when x = Decimal.MaxValue -> 0m
+                | _ -> 1m/x
+
+            {a = inv(this.a); b = inv(this.b)}
 
         member this.Length = if this.IsEmpty then 0m elif abs(this.b - this.a) > 0m then abs(this.b - this.a) else 1m
 
@@ -68,7 +82,11 @@ module DomainTypes =
 
         static member (-) (x : decimal, y : Interval) = Interval.zeroLength(x) - y
 
-        static member pow (x : Interval, p : double) = { a =  double x.a ** p |> decimal; b = double x.b ** p |> decimal }
+        static member (~-) (x : Interval) = { a = -x.b; b = -x.a}
+
+        static member (<*>) (x : Interval, y : Interval) = x.Intersect y
+
+        static member (<+>) (x : Interval, y : Interval) = x.Union y
 
     /// A variable.
     type Variable(name:string, domain:Interval) =
@@ -87,6 +105,9 @@ module DomainTypes =
               | :? Variable as other -> compare x.Name other.Name
               | _ -> 0
 
+    let findVar name (vars:Variable list) =
+        vars |> List.find (fun (item:Variable) -> item.Name = name)
+    
     /// A generic constraint.
     [<AbstractClass>]
     type Constraint(expression:string, variableNames: string list) =
@@ -114,30 +135,68 @@ module DomainTypes =
     type VarPlusVarEqVarConstraint(x: string, y: string, z: string) =
         inherit Constraint(x + " + " + y + " = " + z, [x; y; z])
 
-        let mutable X = x
-        let mutable Y = y
-        let mutable Z = z
+        let X = x
+        let Y = y
+        let Z = z
 
         override this.Propagate (var : Variable) (allVars : Variable list) =
-            let varX = allVars |> List.find (fun (item:Variable) -> item.Name = x)
-            let varY = allVars |> List.find (fun (item:Variable) -> item.Name = y)
-            let varZ = allVars |> List.find (fun (item:Variable) -> item.Name = z)
+            let varX = allVars |> findVar x
+            let varY = allVars |> findVar y
+            let varZ = allVars |> findVar z
 
             printfn "%s + %s = %s; reducing domain of %s" varX.Name varY.Name varZ.Name var.Name
 
             if var.Name = X then
                 let ZminusY = varZ.Domain - varY.Domain
-                let domain = ZminusY.Intersect varX.Domain
+                let domain = ZminusY <*> varX.Domain
                 Variable(var.Name, domain)
 
             elif var.Name = Y then
                 let ZminusX = varZ.Domain - varX.Domain
-                let domain = ZminusX.Intersect varY.Domain
+                let domain = ZminusX <*> varY.Domain
                 Variable(var.Name, domain)
 
             elif var.Name = Z then
                 let XplusY = varX.Domain + varY.Domain
-                let domain = XplusY.Intersect varZ.Domain
+                let domain = XplusY <*> varZ.Domain
+                Variable(var.Name, domain)
+            else
+                raise <| new ArgumentException("Invalid variable.")
+
+    /// A "x * y = z" constraint.
+    type VarTimesVarEqVarConstraint(x: string, y: string, z: string) =
+        inherit Constraint(x + " * " + y + " = " + z, [x; y; z])
+
+        let X = x
+        let Y = y
+        let Z = z
+
+        override this.Propagate (var : Variable) (allVars : Variable list) =
+            let varX = allVars |> findVar x
+            let varY = allVars |> findVar y
+            let varZ = allVars |> findVar z
+
+            printfn "%s * %s = %s; reducing domain of %s" varX.Name varY.Name varZ.Name var.Name
+
+            let zeroToInfty = {a = 0m; b = Decimal.MaxValue}
+
+            if var.Name = X then
+                if varZ.Domain = Interval.Zero then
+                    let domain = varX.Domain <*> Interval.Zero
+                    Variable(var.Name, domain)
+                else
+                    let domain = varX.Domain <*> zeroToInfty <*>
+                                    (((varZ.Domain <*> zeroToInfty) * (varY.Domain <*> zeroToInfty).Invert) <+>
+                                        ((-varZ.Domain <*> zeroToInfty) *
+                                            (-varY.Domain <*> zeroToInfty).Invert))
+                    Variable(var.Name, domain)
+
+            elif var.Name = Y then
+                let domain = varY.Domain <*> ((varX.Domain <*> zeroToInfty) * varZ.Domain).Invert
+                Variable(var.Name, domain)
+
+            elif var.Name = Z then
+                let domain = varZ.Domain <*> ((varX.Domain <*> zeroToInfty) * varY.Domain)
                 Variable(var.Name, domain)
             else
                 raise <| new ArgumentException("Invalid variable.")
@@ -161,3 +220,5 @@ module DomainTypes =
             let half1 = Variable(head.Name, {a = head.Domain.a; b = head.Domain.Middle}) :: this.Variables.Tail
             let half2 = Variable(head.Name, {a = head.Domain.Middle; b = head.Domain.b}) :: this.Variables.Tail
             (Problem(this.Constraints, half1), Problem(this.Constraints, half2))
+
+        member this.HasSolution = this.Variables.Length > 0

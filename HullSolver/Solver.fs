@@ -34,7 +34,7 @@ module Solver =
 
             match reducedVariable.Domain with
             |  this when this.IsEmpty ->
-                vars // The CSP is inconsistent, terminate.
+                [] // The CSP is inconsistent, terminate.
 
             | this when variable.Domain.a = this.a && variable.Domain.b = this.b ->
                 hc3Rec q p vars // The variable's domain has not changed - continue.
@@ -71,15 +71,16 @@ module Solver =
 
     /// Entry function of the solver which solves the given NCSP by performing a branch-and-prune algorithm.
     let rec solve (p : Problem) =
-        let epsilon = 5m
+        let epsilon = 0.0005m
 
         printfn "%f" p.Size
 
         if p.Size > epsilon then
             let reducedProblem = hc3 p
-            let halves = reducedProblem.Halve
-            fst halves |> solve
-            snd halves |> solve
+            if reducedProblem.HasSolution then
+                let halves = reducedProblem.Halve
+                fst halves |> solve
+                snd halves |> solve
         else
             p.Variables
             |> List.map (fun item -> printfn "%s [%f;%f]" item.Name item.Domain.a item.Domain.b)

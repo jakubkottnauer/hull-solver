@@ -8,10 +8,16 @@ module Main =
     let private parseConstraint (text:string) =
         let text = Regex.Replace(text, @"\s+", "")
 
-        let tokens = text.Split('+')
-        let tokens2 = tokens.[1].Split('=')
+        let tokensPlus = text.Split('+')
+        let tokensMult = text.Split('*')
 
-        VarPlusVarEqVarConstraint(tokens.[0], tokens2.[0], tokens2.[1]) :> Constraint
+        if tokensPlus.Length > 1 then
+            let tokens2 = tokensPlus.[1].Split('=')
+            VarPlusVarEqVarConstraint(tokensPlus.[0], tokens2.[0], tokens2.[1]) :> Constraint
+        elif tokensMult.Length > 1 then
+            let tokens2 = tokensMult.[1].Split('=')
+            VarTimesVarEqVarConstraint(tokensMult.[0], tokens2.[0], tokens2.[1]) :> Constraint
+        else failwith "Unsupported constraint format."
 
     let private parseDomain (text:string) =
         let text = Regex.Replace(text, @"\s+", "")
@@ -27,11 +33,10 @@ module Main =
 
         let constraints = lines.[1..constraintCount] |> Array.map(fun line -> parseConstraint line) |> List.ofArray
         let variables = lines.[constraintCount+1..lines.Length-1] |> Array.map(fun line -> parseDomain line) |> List.ofArray
-            
+
         Problem(constraints, variables)
         |> Solver.solve
-        |> ignore        
-
+        |> ignore
 
     [<EntryPoint>]
     let main args =
