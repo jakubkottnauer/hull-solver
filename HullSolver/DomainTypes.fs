@@ -1,4 +1,4 @@
-﻿namespace ConstraintSolver
+﻿namespace HullSolver
 
 open System
 
@@ -122,6 +122,8 @@ module DomainTypes =
             let varX = allVars |> List.find (fun (item:Variable) -> item.Name = x)
             let varY = allVars |> List.find (fun (item:Variable) -> item.Name = y)
             let varZ = allVars |> List.find (fun (item:Variable) -> item.Name = z)
+
+            printfn "%s + %s = %s; reducing domain of %s" varX.Name varY.Name varZ.Name var.Name
 
             if var.Name = X then
                 let ZminusY = varZ.Domain - varY.Domain

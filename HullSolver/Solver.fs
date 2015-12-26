@@ -1,4 +1,4 @@
-﻿namespace ConstraintSolver
+﻿namespace HullSolver
 
 module Solver =
     open System
@@ -13,12 +13,13 @@ module Solver =
         |> Seq.item (rnd.Next(x.Count))
 
     /// The main HC3 recursive algorithm.
-    /// "q" represents the "queue" (not a FIFO queue) of pairs to be processed.
-    /// "c" contains all of the pairs.
-    let rec private hc3Rec (q : (Constraint * string) Set) (c : (Constraint * string) Set) allVars =
+    /// <param name="q">The "queue" (not a FIFO queue) of pairs to be processed.</param> 
+    /// <param name="p">All pairs.</param>
+    /// <param name="vars">All variable instances.</param>
+    let rec private hc3Rec (q : (Constraint * string) Set) (p : (Constraint * string) Set) vars =
         match q.Count with
         | 0 ->
-            allVars
+            vars
 
         | _ ->
             let pair = randomPair q
@@ -26,33 +27,31 @@ module Solver =
 
             let cons = fst pair
             let variableName = snd pair
-            let variable = allVars
+            let variable = vars
                            |> List.find (fun (item:Variable) -> item.Name = variableName)
 
-            let reducedVariable = cons.Propagate variable allVars
-
-            printfn "%A; reducing domain of %A" cons.Expression variableName
+            let reducedVariable = cons.Propagate variable vars
 
             match reducedVariable.Domain with
             |  this when this.IsEmpty ->
-                allVars // The CSP is inconsistent, terminate.
+                vars // The CSP is inconsistent, terminate.
 
             | this when variable.Domain.a = this.a && variable.Domain.b = this.b ->
-                hc3Rec q c allVars // The variable's domain has not changed - continue.
+                hc3Rec q p vars // The variable's domain has not changed - continue.
 
             | _ ->
-               let allVars = reducedVariable::(allVars
+               let vars = reducedVariable::(vars
                                                |> List.filter (fun item -> item.Name <> reducedVariable.Name))
 
-               let constraintsWithVar = c
+               let constraintsWithVar = p
                                         |> Set.filter(fun (c, v) -> v = variable.Name)
                                         |> Set.map fst
 
-               let filteredConstraints = c
+               let filteredConstraints = p
                                         |> Set.filter(fun (c, v) -> constraintsWithVar.Contains c)
 
                let unitedQueue = Set.union q filteredConstraints
-               hc3Rec unitedQueue c allVars
+               hc3Rec unitedQueue p vars
 
     /// Function which prepares data for the main HC3 algorithm.
     let private hc3 (p : Problem) =

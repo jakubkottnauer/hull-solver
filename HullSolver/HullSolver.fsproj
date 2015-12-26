@@ -8,11 +8,11 @@
     <ProjectGuid>f859a6af-2b4a-49f8-9aa0-b177d146c156</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>ContraintSolver</RootNamespace>
-    <AssemblyName>ContraintSolver</AssemblyName>
+    <AssemblyName>HullSolver</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
-    <Name>ContraintSolver</Name>
+    <Name>HullSolver</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
