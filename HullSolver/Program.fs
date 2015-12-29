@@ -29,10 +29,18 @@ module Main =
 
     let private parseFile (path:string) =
         let lines = System.IO.File.ReadAllLines(path)
-        let constraintCount = int lines.[0]
 
-        let constraints = lines.[1..constraintCount] |> Array.map(fun line -> parseConstraint line) |> List.ofArray
-        let variables = lines.[constraintCount+1..lines.Length-1] |> Array.map(fun line -> parseDomain line) |> List.ofArray
+        let constraints = 
+                lines 
+                |> Array.filter(fun line -> line.Contains("=")) 
+                |> Array.map(fun line -> parseConstraint line) 
+                |> List.ofArray
+
+        let variables = 
+                lines 
+                |> Array.filter(fun line -> line.Contains("in")) 
+                |> Array.map(fun line -> parseDomain line) 
+                |> List.ofArray
 
         Problem(constraints, variables)
         |> Solver.solve
