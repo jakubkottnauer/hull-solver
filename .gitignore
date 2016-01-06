@@ -199,3 +199,7 @@ FakesAssemblies/
 Hypos.CRM/Plugins/
 Hypos.CRM/Tools/
 _Storage
+
+#Custom
+.DS_Store
+.gitignore.swp
