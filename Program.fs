@@ -56,9 +56,14 @@ module Main =
                 |> Array.map(fun line -> parseDomain line)
                 |> List.ofArray
 
+        let stopWatch = System.Diagnostics.Stopwatch.StartNew()
+
         Problem(constraints, variables)
         |> Solver.solve
         |> ignore
+
+        stopWatch.Stop()
+        printfn "Duration (s): %f" stopWatch.Elapsed.TotalSeconds
 
     [<EntryPoint>]
     let main args =
