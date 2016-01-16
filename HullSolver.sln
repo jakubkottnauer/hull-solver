@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "HullSolver", "HullSolver\HullSolver.fsproj", "{F859A6AF-2B4A-49F8-9AA0-B177D146C156}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "HullSolver", "HullSolver.fsproj", "{F859A6AF-2B4A-49F8-9AA0-B177D146C156}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
