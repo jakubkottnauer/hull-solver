@@ -5,21 +5,21 @@ module Main =
     open System.Text.RegularExpressions
     open DomainTypes
 
-    let UNSUPPORTED_CONSTRAINT = "Unsupported constraint format."
-    let FILE_NOT_EXISTS = "File does not exist. Please specify a file containing the problem you want to solve."
-    let FILE_PROMPT = "Please specify a file containing the problem you want to solve."
+    let private UNSUPPORTED_CONSTRAINT = "Unsupported constraint format."
+    let private FILE_NOT_EXISTS = "File does not exist. Please specify a file containing the problem you want to solve."
+    let private FILE_PROMPT = "Please specify a file containing the problem you want to solve."
 
     let private parseConstraint text =
         let text = Regex.Replace(text, @"\s+", "")
 
-        let tokensPlus = text.Split('+')
-        let tokensMult = text.Split('*')
+        let tokensPlus = text.Split '+'
+        let tokensMult = text.Split '*'
 
         if tokensPlus.Length > 1 then
-            let tokens2 = tokensPlus.[1].Split('=')
+            let tokens2 = tokensPlus.[1].Split '='
             VarPlusVarEqVarConstraint(tokensPlus.[0], tokens2.[0], tokens2.[1]) :> Constraint
         elif tokensMult.Length > 1 then
-            let tokens2 = tokensMult.[1].Split('=')
+            let tokens2 = tokensMult.[1].Split '='
             VarTimesVarEqVarConstraint(tokensMult.[0], tokens2.[0], tokens2.[1]) :> Constraint
         else failwith UNSUPPORTED_CONSTRAINT
 
@@ -28,7 +28,8 @@ module Main =
 
         let tokens = text.Split([|"in"|], StringSplitOptions.None)
         let tokens2 = tokens.[1].Split([|"["; "]"|], StringSplitOptions.None)
-        let tokens3 = tokens2.[1].Split(',')
+        let tokens3 = tokens2.[1].Split ','
+
         Variable(tokens.[0], { a = double tokens3.[0]; b = double tokens3.[1]})
 
     let rec private validateFile path =
@@ -36,23 +37,23 @@ module Main =
 
         if not exists then
             printfn "%s" FILE_NOT_EXISTS
-            Console.ReadLine() 
+            Console.ReadLine()
             |> validateFile
 
         else path
 
     let private parseFile path =
-        let lines = System.IO.File.ReadAllLines(path)
+        let lines = System.IO.File.ReadAllLines path
 
         let constraints =
                 lines
-                |> Array.filter(fun line -> line.Contains("="))
+                |> Array.filter(fun line -> line.Contains "=")
                 |> Array.map(fun line -> parseConstraint line)
                 |> List.ofArray
 
         let variables =
                 lines
-                |> Array.filter(fun line -> line.Contains("in"))
+                |> Array.filter(fun line -> line.Contains "in" )
                 |> Array.map(fun line -> parseDomain line)
                 |> List.ofArray
 
@@ -69,15 +70,13 @@ module Main =
     let main args =
         match args with
         | [|filePath|] ->
-            filePath 
-            |> validateFile
-            |> parseFile
+            filePath
 
         | _ ->
             printfn "%s" FILE_PROMPT
             Console.ReadLine()
-            |> validateFile
-            |> parseFile
+
+        |> parseFile
 
         Console.ReadKey()
         |> ignore

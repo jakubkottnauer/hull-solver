@@ -13,10 +13,10 @@ module Solver =
         |> Seq.item (rnd.Next(x.Count))
 
     /// The main HC3 recursive algorithm.
-    /// <param name="q">The "queue" (not a FIFO queue) of pairs to be processed.</param> 
+    /// <param name="q">The "queue" (not a FIFO queue) of pairs to be processed.</param>
     /// <param name="p">All pairs.</param>
     /// <param name="vars">All variable instances.</param>
-    let rec private hc3Rec (q : (Constraint * string) Set) (p : (Constraint * string) Set) vars =
+    let rec private hc3Rec (q : (Constraint * string) Set) pairs vars =
         match q.Count with
         | 0 ->
             vars
@@ -37,21 +37,21 @@ module Solver =
                 [] // The CSP is inconsistent, terminate.
 
             | this when variable.Domain.a = this.a && variable.Domain.b = this.b ->
-                hc3Rec q p vars // The variable's domain has not changed - continue.
+                hc3Rec q pairs vars // The variable's domain has not changed - continue.
 
             | _ ->
-               let vars = reducedVariable::(vars
+               let filteredVars = reducedVariable::(vars
                                                |> List.filter (fun item -> item.Name <> reducedVariable.Name))
 
-               let constraintsWithVar = p
+               let constraintsWithVar = pairs
                                         |> Set.filter(fun (c, v) -> v = variable.Name)
                                         |> Set.map fst
 
-               let filteredConstraints = p
+               let filteredConstraints = pairs
                                         |> Set.filter(fun (c, v) -> constraintsWithVar.Contains c)
 
                let unitedQueue = Set.union q filteredConstraints
-               hc3Rec unitedQueue p vars
+               hc3Rec unitedQueue pairs filteredVars
 
     /// Function which prepares data for the main HC3 algorithm.
     let private hc3 (p : Problem) =
@@ -73,15 +73,15 @@ module Solver =
     let rec solve (p : Problem) =
         let epsilon = 0.00005
 
-        printfn "%f" p.Size
+        printfn "Box size: %f" p.Size
 
         if p.Size > epsilon then
             let reducedProblem = hc3 p
             if reducedProblem.HasSolution then
-                let halves = reducedProblem.Halve
+                let halves = reducedProblem.Split
                 fst halves |> solve
                 snd halves |> solve
         else
             p.Variables
-            |> List.map (fun item -> printfn "%s [%f;%f]" item.Name item.Domain.a item.Domain.b)
+            |> List.map (fun item -> printfn "%s in [%f;%f]" item.Name item.Domain.a item.Domain.b)
             |> ignore

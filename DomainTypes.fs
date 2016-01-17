@@ -4,6 +4,9 @@ open System
 
 module DomainTypes =
 
+    let private DIVISOR_ZERO = "Divisor must not be zero."
+    let private VAR_INVALID = "Invalid variable."
+
     /// An interval
     ///
     ///   let i = { a = -1m; b = 1m }
@@ -26,8 +29,8 @@ module DomainTypes =
             | false -> Interval.Empty
 
         // Presuming that the two intervals have non-zero intersection.
-        member this.Union other =
-            { a = Math.Min(this.a, other.a); b = Math.Max(this.b, other.b)}
+        member this.Union (other:Interval) =
+            if this.IsEmpty then other elif other.IsEmpty then this else { a = Math.Min(this.a, other.a); b = Math.Max(this.b, other.b)}
 
         member this.Invert =
             let inv (x:double) =
@@ -36,7 +39,9 @@ module DomainTypes =
                 | Double.PositiveInfinity -> 0.0
                 | _ -> 1.0/x
 
-            {a = inv(this.a); b = inv(this.b)}
+            let invA = inv(this.a)
+            let invB = inv(this.b)
+            if invB > invA then {a = invA; b = invB} else {a = invB; b = invA}
 
         member this.Length = if this.IsEmpty then 0.0 elif abs(this.b - this.a) > 0.0 then abs(this.b - this.a) else 1.0
 
@@ -54,10 +59,14 @@ module DomainTypes =
 
         static member Zero =  Interval.zeroLength 0.0
 
+        static member Negative = { a = Double.NegativeInfinity; b = 0.0}
+
+        static member Positive = { a = 0.0; b = Double.PositiveInfinity}
+
         static member Empty = {a = 1.0; b = -1.0}
 
         static member (/) (x : Interval, y : Interval) =
-            if y.a < 0.0 && y.b > 0.0 then failwith "Divisor must not be zero."
+            if y.a < 0.0 && y.b > 0.0 then failwith DIVISOR_ZERO
             Interval.operation (fun x y-> x/y) (x,y)
 
         static member (+) (x : Interval, y : Interval) = { a = x.a + y.a; b = x.b + y.b}
@@ -105,9 +114,10 @@ module DomainTypes =
               | :? Variable as other -> compare x.Name other.Name
               | _ -> 0
 
-    let findVar name (vars:Variable list) =
-        vars |> List.find (fun (item:Variable) -> item.Name = name)
-    
+    let findVar name vars =
+        vars
+        |> List.find (fun (item:Variable) -> item.Name = name)
+
     /// A generic constraint.
     [<AbstractClass>]
     type Constraint(expression:string, variableNames: string list) =
@@ -144,7 +154,7 @@ module DomainTypes =
             let varY = allVars |> findVar y
             let varZ = allVars |> findVar z
 
-            printfn "%s + %s = %s; reducing domain of %s" varX.Name varY.Name varZ.Name var.Name
+            printfn "%s + %s = %s; reducing the domain of %s" varX.Name varY.Name varZ.Name var.Name
 
             if var.Name = X then
                 let ZminusY = varZ.Domain - varY.Domain
@@ -161,7 +171,7 @@ module DomainTypes =
                 let domain = XplusY <*> varZ.Domain
                 Variable(var.Name, domain)
             else
-                raise <| new ArgumentException("Invalid variable.")
+                raise <| new ArgumentException(VAR_INVALID)
 
     /// A "x * y = z" constraint.
     type VarTimesVarEqVarConstraint(x: string, y: string, z: string) =
@@ -176,30 +186,36 @@ module DomainTypes =
             let varY = allVars |> findVar y
             let varZ = allVars |> findVar z
 
-            printfn "%s * %s = %s; reducing domain of %s" varX.Name varY.Name varZ.Name var.Name
-
-            let zeroToInfty = {a = 0.0; b = Double.PositiveInfinity}
+            printfn "%s * %s = %s; reducing the domain of %s" varX.Name varY.Name varZ.Name var.Name
 
             if var.Name = X then
                 if varZ.Domain = Interval.Zero then
                     let domain = varX.Domain <*> Interval.Zero
                     Variable(var.Name, domain)
                 else
-                    let domain = varX.Domain <*> zeroToInfty <*>
-                                    (((varZ.Domain <*> zeroToInfty) * (varY.Domain <*> zeroToInfty).Invert) <+>
-                                        ((-varZ.Domain <*> zeroToInfty) *
-                                            (-varY.Domain <*> zeroToInfty).Invert))
-                    Variable(var.Name, domain)
+                    let domainPlus = varX.Domain <*> Interval.Positive <*>
+                                        (((varZ.Domain <*> Interval.Positive) * (varY.Domain <*> Interval.Positive).Invert) <+>
+                                            ((-varZ.Domain <*> Interval.Positive) *
+                                                (-varY.Domain <*> Interval.Positive).Invert))
+
+                    let domainMinus = varX.Domain <*> Interval.Negative <*>
+                                        (((varZ.Domain <*> Interval.Negative) * (varY.Domain <*> Interval.Negative).Invert) <+>
+                                            ((-varZ.Domain <*> Interval.Negative) *
+                                                (-varY.Domain <*> Interval.Negative).Invert))
+
+                    Variable(var.Name, domainPlus <+> domainMinus)
 
             elif var.Name = Y then
-                let domain = varY.Domain <*> ((varX.Domain <*> zeroToInfty) * varZ.Domain).Invert
-                Variable(var.Name, domain)
+                let domainPlus = varY.Domain <*> ((varX.Domain <*> Interval.Positive) * varZ.Domain).Invert
+                let domainMinus = varY.Domain <*> ((varX.Domain <*> Interval.Negative) * varZ.Domain).Invert
+                Variable(var.Name, domainPlus <+> domainMinus)
 
             elif var.Name = Z then
-                let domain = varZ.Domain <*> ((varX.Domain <*> zeroToInfty) * varY.Domain)
-                Variable(var.Name, domain)
+                let domainPlus = varZ.Domain <*> ((varX.Domain <*> Interval.Positive) * varY.Domain)
+                let domainMinus = varZ.Domain <*> ((varX.Domain <*> Interval.Negative) * varY.Domain)
+                Variable(var.Name, domainPlus <+> domainMinus)
             else
-                raise <| new ArgumentException("Invalid variable.")
+                raise <| new ArgumentException(VAR_INVALID)
 
     /// An NCSP problem to be solved.
     type Problem(c: Constraint list, v: Variable list) =
@@ -214,7 +230,7 @@ module DomainTypes =
             |> Array.fold (fun acc elem -> acc * elem.Domain.Length) 1.0
 
         /// Splits the problem into two halves by halving the first variable's domain.
-        member this.Halve =
+        member this.Split =
             let head = this.Variables.Head
 
             let half1 = Variable(head.Name, {a = head.Domain.a; b = head.Domain.Middle}) :: this.Variables.Tail
