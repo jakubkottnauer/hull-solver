@@ -21,14 +21,18 @@ Compile with fsc.exe or use Visual Studio.
 
 ## Linux
 You need Mono: `sudo apt-get install mono-complete fsharp`
+
 Build the project with: `xbuild HullSolver.fsproj`
+
 Run with: `mono ./bin/Debug/HullSolver.exe inputFile precision`
 
 See more info at http://fsharp.org/use/linux/
 
 ## OSX
 You need Mono: `brew install mono`
+
 Build the project with: `xbuild HullSolver.fsproj`
+
 Run with: `mono ./bin/Debug/HullSolver.exe inputFile precision`
 
 See more info at http://fsharp.org/use/mac/
