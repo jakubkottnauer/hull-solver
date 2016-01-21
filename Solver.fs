@@ -71,7 +71,7 @@ module Solver =
 
     /// Entry function of the solver which solves the given NCSP by performing a branch-and-prune algorithm.
     let rec solve (p : Problem) =
-        let epsilon = 0.00005
+        let epsilon = 2.0
 
         printfn "Box size: %f" p.Size
 

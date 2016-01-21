@@ -6,6 +6,7 @@ module DomainTypes =
 
     let private DIVISOR_ZERO = "Divisor must not be zero."
     let private VAR_INVALID = "Invalid variable."
+    let private ZERO_EPSILON = 0.00000001
 
     /// An interval
     ///
@@ -181,6 +182,150 @@ module DomainTypes =
         let Y = y
         let Z = z
 
+        let rec DivBounds (i1 : Interval, i2 : Interval) =
+            if i1.a <= 0.0 && i1.b >= 0.0 && i2.a <= 0.0 && i2.b >= 0.0 then
+                {a = Double.NegativeInfinity; b = Double.PositiveInfinity}
+
+//            elif i2.a == 0.0 && i2.b == 0.0 && (i1.a > 0.0 || i1.b < 0.0) then
+//                throw Store.failException;
+
+            elif i2.a < 0.0 && i2.b > 0.0 && (i1.a > 0.0 || i1.b < 0.0) then
+                let max = Math.Max(abs(i1.a), abs(i1.b))
+                let min = -max
+                {a = min; b = max}
+
+            elif abs(i2.a) < ZERO_EPSILON && abs(i2.b) > ZERO_EPSILON && (i1.a > 0.0 || i1.b < 0.0) then
+                DivBounds({a = i1.a; b = i1.b}, {a = 1.0; b = i2.b});
+            elif abs(i2.a) > ZERO_EPSILON && abs(i2.b) < ZERO_EPSILON && (i1.a > 0.0 || i1.b < 0.0) then
+                DivBounds({a = i1.a; b = i1.b}, {a = i2.a; b = -1.0});
+
+            else
+                let ac = i1.a / i2.a
+                let ad = i1.a / i2.b
+                let bc = i1.b / i2.a
+                let bd = i1.b / i2.b
+                let min = Math.Min(Math.Min(ac, ad), Math.Min(bc, bd));
+                let max = Math.Max(Math.Max(ac, ad), Math.Max(bc, bd));
+                {a = min; b = max}
+
+        let rec MulBounds (i1 : Interval, i2 : Interval) =
+            let M_1 =  (i1.a < 0.0 && i1.b > 0.0)        // contains zero
+            let Z_1 =  (abs(i1.a) < ZERO_EPSILON  && abs(i1.b) < ZERO_EPSILON)     // zero
+            let P0_1 = (abs(i1.a) < ZERO_EPSILON && i1.b > 0.0)       // positive with zero
+            let P1_1 = (i1.a > 0.0 && i1.b > 0.0)      // strictly positive
+            let N0_1 = (i1.a < 0.0 && abs(i1.b) < ZERO_EPSILON)       // negative with zero
+            let N1_1 = (i1.a < 0.0 && i1.b < 0.0)        // strictly negative
+
+            let M_2 =  (i2.a < 0.00 && i2.b > 0.0)
+            let Z_2 =  (abs(i2.a) < ZERO_EPSILON  && abs(i2.b) < ZERO_EPSILON)
+            let P0_2 = (abs(i2.a) < ZERO_EPSILON && i2.b > 0.0)
+            let P1_2 = (i2.a > 0.0 && i2.b > 0.0)
+            let N0_2 = (i2.a < 0.0 && abs(i2.b) < ZERO_EPSILON)
+            let N1_2 = (i2.a < 0.0 && i2.b < 0.0)
+
+            if P1_1 then
+                if P1_2 then // P1 /\ P1
+                    let min =  floor i1.a * i2.a
+                    let max = ceil i1.b*i2.b
+                    {a = min; b = max}
+                elif P0_2 then // P1 /\ P0
+                    let min = 0.0; //down(a*c);
+                    let max = ceil i1.b*i2.b
+                    {a = min; b = max}
+                elif M_2 then // P1 /\ M
+                    let min = floor i1.b*i2.a
+                    let max = ceil i1.b*i2.b
+                    {a = min; b = max}
+                elif N1_2 then // P1 /\ N1
+                    let min = floor i1.b*i2.a
+                    let max = ceil i1.a*i2.b
+                    {a = min; b = max}
+                elif N0_2 then // P1 /\ N0
+                    let min =  floor i1.b*i2.a
+                    let max = 0.0; // up(a*d);
+                    {a = min; b = max}
+                else // P1 /\ Z
+                    {a = 0.0; b = 0.0}
+
+            elif P0_1 then
+                if P1_2 || P0_2 then // P0 /\ { P1 \/ P0}
+                    let min = 0.0
+                    let max = ceil i1.b*i2.b
+                    {a = min; b = max}
+                 elif (N1_2 || N0_2) then //P0 /\ { N0 \/ N1 }
+                    let min = floor i1.b*i2.a
+                    let max = 0.0; //ceil a*d);
+                    {a = min; b = max}
+                 elif (M_2) then // P0 /\ M
+                    let min = floor i1.b*i2.a
+                    let max = ceil i1.b*i2.b
+                    {a = min; b = max}
+                 else //if (Z_2) // P0 /\ Z
+                    {a = 0.0; b = 0.0}
+
+            elif (M_1) then
+                if P0_2 || P1_2 then // M /\ { P0 \/ P1}
+                    let min = floor i1.a*i2.b
+                    let max = ceil i1.b*i2.b
+                    {a = min; b = max}
+
+                elif (N0_2 || N1_2 ) then // M /\ { N0 \/ N1}
+                    let min = floor i1.b*i2.a
+                    let max = ceil i1.a*i2.a
+                    {a = min; b = max}
+                 elif (M_2) then // M /\ M
+                    let min = Math.Floor(Math.Min(i1.a*i2.b, i1.b*i2.a))
+                    let max = Math.Ceiling(Math.Max(i1.a*i2.a, i1.b*i2.b))
+                    {a = min; b = max}
+                else // if (Z_2) M /\ Z
+                    {a = 0.0; b = 0.0}
+
+            elif (N1_1) then
+                if (P1_2) then // N1 /\ P1
+                    let min = floor i1.a*i2.b
+                    let max = ceil i1.b*i2.a
+                    {a = min; b = max}
+
+                elif (P0_2) then // N1 /\ P0
+                    let min = floor i1.a*i2.b
+                    let max = 0.0; //ceil b*c);
+                    {a = min; b = max}
+
+                elif (M_2) then  // N1 /\ M
+                    let min = floor i1.a*i2.b
+                    let max = ceil i1.a*i2.a
+                    {a = min; b = max}
+
+                elif (N1_2)  then // N1 /\ N1
+                    let min = floor i1.b*i2.b
+                    let max = ceil i1.a*i2.a
+                    {a = min; b = max}
+
+                elif (N0_2) then // N1 /\ N0
+                    let min = 0.0; //floor b*d);
+                    let max = ceil i1.a*i2.a
+                    {a = min; b = max}
+                else// N1 /\ Z
+                    {a = 0.0; b = 0.0}
+
+            elif (N0_1) then
+                if (P0_2 || P1_2) then // N0 /\ { P0 \/ P1}
+                    let min = floor i1.a*i2.b
+                    let max = 0.0; //ceil b*c);
+                    {a = min; b = max}
+                elif (N0_2 || N1_2) then // N0 /\ { N0 \/ N1}
+                    let min = 0.0; //floor b*d);
+                    let max = ceil i1.a*i2.a
+                    {a = min; b = max}
+                elif (M_2) then // N0 /\ M
+                    let min = floor i1.a*i2.b
+                    let max = ceil i1.a*i2.a
+                    {a = min; b = max}
+                else// N0 /\ Z
+                     {a = 0.0; b = 0.0}
+            else  //  Z /\ {ALL}
+                {a = 0.0; b = 0.0}
+
         override this.Propagate (var : Variable) (allVars : Variable list) =
             let varX = allVars |> findVar x
             let varY = allVars |> findVar y
@@ -188,32 +333,21 @@ module DomainTypes =
 
             printfn "%s * %s = %s; reducing the domain of %s" varX.Name varY.Name varZ.Name var.Name
 
+            let oldResultMin = Double.NegativeInfinity
+            let oldResultMax = Double.PositiveInfinity
+
+            let reducedX = DivBounds(varZ.Domain, varY.Domain) <*> varX.Domain;
+            let reducedY = DivBounds(varZ.Domain, varX.Domain) <*> varY.Domain;
+            let reducedZ = MulBounds(varX.Domain, varY.Domain) <*> varZ.Domain;
+
             if var.Name = X then
-                if varZ.Domain = Interval.Zero then
-                    let domain = varX.Domain <*> Interval.Zero
-                    Variable(var.Name, domain)
-                else
-                    let domainPlus = varX.Domain <*> Interval.Positive <*>
-                                        (((varZ.Domain <*> Interval.Positive) * (varY.Domain <*> Interval.Positive).Invert) <+>
-                                            ((-varZ.Domain <*> Interval.Positive) *
-                                                (-varY.Domain <*> Interval.Positive).Invert))
-
-                    let domainMinus = varX.Domain <*> Interval.Negative <*>
-                                        (((varZ.Domain <*> Interval.Negative) * (varY.Domain <*> Interval.Negative).Invert) <+>
-                                            ((-varZ.Domain <*> Interval.Negative) *
-                                                (-varY.Domain <*> Interval.Negative).Invert))
-
-                    Variable(var.Name, domainPlus <+> domainMinus)
+                Variable(var.Name, reducedX)
 
             elif var.Name = Y then
-                let domainPlus = varY.Domain <*> ((varX.Domain <*> Interval.Positive) * varZ.Domain).Invert
-                let domainMinus = varY.Domain <*> ((varX.Domain <*> Interval.Negative) * varZ.Domain).Invert
-                Variable(var.Name, domainPlus <+> domainMinus)
+               Variable(var.Name, reducedY)
 
             elif var.Name = Z then
-                let domainPlus = varZ.Domain <*> ((varX.Domain <*> Interval.Positive) * varY.Domain)
-                let domainMinus = varZ.Domain <*> ((varX.Domain <*> Interval.Negative) * varY.Domain)
-                Variable(var.Name, domainPlus <+> domainMinus)
+                Variable(var.Name, reducedZ)
             else
                 raise <| new ArgumentException(VAR_INVALID)
 
