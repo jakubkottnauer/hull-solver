@@ -5,6 +5,9 @@ module Solver =
     open DomainTypes
 
     let private rnd = Random 0
+    let MAX_ITERATIONS = 100
+    let mutable private lastSize = 0.0
+    let mutable private counter = 0
 
     /// Returns a random (constraint, variable) pair. Will be replaced with heuristics in the future.
     let private randomPair (x : (Constraint * string) Set) =
@@ -73,7 +76,11 @@ module Solver =
     let rec solve (p : Problem) =
         printfn "Box size: %f" p.Size
 
-        if p.Size > p.Precision then
+        if p.Size > p.Precision && (p.Size <> lastSize || counter < MAX_ITERATIONS) then
+            if p.Size <> lastSize then counter <- 0 else counter <- counter + 1
+
+            lastSize <- p.Size
+
             let reducedProblem = hc3 p
             if reducedProblem.HasSolution then
                 let halves = reducedProblem.Split

@@ -35,7 +35,7 @@ See more info at http://fsharp.org/use/mac/
 
 # Run
 
-The program can be executed either by running the executable or from the command line with arguments `inputFile` (path to a file with the problem you want to solve) and `precision` (determines how much the algorithm will reduce the intervals).
+The program can be executed either by running the executable or from the command line with arguments `inputFile` (path to a file with the problem you want to solve) and `precision` (determines the size of the box at which the algorithm stops - try to fiddle with this value to get good results).
 
 # License
 GNU GPL
