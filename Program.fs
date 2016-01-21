@@ -8,6 +8,8 @@ module Main =
     let private UNSUPPORTED_CONSTRAINT = "Unsupported constraint format."
     let private FILE_NOT_EXISTS = "File does not exist. Please specify a file containing the problem you want to solve."
     let private FILE_PROMPT = "Please specify a file containing the problem you want to solve."
+    let private PRECISION_PROMPT = "Please enter your desired precision."
+    let private PRECISION_INVALID = "Invalid input. Please enter your desired precision."
 
     let private parseConstraint text =
         let text = Regex.Replace(text, @"\s+", "")
@@ -42,6 +44,16 @@ module Main =
 
         else path
 
+    let rec private validatePrecision input =
+        let value = Double.TryParse input
+
+        if fst value then
+            snd value
+        else
+            printfn "%s" PRECISION_INVALID
+            Console.ReadLine()
+            |> validatePrecision
+
     let private parseFile path =
         let lines = System.IO.File.ReadAllLines path
 
@@ -57,26 +69,40 @@ module Main =
                 |> Array.map(fun line -> parseDomain line)
                 |> List.ofArray
 
+        (constraints, variables)
+
+    [<EntryPoint>]
+    let main args =
+        let constraints, variables =
+            match args with
+            | [|filePath; precision|] ->
+                filePath
+            | [|filePath|] ->
+                filePath
+            | _ ->
+                printfn "%s" FILE_PROMPT
+                Console.ReadLine()
+
+            |> validateFile
+            |> parseFile
+
+        let precision =
+            match args with
+            | [|filePath; precision|] ->
+                precision
+            | _ ->
+                printfn "%s" PRECISION_PROMPT
+                Console.ReadLine()
+            |> validatePrecision
+
         let stopWatch = System.Diagnostics.Stopwatch.StartNew()
 
-        Problem(constraints, variables)
+        Problem(constraints, variables, precision)
         |> Solver.solve
         |> ignore
 
         stopWatch.Stop()
         printfn "Duration (s): %f" stopWatch.Elapsed.TotalSeconds
-
-    [<EntryPoint>]
-    let main args =
-        match args with
-        | [|filePath|] ->
-            filePath
-
-        | _ ->
-            printfn "%s" FILE_PROMPT
-            Console.ReadLine()
-
-        |> parseFile
 
         Console.ReadKey()
         |> ignore

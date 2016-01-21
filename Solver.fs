@@ -67,15 +67,13 @@ module Solver =
 
         let reducedVariables = hc3Rec q q p.Variables
 
-        Problem(p.Constraints, reducedVariables)
+        Problem(p.Constraints, reducedVariables, p.Precision)
 
     /// Entry function of the solver which solves the given NCSP by performing a branch-and-prune algorithm.
     let rec solve (p : Problem) =
-        let epsilon = 2.0
-
         printfn "Box size: %f" p.Size
 
-        if p.Size > epsilon then
+        if p.Size > p.Precision then
             let reducedProblem = hc3 p
             if reducedProblem.HasSolution then
                 let halves = reducedProblem.Split

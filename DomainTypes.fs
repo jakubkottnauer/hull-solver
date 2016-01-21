@@ -155,7 +155,7 @@ module DomainTypes =
             let varY = allVars |> findVar y
             let varZ = allVars |> findVar z
 
-            printfn "%s + %s = %s; reducing the domain of %s" varX.Name varY.Name varZ.Name var.Name
+            //printfn "%s + %s = %s; reducing the domain of %s" varX.Name varY.Name varZ.Name var.Name
 
             if var.Name = X then
                 let ZminusY = varZ.Domain - varY.Domain
@@ -331,7 +331,7 @@ module DomainTypes =
             let varY = allVars |> findVar y
             let varZ = allVars |> findVar z
 
-            printfn "%s * %s = %s; reducing the domain of %s" varX.Name varY.Name varZ.Name var.Name
+            //printfn "%s * %s = %s; reducing the domain of %s" varX.Name varY.Name varZ.Name var.Name
 
             let oldResultMin = Double.NegativeInfinity
             let oldResultMax = Double.PositiveInfinity
@@ -352,9 +352,10 @@ module DomainTypes =
                 raise <| new ArgumentException(VAR_INVALID)
 
     /// An NCSP problem to be solved.
-    type Problem(c: Constraint list, v: Variable list) =
+    type Problem(c: Constraint list, v: Variable list, precision: double) =
         member this.Variables = v
         member this.Constraints = c
+        member this.Precision = precision
 
         /// Returns the current size of the box formed by the variables' domains of the problem.
         /// Calculated as the product of individual lengths of the domains.
@@ -369,6 +370,6 @@ module DomainTypes =
 
             let half1 = Variable(head.Name, {a = head.Domain.a; b = head.Domain.Middle}) :: this.Variables.Tail
             let half2 = Variable(head.Name, {a = head.Domain.Middle; b = head.Domain.b}) :: this.Variables.Tail
-            (Problem(this.Constraints, half1), Problem(this.Constraints, half2))
+            (Problem(this.Constraints, half1, this.Precision), Problem(this.Constraints, half2, this.Precision))
 
         member this.HasSolution = this.Variables.Length > 0
