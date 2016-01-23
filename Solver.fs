@@ -9,24 +9,32 @@ module Solver =
     let mutable private lastSize = 0.0
     let mutable private counter = 0
 
-    /// Returns a random (constraint, variable) pair. Will be replaced with heuristics in the future.
-    let private randomPair (x : (Constraint * string) Set) =
-        x
-        |> Set.toSeq
-        |> Seq.item (rnd.Next(x.Count))
+    /// Removes element from a list at the specified index.
+    /// <param name="i">The index of the element to be removed.</param>
+    /// <param name="l">The target list.</param>
+    let rec removeAt i l =
+        match i, l with
+        | 0, x::xs -> xs
+        | i, x::xs -> x::removeAt (i - 1) xs
+        | i, [] -> failwith "Index out of range"
+
+    /// Returns the union of two lists.
+    let union left right =
+      List.append left right |> Seq.distinct |> List.ofSeq
 
     /// The main HC3 recursive algorithm.
     /// <param name="q">The "queue" (not a FIFO queue) of pairs to be processed.</param>
     /// <param name="p">All pairs.</param>
     /// <param name="vars">All variable instances.</param>
-    let rec private hc3Rec (q : (Constraint * string) Set) pairs vars =
-        match q.Count with
+    let rec private hc3Rec (q : (Constraint * string) List) pairs vars =
+        match q.Length with
         | 0 ->
             vars
 
         | _ ->
-            let pair = randomPair q
-            let q = q.Remove pair
+            let randomIdx = rnd.Next q.Length
+            let pair = q.[randomIdx] // The pair will be chosen using a heuristic in the future
+            let q = q |> removeAt randomIdx
 
             let cons = fst pair
             let variableName = snd pair
@@ -36,7 +44,7 @@ module Solver =
             let reducedVariable = cons.Propagate variable vars
 
             match reducedVariable.Domain with
-            |  this when this.IsEmpty ->
+            | this when this.IsEmpty ->
                 [] // The CSP is inconsistent, terminate.
 
             | this when variable.Domain.a = this.a && variable.Domain.b = this.b ->
@@ -44,16 +52,16 @@ module Solver =
 
             | _ ->
                let filteredVars = reducedVariable::(vars
-                                               |> List.filter (fun item -> item.Name <> reducedVariable.Name))
+                                               |> List.filter (fun v -> v.Name <> reducedVariable.Name))
 
                let constraintsWithVar = pairs
-                                        |> Set.filter(fun (c, v) -> v = variable.Name)
-                                        |> Set.map fst
+                                        |> List.filter(fun (c, v) -> v = variable.Name)
+                                        |> List.map fst
 
                let filteredConstraints = pairs
-                                        |> Set.filter(fun (c, v) -> constraintsWithVar.Contains c)
+                                        |> List.filter(fun (c, v) -> List.contains c constraintsWithVar)
 
-               let unitedQueue = Set.union q filteredConstraints
+               let unitedQueue = union q filteredConstraints
                hc3Rec unitedQueue pairs filteredVars
 
     /// Function which prepares data for the main HC3 algorithm.
@@ -66,7 +74,6 @@ module Solver =
             p.Constraints
             |> List.map (fun item -> (item, item.VariableNames))
             |> List.collect collectTuple
-            |> Set.ofList
 
         let reducedVariables = hc3Rec q q p.Variables
 
