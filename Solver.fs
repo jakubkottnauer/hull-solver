@@ -5,7 +5,7 @@ module Solver =
     open DomainTypes
 
     let private rnd = Random DateTime.Now.Millisecond
-    let MAX_ITERATIONS = 10000
+    let MAX_ITERATIONS = 1000000
     let mutable private lastSize = 0.0
     let mutable private counter = 0
 
@@ -75,9 +75,8 @@ module Solver =
             |> List.map (fun item -> (item, item.VariableNames))
             |> List.collect collectTuple
 
-        let reducedVariables = hc3Rec q q p.Variables
-
-        Problem(p.Constraints, reducedVariables, p.MainVars, p.Precision)
+        hc3Rec q q p.Variables
+        |> p.Clone p.WasSplitBy
 
     /// Entry function of the solver which solves the given NCSP by performing a branch-and-prune algorithm.
     let rec solve (p : Problem) =

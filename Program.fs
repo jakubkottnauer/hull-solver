@@ -49,10 +49,9 @@ module Main =
         else path
 
     let rec private validatePrecision input =
-        let value = Double.TryParse input
+        let success, value = Double.TryParse input
 
-        if fst value then
-            snd value
+        if success then value
         else
             printfn "%s" PRECISION_INVALID
             Console.ReadLine()

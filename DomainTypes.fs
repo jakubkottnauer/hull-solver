@@ -294,38 +294,45 @@ module DomainTypes =
                 raise <| new ArgumentException(VAR_INVALID)
 
     /// An NCSP problem to be solved.
-    type Problem(c: Constraint list, v: Variable list, mainVars: string [], precision: double) =
+    type Problem(c: Constraint list, v: Variable list, mainVars: string [], precision: double, ?wasSplitBy: int) =
+
         member this.Variables = v
         member this.Constraints = c
-        member this.MainVars = mainVars
+        member this.MainVars = v |> List.sortBy(fun v -> v.Name) |> List.filter(fun v -> Array.contains v.Name mainVars)
         member this.Precision = precision
+        member this.WasSplitBy = defaultArg wasSplitBy -1
 
         // TODO: Make the comparison relative to the original domain length.
         /// Returns whether the problem a whole is small enough to be considered as a solution.
-        member this.IsSmallEnough : bool =
-            this.Variables
-            |> List.filter(fun v -> Array.contains v.Name mainVars)
+        member this.IsSmallEnough =
+            this.MainVars
             |> List.fold(fun acc item -> acc && item.Domain.Length < this.Precision) true
 
-        /// Splits the problem into two halves by halving the first variable's domain.
+        /// Splits the problem into two halves by halving the chosen variable's domain.
         member this.Split =
-            let head = this.Variables.Head
 
-            let half1 = Variable(head.Name, {a = head.Domain.a; b = head.Domain.Middle}) :: this.Variables.Tail
-            let half2 = Variable(head.Name, {a = head.Domain.Middle; b = head.Domain.b}) :: this.Variables.Tail
-            (
-                Problem(this.Constraints, half1, this.MainVars, this.Precision),
-                Problem(this.Constraints, half2, this.MainVars, this.Precision)
-            )
+            let splitIndex = if this.WasSplitBy + 1 = this.MainVars.Length then 0 else this.WasSplitBy + 1
+            let splitBy = this.MainVars.[splitIndex]
+            let rest = this.Variables |> List.except (seq{yield splitBy})
 
-        member this.HasSolution = this.Variables.Length > 0
+            let half1 = Variable(splitBy.Name, {a = splitBy.Domain.a; b = splitBy.Domain.Middle}) :: rest
+            let half2 = Variable(splitBy.Name, {a = splitBy.Domain.Middle; b = splitBy.Domain.b}) :: rest
 
+            (this.Clone splitIndex half1, this.Clone splitIndex half2)
+
+        /// Returns whether the problem has a solution.
+        member this.HasSolution =
+            this.Variables.Length > 0
+
+        /// Clones the current problem (except for the list of variables which needs to passed as an argument).
+        member this.Clone splitIndex newVars  =
+            Problem(c, newVars, mainVars, precision, splitIndex)
+
+        /// Prints the current state of variables in this problem.
         member this.Print =
             printfn "--------------"
             printfn "Solution:"
 
-            this.Variables
-            |> List.filter(fun v -> Array.contains v.Name mainVars)
-            |> List.sortBy(fun v -> v.Name)
+            this.MainVars
             |> List.map (fun item -> printfn "%s in [%f;%f]" item.Name item.Domain.a item.Domain.b)
             |> ignore
