@@ -2,9 +2,10 @@
 
 HullSolver is a simple numerical constraint satisfaction problem (NCSP) solver using hull consistency.
 
-Sample input file with two constraints and four variables:
+Sample input file with two constraints and four variables. First line lists variables whose domains we aim to narrow:
 
 ```
+x y a b
 x * x = a
 x + y = b
 x in [1,10]

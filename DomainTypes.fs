@@ -294,16 +294,18 @@ module DomainTypes =
                 raise <| new ArgumentException(VAR_INVALID)
 
     /// An NCSP problem to be solved.
-    type Problem(c: Constraint list, v: Variable list, precision: double) =
+    type Problem(c: Constraint list, v: Variable list, mainVars: string [], precision: double) =
         member this.Variables = v
         member this.Constraints = c
+        member this.MainVars = mainVars
         member this.Precision = precision
 
-        /// Returns the current size of the box formed by the variables' domains of the problem.
-        /// Calculated as the product of individual lengths of the domains.
-        member this.Size =
-            let ss = this.Variables |> List.find(fun item -> item.Name = "x")
-            ss.Domain.Length
+        // TODO: Make the comparison relative to the original domain length.
+        /// Returns whether the problem a whole is small enough to be considered as a solution.
+        member this.IsSmallEnough : bool =
+            this.Variables
+            |> List.filter(fun v -> Array.contains v.Name mainVars)
+            |> List.fold(fun acc item -> acc && item.Domain.Length < this.Precision) true
 
         /// Splits the problem into two halves by halving the first variable's domain.
         member this.Split =
@@ -311,7 +313,10 @@ module DomainTypes =
 
             let half1 = Variable(head.Name, {a = head.Domain.a; b = head.Domain.Middle}) :: this.Variables.Tail
             let half2 = Variable(head.Name, {a = head.Domain.Middle; b = head.Domain.b}) :: this.Variables.Tail
-            (Problem(this.Constraints, half1, this.Precision), Problem(this.Constraints, half2, this.Precision))
+            (
+                Problem(this.Constraints, half1, this.MainVars, this.Precision),
+                Problem(this.Constraints, half2, this.MainVars, this.Precision)
+            )
 
         member this.HasSolution = this.Variables.Length > 0
 
@@ -320,5 +325,7 @@ module DomainTypes =
             printfn "Solution:"
 
             this.Variables
+            |> List.filter(fun v -> Array.contains v.Name mainVars)
+            |> List.sortBy(fun v -> v.Name)
             |> List.map (fun item -> printfn "%s in [%f;%f]" item.Name item.Domain.a item.Domain.b)
             |> ignore

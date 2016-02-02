@@ -5,7 +5,7 @@ module Solver =
     open DomainTypes
 
     let private rnd = Random DateTime.Now.Millisecond
-    let MAX_ITERATIONS = 100
+    let MAX_ITERATIONS = 10000
     let mutable private lastSize = 0.0
     let mutable private counter = 0
 
@@ -20,7 +20,7 @@ module Solver =
 
     /// Returns the union of two lists.
     let union left right =
-      List.append left right |> Seq.distinct |> List.ofSeq
+      left @ right |> Seq.distinct |> List.ofSeq
 
     /// The main HC3 recursive algorithm.
     /// <param name="q">The "queue" (not a FIFO queue) of pairs to be processed.</param>
@@ -77,16 +77,14 @@ module Solver =
 
         let reducedVariables = hc3Rec q q p.Variables
 
-        Problem(p.Constraints, reducedVariables, p.Precision)
+        Problem(p.Constraints, reducedVariables, p.MainVars, p.Precision)
 
     /// Entry function of the solver which solves the given NCSP by performing a branch-and-prune algorithm.
     let rec solve (p : Problem) =
         //printfn "Box size: %f" p.Size
 
-        if p.Size > p.Precision && (abs(p.Size - lastSize) > ZERO_EPSILON || counter < MAX_ITERATIONS) then
-            if p.Size <> lastSize then counter <- 0 else counter <- counter + 1
-
-            lastSize <- p.Size
+        if not p.IsSmallEnough && counter < MAX_ITERATIONS then
+            counter <- counter + 1
 
             let reducedProblem = hc3 p
             if reducedProblem.HasSolution then

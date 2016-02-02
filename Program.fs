@@ -61,6 +61,8 @@ module Main =
     let private parseFile path =
         let lines = System.IO.File.ReadAllLines path
 
+        let mainVars = lines.[0].Split(' ')
+
         let constraints =
                 lines
                 |> Array.filter(fun line -> line.Contains "=")
@@ -73,11 +75,11 @@ module Main =
                 |> Array.map(fun line -> parseDomain line)
                 |> List.ofArray
 
-        (constraints, variables)
+        (constraints, variables, mainVars)
 
     [<EntryPoint>]
     let main args =
-        let constraints, variables =
+        let constraints, variables, mainVars =
             match args with
             | [|filePath; precision|] ->
                 filePath
@@ -101,7 +103,7 @@ module Main =
 
         let stopWatch = System.Diagnostics.Stopwatch.StartNew()
 
-        Problem(constraints, variables, precision)
+        Problem(constraints, variables, mainVars, precision)
         |> Solver.solve
         |> ignore
 
