@@ -6,7 +6,7 @@ module DomainTypes =
 
     let private DIVISOR_ZERO = "Divisor must not be zero."
     let private VAR_INVALID = "Invalid variable."
-    let private ZERO_EPSILON = 0.00000001
+    let ZERO_EPSILON = 0.00000000000000000000000000000000001
 
     /// An interval
     ///
@@ -98,6 +98,9 @@ module DomainTypes =
 
         static member (<+>) (x : Interval, y : Interval) = x.Union y
 
+        member this.EqualTo y =
+            abs(this.a - y.a) < ZERO_EPSILON && abs(this.b - y.b) < ZERO_EPSILON
+
     /// A variable.
     type Variable(name:string, domain:Interval) =
         member this.Name = name
@@ -182,149 +185,79 @@ module DomainTypes =
         let Y = y
         let Z = z
 
-        let rec DivBounds (i1 : Interval, i2 : Interval) =
-            if i1.a <= 0.0 && i1.b >= 0.0 && i2.a <= 0.0 && i2.b >= 0.0 then
-                {a = Double.NegativeInfinity; b = Double.PositiveInfinity}
+        let mul_lo (a, b) : double =
+            a*b
 
-//            elif i2.a == 0.0 && i2.b == 0.0 && (i1.a > 0.0 || i1.b < 0.0) then
-//                throw Store.failException;
+        let mul_hi (a, b) : double =
+            -((-a)*b)
 
-            elif i2.a < 0.0 && i2.b > 0.0 && (i1.a > 0.0 || i1.b < 0.0) then
-                let max = Math.Max(abs(i1.a), abs(i1.b))
-                let min = -max
-                {a = min; b = max}
+        let div_lo (a, b) : double =
+            a/b
 
-            elif abs(i2.a) < ZERO_EPSILON && abs(i2.b) > ZERO_EPSILON && (i1.a > 0.0 || i1.b < 0.0) then
-                DivBounds({a = i1.a; b = i1.b}, {a = 1.0; b = i2.b});
-            elif abs(i2.a) > ZERO_EPSILON && abs(i2.b) < ZERO_EPSILON && (i1.a > 0.0 || i1.b < 0.0) then
-                DivBounds({a = i1.a; b = i1.b}, {a = i2.a; b = -1.0});
+        let div_hi (a, b) : double =
+            -(-a)/b;
 
-            else
-                let ac = i1.a / i2.a
-                let ad = i1.a / i2.b
-                let bc = i1.b / i2.a
-                let bd = i1.b / i2.b
-                let min = Math.Min(Math.Min(ac, ad), Math.Min(bc, bd));
-                let max = Math.Max(Math.Max(ac, ad), Math.Max(bc, bd));
-                {a = min; b = max}
-
-        let rec MulBounds (i1 : Interval, i2 : Interval) =
-            let M_1 =  (i1.a < 0.0 && i1.b > 0.0)        // contains zero
-            let Z_1 =  (abs(i1.a) < ZERO_EPSILON  && abs(i1.b) < ZERO_EPSILON)     // zero
-            let P0_1 = (abs(i1.a) < ZERO_EPSILON && i1.b > 0.0)       // positive with zero
-            let P1_1 = (i1.a > 0.0 && i1.b > 0.0)      // strictly positive
-            let N0_1 = (i1.a < 0.0 && abs(i1.b) < ZERO_EPSILON)       // negative with zero
-            let N1_1 = (i1.a < 0.0 && i1.b < 0.0)        // strictly negative
-
-            let M_2 =  (i2.a < 0.00 && i2.b > 0.0)
-            let Z_2 =  (abs(i2.a) < ZERO_EPSILON  && abs(i2.b) < ZERO_EPSILON)
-            let P0_2 = (abs(i2.a) < ZERO_EPSILON && i2.b > 0.0)
-            let P1_2 = (i2.a > 0.0 && i2.b > 0.0)
-            let N0_2 = (i2.a < 0.0 && abs(i2.b) < ZERO_EPSILON)
-            let N1_2 = (i2.a < 0.0 && i2.b < 0.0)
-
-            if P1_1 then
-                if P1_2 then // P1 /\ P1
-                    let min =  floor i1.a * i2.a
-                    let max = ceil i1.b*i2.b
-                    {a = min; b = max}
-                elif P0_2 then // P1 /\ P0
-                    let min = 0.0; //down(a*c);
-                    let max = ceil i1.b*i2.b
-                    {a = min; b = max}
-                elif M_2 then // P1 /\ M
-                    let min = floor i1.b*i2.a
-                    let max = ceil i1.b*i2.b
-                    {a = min; b = max}
-                elif N1_2 then // P1 /\ N1
-                    let min = floor i1.b*i2.a
-                    let max = ceil i1.a*i2.b
-                    {a = min; b = max}
-                elif N0_2 then // P1 /\ N0
-                    let min =  floor i1.b*i2.a
-                    let max = 0.0; // up(a*d);
-                    {a = min; b = max}
-                else // P1 /\ Z
-                    {a = 0.0; b = 0.0}
-
-            elif P0_1 then
-                if P1_2 || P0_2 then // P0 /\ { P1 \/ P0}
-                    let min = 0.0
-                    let max = ceil i1.b*i2.b
-                    {a = min; b = max}
-                 elif (N1_2 || N0_2) then //P0 /\ { N0 \/ N1 }
-                    let min = floor i1.b*i2.a
-                    let max = 0.0; //ceil a*d);
-                    {a = min; b = max}
-                 elif (M_2) then // P0 /\ M
-                    let min = floor i1.b*i2.a
-                    let max = ceil i1.b*i2.b
-                    {a = min; b = max}
-                 else //if (Z_2) // P0 /\ Z
-                    {a = 0.0; b = 0.0}
-
-            elif (M_1) then
-                if P0_2 || P1_2 then // M /\ { P0 \/ P1}
-                    let min = floor i1.a*i2.b
-                    let max = ceil i1.b*i2.b
-                    {a = min; b = max}
-
-                elif (N0_2 || N1_2 ) then // M /\ { N0 \/ N1}
-                    let min = floor i1.b*i2.a
-                    let max = ceil i1.a*i2.a
-                    {a = min; b = max}
-                 elif (M_2) then // M /\ M
-                    let min = Math.Floor(Math.Min(i1.a*i2.b, i1.b*i2.a))
-                    let max = Math.Ceiling(Math.Max(i1.a*i2.a, i1.b*i2.b))
-                    {a = min; b = max}
-                else // if (Z_2) M /\ Z
-                    {a = 0.0; b = 0.0}
-
-            elif (N1_1) then
-                if (P1_2) then // N1 /\ P1
-                    let min = floor i1.a*i2.b
-                    let max = ceil i1.b*i2.a
-                    {a = min; b = max}
-
-                elif (P0_2) then // N1 /\ P0
-                    let min = floor i1.a*i2.b
-                    let max = 0.0; //ceil b*c);
-                    {a = min; b = max}
-
-                elif (M_2) then  // N1 /\ M
-                    let min = floor i1.a*i2.b
-                    let max = ceil i1.a*i2.a
-                    {a = min; b = max}
-
-                elif (N1_2)  then // N1 /\ N1
-                    let min = floor i1.b*i2.b
-                    let max = ceil i1.a*i2.a
-                    {a = min; b = max}
-
-                elif (N0_2) then // N1 /\ N0
-                    let min = 0.0; //floor b*d);
-                    let max = ceil i1.a*i2.a
-                    {a = min; b = max}
-                else// N1 /\ Z
-                    {a = 0.0; b = 0.0}
-
-            elif (N0_1) then
-                if (P0_2 || P1_2) then // N0 /\ { P0 \/ P1}
-                    let min = floor i1.a*i2.b
-                    let max = 0.0; //ceil b*c);
-                    {a = min; b = max}
-                elif (N0_2 || N1_2) then // N0 /\ { N0 \/ N1}
-                    let min = 0.0; //floor b*d);
-                    let max = ceil i1.a*i2.a
-                    {a = min; b = max}
-                elif (M_2) then // N0 /\ M
-                    let min = floor i1.a*i2.b
-                    let max = ceil i1.a*i2.a
-                    {a = min; b = max}
-                else// N0 /\ Z
-                     {a = 0.0; b = 0.0}
-            else  //  Z /\ {ALL}
+        let interval_mul4 x1 x2 y1 y2 =
+            if (((abs(x1) < ZERO_EPSILON) && (abs(x2) < ZERO_EPSILON)) || ((abs(y1) < ZERO_EPSILON) && (abs(y2) < ZERO_EPSILON))) then
                 {a = 0.0; b = 0.0}
+
+            elif x1 >= 0.0 then
+                if y1 >= 0.0 then
+                    { a=mul_lo(x1, y1); b=mul_hi(x2,y2)}
+                elif y2 <= 0.0 then
+                    { a=mul_lo(x2, y1); b=mul_hi(x1,y2)}
+                else
+                    {a=mul_lo(x2, y1);   b=mul_hi(x2,y2)}
+
+            elif x2 <= 0.0 then
+                if y1 >= 0.0 then
+                    { a=mul_lo(x1, y2); b=mul_hi(x2,y1)}
+                elif y2 <= 0.0 then
+                    { a=mul_lo(x2, y2); b=mul_hi(x1,y1)}
+                else
+                    {a=mul_lo(x1, y2);   b=mul_hi(x1,y1)}
+
+            elif y1 > 0.0 then
+                { a=mul_lo(x1, y2); b=mul_hi(x2,y2)}
+            elif y2 < 0.0 then
+                { a=mul_lo(x2, y1); b=mul_hi(x1,y1)}
+            else
+                let a1 = mul_lo(x2, y1)
+                let a2 = mul_lo(x1, y2)
+
+                let b1 = mul_hi(x1, y1)
+                let b2 = mul_hi(x2, y2)
+
+                { a= Math.Min(a1, a2); b=Math.Max(b1, b2)}
+
+        let interval_div4 x1 x2 y1 y2 =
+            if y1 < 0.0 && y2 > 0.0 then
+                if x1 > 0.0 then
+                    ({ a = div_hi(x1, y1);  b = div_lo(x1, y2)}, false)
+                elif x2 < 0.0 then
+                    ({ a = div_hi(x2,y2);  b = div_lo(x2,y1)}, false)
+                else
+                    ({ a = Double.NegativeInfinity;  b = Double.PositiveInfinity}, true)
+
+            elif x1 <= 0.0 && x2 >= 0.0 && y1 <= 0.0 && y2 >= 0.0 then
+                ({ a = Double.NegativeInfinity;  b = Double.PositiveInfinity}, true)
+
+            elif x1 >= 0.0 then
+                if y1 >= 0.0 then
+                    ({ a = div_lo(x1, y2);  b = div_hi(x2, y1)}, true)
+                else
+                    ({ a = div_lo(x2, y2);  b = div_hi(x1, y1)}, true)
+
+            elif x2 <= 0.0 then
+                if y1 >= 0.0 then
+                    ({ a = div_lo(x1, y1);  b = div_hi(x2, y2)}, true)
+                else
+                    ({ a = div_lo(x2, y1);  b = div_hi(x1, y2)}, true)
+
+            elif y1 >= 0.0 then
+                ({ a = div_lo(x1, y1);  b = div_hi(x2, y1)}, true)
+            else
+                ({ a = div_lo(x2, y2);  b = div_hi(x1, y2)}, true)
 
         override this.Propagate (var : Variable) (allVars : Variable list) =
             let varX = allVars |> findVar x
@@ -333,20 +266,29 @@ module DomainTypes =
 
             //printfn "%s * %s = %s; reducing the domain of %s" varX.Name varY.Name varZ.Name var.Name
 
-            let oldResultMin = Double.NegativeInfinity
-            let oldResultMax = Double.PositiveInfinity
-
-            let reducedX = DivBounds(varZ.Domain, varY.Domain) <*> varX.Domain;
-            let reducedY = DivBounds(varZ.Domain, varX.Domain) <*> varY.Domain;
-            let reducedZ = MulBounds(varX.Domain, varY.Domain) <*> varZ.Domain;
-
             if var.Name = X then
-                Variable(var.Name, reducedX)
+                Variable(var.Name, varX.Domain)
 
             elif var.Name = Y then
-               Variable(var.Name, reducedY)
+                let almostReducedY, success = interval_div4 varZ.Domain.a varZ.Domain.b varX.Domain.a varX.Domain.b
+
+                if not success then
+                    if varY.Domain.a > almostReducedY.a && varY.Domain.b < almostReducedY.b then
+                            Variable(var.Name, Interval.Empty)
+                        elif varY.Domain.a > almostReducedY.a || (abs(varY.Domain.a - almostReducedY.a) < ZERO_EPSILON && abs(almostReducedY.a) < ZERO_EPSILON) then
+                            let reducedY = {a = almostReducedY.b; b = Double.PositiveInfinity} <*> varY.Domain
+                            Variable(var.Name, reducedY)
+                        elif varY.Domain.b < almostReducedY.b || (abs(varY.Domain.b - almostReducedY.b) < ZERO_EPSILON && abs(almostReducedY.b) < ZERO_EPSILON) then
+                            let reducedY = {a = Double.NegativeInfinity; b = almostReducedY.a} <*> varY.Domain
+                            Variable(var.Name, reducedY)
+                    else
+                        Variable(var.Name, Interval.Empty)
+                else
+                    let reducedY = almostReducedY <*> varY.Domain
+                    Variable(var.Name, reducedY)
 
             elif var.Name = Z then
+                let reducedZ = (interval_mul4 varX.Domain.a varX.Domain.b varY.Domain.a varY.Domain.b) <*> varZ.Domain
                 Variable(var.Name, reducedZ)
             else
                 raise <| new ArgumentException(VAR_INVALID)
@@ -360,9 +302,8 @@ module DomainTypes =
         /// Returns the current size of the box formed by the variables' domains of the problem.
         /// Calculated as the product of individual lengths of the domains.
         member this.Size =
-            this.Variables
-            |> Array.ofList
-            |> Array.fold (fun acc elem -> acc * elem.Domain.Length) 1.0
+            let ss = this.Variables |> List.find(fun item -> item.Name = "x")
+            ss.Domain.Length
 
         /// Splits the problem into two halves by halving the first variable's domain.
         member this.Split =
@@ -373,3 +314,11 @@ module DomainTypes =
             (Problem(this.Constraints, half1, this.Precision), Problem(this.Constraints, half2, this.Precision))
 
         member this.HasSolution = this.Variables.Length > 0
+
+        member this.Print =
+            printfn "--------------"
+            printfn "Solution:"
+
+            this.Variables
+            |> List.map (fun item -> printfn "%s in [%f;%f]" item.Name item.Domain.a item.Domain.b)
+            |> ignore

@@ -15,11 +15,15 @@ module Main =
         let text = Regex.Replace(text, @"\s+", "")
 
         let tokensPlus = text.Split '+'
+        let tokensMinus = text.Split '-'
         let tokensMult = text.Split '*'
 
         if tokensPlus.Length > 1 then
             let tokens2 = tokensPlus.[1].Split '='
             VarPlusVarEqVarConstraint(tokensPlus.[0], tokens2.[0], tokens2.[1]) :> Constraint
+        elif tokensMinus.Length > 1 then
+            let tokens2 = tokensMinus.[1].Split '='
+            VarPlusVarEqVarConstraint(tokens2.[0], tokens2.[1], tokensMinus.[0]) :> Constraint
         elif tokensMult.Length > 1 then
             let tokens2 = tokensMult.[1].Split '='
             VarTimesVarEqVarConstraint(tokensMult.[0], tokens2.[0], tokens2.[1]) :> Constraint

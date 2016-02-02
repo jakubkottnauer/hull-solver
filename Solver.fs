@@ -4,7 +4,7 @@ module Solver =
     open System
     open DomainTypes
 
-    let private rnd = Random 0
+    let private rnd = Random DateTime.Now.Millisecond
     let MAX_ITERATIONS = 100
     let mutable private lastSize = 0.0
     let mutable private counter = 0
@@ -33,11 +33,11 @@ module Solver =
 
         | _ ->
             let randomIdx = rnd.Next q.Length
-            let pair = q.[randomIdx] // The pair will be chosen using a heuristic in the future
+            let pair = q.[randomIdx]
             let q = q |> removeAt randomIdx
 
-            let cons = fst pair
-            let variableName = snd pair
+            let cons, variableName = pair
+
             let variable = vars
                            |> List.find (fun (item:Variable) -> item.Name = variableName)
 
@@ -81,19 +81,20 @@ module Solver =
 
     /// Entry function of the solver which solves the given NCSP by performing a branch-and-prune algorithm.
     let rec solve (p : Problem) =
-        printfn "Box size: %f" p.Size
+        //printfn "Box size: %f" p.Size
 
-        if p.Size > p.Precision && (p.Size <> lastSize || counter < MAX_ITERATIONS) then
+        if p.Size > p.Precision && (abs(p.Size - lastSize) > ZERO_EPSILON || counter < MAX_ITERATIONS) then
             if p.Size <> lastSize then counter <- 0 else counter <- counter + 1
 
             lastSize <- p.Size
 
             let reducedProblem = hc3 p
             if reducedProblem.HasSolution then
-                let halves = reducedProblem.Split
-                fst halves |> solve
-                snd halves |> solve
+                let half1, half2 = reducedProblem.Split
+                solve half1
+                solve half2
+
         else
-            p.Variables
-            |> List.map (fun item -> printfn "%s in [%f;%f]" item.Name item.Domain.a item.Domain.b)
-            |> ignore
+            let reducedProblem = hc3 p
+            if reducedProblem.HasSolution then
+                reducedProblem.Print
