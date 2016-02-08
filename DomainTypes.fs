@@ -189,13 +189,13 @@ module DomainTypes =
             a*b
 
         let mul_hi (a, b) : double =
-            -((-a)*b)
+            a*b
 
         let div_lo (a, b) : double =
             a/b
 
         let div_hi (a, b) : double =
-            -(-a)/b;
+            a/b
 
         let interval_mul4 x1 x2 y1 y2 =
             if (((abs(x1) < ZERO_EPSILON) && (abs(x2) < ZERO_EPSILON)) || ((abs(y1) < ZERO_EPSILON) && (abs(y2) < ZERO_EPSILON))) then
@@ -267,7 +267,14 @@ module DomainTypes =
             //printfn "%s * %s = %s; reducing the domain of %s" varX.Name varY.Name varZ.Name var.Name
 
             if var.Name = X then
-                Variable(var.Name, varX.Domain)
+                if varX.Name = varY.Name then // square
+                    let min = if varZ.Domain.a <= 0.0 then 0.0 else Math.Sqrt(varZ.Domain.a)
+                    let reducedX = {a = -min; b = Math.Sqrt(varZ.Domain.b)} <*> varX.Domain
+                    Variable(var.Name, reducedX)
+                else
+                    let almostReducedX, success = interval_div4 varZ.Domain.a varZ.Domain.b varY.Domain.a varY.Domain.b
+                    let reducedX = almostReducedX <*> varX.Domain
+                    Variable(var.Name, reducedX)
 
             elif var.Name = Y then
                 let almostReducedY, success = interval_div4 varZ.Domain.a varZ.Domain.b varX.Domain.a varX.Domain.b
