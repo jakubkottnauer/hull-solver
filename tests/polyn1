@@ -1,0 +1,17 @@
+// x^4 - 20x^2 + 64 = 0
+// Solutions: x in {-4; -2; 2; 4}
+
+x
+
+x * x = x_2
+x_2 * x_2 = x_4
+x_4 - ax_2 = b
+a * x_2 = ax_2
+
+a in [20,20]
+b in [-64,-64]
+x in [-5,5]
+// TODO: Narrowing breaks (no solutions are found) when x_2's initial domain is allowed to be negative. Why?
+x_2 in [0,10000]
+x_4 in [-1000,10000]
+ax_2 in [-1000,100000]

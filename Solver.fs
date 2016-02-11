@@ -5,8 +5,7 @@ module Solver =
     open DomainTypes
 
     let private rnd = Random DateTime.Now.Millisecond
-    let MAX_ITERATIONS = 1000000
-    let mutable private lastSize = 0.0
+    let MAX_ITERATIONS = 1000
     let mutable private counter = 0
 
     /// Removes element from a list at the specified index.

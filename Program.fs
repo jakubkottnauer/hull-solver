@@ -58,7 +58,8 @@ module Main =
             |> validatePrecision
 
     let private parseFile path =
-        let lines = System.IO.File.ReadAllLines path
+        let lines = System.IO.File.ReadAllLines path 
+                    |> Array.filter(fun line -> not(line.StartsWith "//") && not(String.IsNullOrWhiteSpace line))
 
         let mainVars = lines.[0].Split(' ')
 

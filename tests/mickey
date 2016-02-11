@@ -1,16 +1,20 @@
+// http://homepages.math.uic.edu/~jan/Demo/mickey.html
+
 x y
+
 x * x = x2
 y * y = y2
 a * y2 = i
 x2 + i = a
 b * y2 = j
 j + c = x
+
 a in [4,4]
 b in [2,2]
 c in [0,0]
-x in [-5000,50000]
-y in [-5000,5000]
-x2 in [-1000000,100000]
-y2 in [-1000000,100000]
-i in [-5000,5000]
-j in [-5000,5000]
+x in [-5,5]
+y in [-5,5]
+x2 in [-100,100]
+y2 in [-100,100]
+i in [-50,50]
+j in [-50,50]

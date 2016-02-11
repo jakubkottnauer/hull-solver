@@ -5,9 +5,11 @@ HullSolver is a simple numerical constraint satisfaction problem (NCSP) solver u
 Sample input file with two constraints and four variables. First line lists variables whose domains we aim to narrow:
 
 ```
+// This is a comment
 x y a b
 x * x = a
 x + y = b
+
 x in [1,10]
 y in [0,100]
 a in [16,16]

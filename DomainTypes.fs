@@ -268,8 +268,11 @@ module DomainTypes =
 
             if var.Name = X then
                 if varX.Name = varY.Name then // square
-                    let min = if varZ.Domain.a <= 0.0 then 0.0 else Math.Sqrt(varZ.Domain.a)
-                    let reducedX = {a = -min; b = Math.Sqrt(varZ.Domain.b)} <*> varX.Domain
+                    let minZ = if varZ.Domain.a <= 0.0 then 0.0 else Math.Floor(Math.Sqrt(varZ.Domain.a))
+                    let maxZ = if varZ.Domain.b <= 0.0 then 0.0 else Math.Ceiling(Math.Sqrt(varZ.Domain.b))
+
+                    let reducedX = ({ a = minZ; b = maxZ} <+> { a = -maxZ; b = -minZ}) <*> varX.Domain
+
                     Variable(var.Name, reducedX)
                 else
                     let almostReducedX, success = interval_div4 varZ.Domain.a varZ.Domain.b varY.Domain.a varY.Domain.b
