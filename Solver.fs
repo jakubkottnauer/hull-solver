@@ -4,7 +4,6 @@ module Solver =
     open System
     open DomainTypes
 
-    let private rnd = Random DateTime.Now.Millisecond
     let MAX_ITERATIONS = 1000
     let mutable private counter = 0
 
@@ -25,17 +24,15 @@ module Solver =
     /// <param name="q">The "queue" (not a FIFO queue) of pairs to be processed.</param>
     /// <param name="p">All pairs.</param>
     /// <param name="vars">All variable instances.</param>
-    let rec private hc3Rec (q : (Constraint * string) List) pairs vars =
+    let rec private hc3Rec (q : (Constraint * string) list) pairs vars options =
         match q.Length with
         | 0 ->
             vars
 
         | _ ->
-            let randomIdx = rnd.Next q.Length
-            let pair = q.[randomIdx]
-            let q = q |> removeAt randomIdx
-
-            let cons, variableName = pair
+            let idx = options.heuristic q vars
+            let cons, variableName = q.[idx]
+            let q = q |> removeAt idx
 
             let variable = vars
                            |> List.find (fun (item:Variable) -> item.Name = variableName)
@@ -47,7 +44,7 @@ module Solver =
                 [] // The CSP is inconsistent, terminate.
 
             | this when variable.Domain.a = this.a && variable.Domain.b = this.b ->
-                hc3Rec q pairs vars // The variable's domain has not changed - continue.
+                hc3Rec q pairs vars options // The variable's domain has not changed - continue.
 
             | _ ->
                let filteredVars = reducedVariable::(vars
@@ -61,10 +58,10 @@ module Solver =
                                         |> List.filter(fun (c, v) -> List.contains c constraintsWithVar)
 
                let unitedQueue = union q filteredConstraints
-               hc3Rec unitedQueue pairs filteredVars
+               hc3Rec unitedQueue pairs filteredVars options
 
     /// Function which prepares data for the main HC3 algorithm.
-    let private hc3 (p : Problem) =
+    let private hc3 (o: Options) (p : Problem) =
         let collectTuple (x, items) =
             items
             |> List.map (fun y -> x, y)
@@ -74,23 +71,23 @@ module Solver =
             |> List.map (fun item -> (item, item.VariableNames))
             |> List.collect collectTuple
 
-        hc3Rec q q p.Variables
+        hc3Rec q q p.Variables o
         |> p.Clone p.WasSplitBy
 
     /// Entry function of the solver which solves the given NCSP by performing a branch-and-prune algorithm.
-    let rec solve (p : Problem) =
+    let rec solve o (p:Problem) =
         //printfn "Box size: %f" p.Size
 
-        if not p.IsSmallEnough && counter < MAX_ITERATIONS then
+        if p.LargestSize > o.precision && counter < MAX_ITERATIONS then
             counter <- counter + 1
 
-            let reducedProblem = hc3 p
+            let reducedProblem = hc3 o p
             if reducedProblem.HasSolution then
                 let half1, half2 = reducedProblem.Split
-                solve half1
-                solve half2
+                solve o half1
+                solve o half2
 
         else
-            let reducedProblem = hc3 p
+            let reducedProblem = hc3 o p
             if reducedProblem.HasSolution then
                 reducedProblem.Print

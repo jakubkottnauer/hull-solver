@@ -7,6 +7,7 @@ module DomainTypes =
     let private DIVISOR_ZERO = "Divisor must not be zero."
     let private VAR_INVALID = "Invalid variable."
     let ZERO_EPSILON = 0.00000000000000000000000000000000001
+    let private rnd = Random DateTime.Now.Millisecond
 
     /// An interval
     ///
@@ -102,9 +103,10 @@ module DomainTypes =
             abs(this.a - y.a) < ZERO_EPSILON && abs(this.b - y.b) < ZERO_EPSILON
 
     /// A variable.
-    type Variable(name:string, domain:Interval) =
+    type Variable(name:string, domain:Interval, isDominant:bool) =
         member this.Name = name
         member this.Domain = domain
+        member this.IsDominant = isDominant
 
         override this.Equals(y) =
             match y with
@@ -163,17 +165,17 @@ module DomainTypes =
             if var.Name = X then
                 let ZminusY = varZ.Domain - varY.Domain
                 let domain = ZminusY <*> varX.Domain
-                Variable(var.Name, domain)
+                Variable(var.Name, domain, var.IsDominant)
 
             elif var.Name = Y then
                 let ZminusX = varZ.Domain - varX.Domain
                 let domain = ZminusX <*> varY.Domain
-                Variable(var.Name, domain)
+                Variable(var.Name, domain, var.IsDominant)
 
             elif var.Name = Z then
                 let XplusY = varX.Domain + varY.Domain
                 let domain = XplusY <*> varZ.Domain
-                Variable(var.Name, domain)
+                Variable(var.Name, domain, var.IsDominant)
             else
                 raise <| new ArgumentException(VAR_INVALID)
 
@@ -273,60 +275,86 @@ module DomainTypes =
 
                     let reducedX = ({ a = minZ; b = maxZ} <+> { a = -maxZ; b = -minZ}) <*> varX.Domain
 
-                    Variable(var.Name, reducedX)
+                    Variable(var.Name, reducedX, var.IsDominant)
                 else
                     let almostReducedX, success = interval_div4 varZ.Domain.a varZ.Domain.b varY.Domain.a varY.Domain.b
                     let reducedX = almostReducedX <*> varX.Domain
-                    Variable(var.Name, reducedX)
+                    Variable(var.Name, reducedX, var.IsDominant)
 
             elif var.Name = Y then
                 let almostReducedY, success = interval_div4 varZ.Domain.a varZ.Domain.b varX.Domain.a varX.Domain.b
 
                 if not success then
                     if varY.Domain.a > almostReducedY.a && varY.Domain.b < almostReducedY.b then
-                            Variable(var.Name, Interval.Empty)
+                            Variable(var.Name, Interval.Empty, var.IsDominant)
                         elif varY.Domain.a > almostReducedY.a || (abs(varY.Domain.a - almostReducedY.a) < ZERO_EPSILON && abs(almostReducedY.a) < ZERO_EPSILON) then
                             let reducedY = {a = almostReducedY.b; b = Double.PositiveInfinity} <*> varY.Domain
-                            Variable(var.Name, reducedY)
+                            Variable(var.Name, reducedY, var.IsDominant)
                         elif varY.Domain.b < almostReducedY.b || (abs(varY.Domain.b - almostReducedY.b) < ZERO_EPSILON && abs(almostReducedY.b) < ZERO_EPSILON) then
                             let reducedY = {a = Double.NegativeInfinity; b = almostReducedY.a} <*> varY.Domain
-                            Variable(var.Name, reducedY)
+                            Variable(var.Name, reducedY, var.IsDominant)
                     else
-                        Variable(var.Name, Interval.Empty)
+                        Variable(var.Name, Interval.Empty, var.IsDominant)
                 else
                     let reducedY = almostReducedY <*> varY.Domain
-                    Variable(var.Name, reducedY)
+                    Variable(var.Name, reducedY, var.IsDominant)
 
             elif var.Name = Z then
                 let reducedZ = (interval_mul4 varX.Domain.a varX.Domain.b varY.Domain.a varY.Domain.b) <*> varZ.Domain
-                Variable(var.Name, reducedZ)
+                Variable(var.Name, reducedZ, var.IsDominant)
             else
                 raise <| new ArgumentException(VAR_INVALID)
 
+    // A type containing various heuristics for selecting constraint-variable pairs.
+    type Heuristics =
+        static member Random (q: (Constraint * string) list) (vars: Variable list) =
+            rnd.Next q.Length
+
+        static member DominantFirst (q: (Constraint * string) list) (vars: Variable list) =
+            let dominantList = q
+                                |> List.map(fun (c, v) -> vars |> findVar v)
+                                |> List.filter(fun v -> v.IsDominant)
+
+            if dominantList.Length = 0 then 
+                0 
+            else 
+                q |> List.findIndex(fun (c, v) -> v = dominantList.Head.Name)
+
+        static member MaxCand (q: (Constraint * string) list) (vars: Variable list) =
+            let varsOnly = q
+                        |> List.map(fun (c, v) -> vars |> findVar v)
+            let max = varsOnly
+                        |> List.maxBy(fun item -> item.Domain.b)
+
+            q |> List.findIndex(fun (c, v) -> v = max.Name)
+
+    type Options = {
+        fileName: string;
+        precision: float;
+        heuristic: (Constraint * string) list -> Variable list -> int
+        }
+
     /// An NCSP problem to be solved.
-    type Problem(c: Constraint list, v: Variable list, mainVars: string [], precision: double, ?wasSplitBy: int) =
+    type Problem(c: Constraint list, v: Variable list, ?wasSplitBy: int) =
+        let mainVars = v |> List.sortBy(fun v -> v.Name) |> List.filter(fun v -> v.IsDominant)
 
         member this.Variables = v
         member this.Constraints = c
-        member this.MainVars = v |> List.sortBy(fun v -> v.Name) |> List.filter(fun v -> Array.contains v.Name mainVars)
-        member this.Precision = precision
         member this.WasSplitBy = defaultArg wasSplitBy -1
 
-        // TODO: Make the comparison relative to the original domain length.
-        /// Returns whether the problem a whole is small enough to be considered as a solution.
-        member this.IsSmallEnough =
-            this.MainVars
-            |> List.fold(fun acc item -> acc && item.Domain.Length < this.Precision) true
+        /// Returns the length of the largest domain.
+        member this.LargestSize =
+            mainVars |> List.map(fun item -> item.Domain.Length) |> List.max
 
         /// Splits the problem into two halves by halving the chosen variable's domain.
         member this.Split =
 
-            let splitIndex = if this.WasSplitBy + 1 = this.MainVars.Length then 0 else this.WasSplitBy + 1
-            let splitBy = this.MainVars.[splitIndex]
+            let splitIndex = if this.WasSplitBy + 1 = mainVars.Length then 0 else this.WasSplitBy + 1
+            let splitBy = mainVars.[splitIndex]
             let rest = this.Variables |> List.except (seq{yield splitBy})
 
-            let half1 = Variable(splitBy.Name, {a = splitBy.Domain.a; b = splitBy.Domain.Middle}) :: rest
-            let half2 = Variable(splitBy.Name, {a = splitBy.Domain.Middle; b = splitBy.Domain.b}) :: rest
+            let half1 = Variable(splitBy.Name, {a = splitBy.Domain.a; b = splitBy.Domain.Middle}, splitBy.IsDominant) :: rest
+            let half2 = Variable(splitBy.Name, {a = splitBy.Domain.Middle; b = splitBy.Domain.b}, splitBy.IsDominant) :: rest
 
             (this.Clone splitIndex half1, this.Clone splitIndex half2)
 
@@ -336,13 +364,13 @@ module DomainTypes =
 
         /// Clones the current problem (except for the list of variables which needs to passed as an argument).
         member this.Clone splitIndex newVars  =
-            Problem(c, newVars, mainVars, precision, splitIndex)
+            Problem(c, newVars, splitIndex)
 
         /// Prints the current state of variables in this problem.
         member this.Print =
             printfn "--------------"
             printfn "Solution:"
 
-            this.MainVars
-            |> List.map (fun item -> printfn "%s in [%f;%f]" item.Name item.Domain.a item.Domain.b)
+            mainVars
+            |> List.map (fun item -> printfn "%s in [%.8f;%.8f]" item.Name item.Domain.a item.Domain.b)
             |> ignore

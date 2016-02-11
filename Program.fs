@@ -29,14 +29,15 @@ module Main =
             VarTimesVarEqVarConstraint(tokensMult.[0], tokens2.[0], tokens2.[1]) :> Constraint
         else failwith UNSUPPORTED_CONSTRAINT
 
-    let private parseDomain text =
+    let private parseDomain text (dominantVars:string[]) =
         let text = Regex.Replace(text, @"\s+", "")
 
         let tokens = text.Split([|"in"|], StringSplitOptions.None)
         let tokens2 = tokens.[1].Split([|"["; "]"|], StringSplitOptions.None)
         let tokens3 = tokens2.[1].Split ','
 
-        Variable(tokens.[0], { a = double tokens3.[0]; b = double tokens3.[1]})
+        let varName = tokens.[0]
+        Variable(varName, { a = double tokens3.[0]; b = double tokens3.[1]}, dominantVars |> Array.contains varName)
 
     let rec private validateFile path =
         let exists = System.IO.File.Exists path
@@ -48,20 +49,9 @@ module Main =
 
         else path
 
-    let rec private validatePrecision input =
-        let success, value = Double.TryParse input
-
-        if success then value
-        else
-            printfn "%s" PRECISION_INVALID
-            Console.ReadLine()
-            |> validatePrecision
-
     let private parseFile path =
-        let lines = System.IO.File.ReadAllLines path 
+        let lines = System.IO.File.ReadAllLines path
                     |> Array.filter(fun line -> not(line.StartsWith "//") && not(String.IsNullOrWhiteSpace line))
-
-        let mainVars = lines.[0].Split(' ')
 
         let constraints =
                 lines
@@ -72,39 +62,71 @@ module Main =
         let variables =
                 lines
                 |> Array.filter(fun line -> line.Contains "in" )
-                |> Array.map(fun line -> parseDomain line)
+                |> Array.map(fun line -> parseDomain line (lines.[0].Split(' ')))
                 |> List.ofArray
 
-        (constraints, variables, mainVars)
+        (constraints, variables)
+
+    let rec parseCommandLineRec args optionsSoFar =
+        match args with
+        | [] ->
+            optionsSoFar
+
+        | "-f"::fileName::xs ->
+            let newOptionsSoFar = { optionsSoFar with fileName=fileName}
+            parseCommandLineRec xs newOptionsSoFar
+
+        | "-p"::precision::xs ->
+            let success, value = Double.TryParse precision
+            if success then
+                let newOptionsSoFar = { optionsSoFar with precision=value}
+                parseCommandLineRec xs newOptionsSoFar
+            else
+                printfn "Invalid precision. Using the default value 1.0 instead."
+                parseCommandLineRec xs optionsSoFar
+
+        | "-h"::heuristicCode::xs ->
+            match heuristicCode with
+            | "rand" ->
+                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.Random}
+                parseCommandLineRec xs newOptionsSoFar
+            | "dom-first" ->
+                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.DominantFirst}
+                parseCommandLineRec xs newOptionsSoFar
+            | "max-cand" ->
+                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.MaxCand}
+                parseCommandLineRec xs newOptionsSoFar
+            | _ ->
+                printfn "Unknown heuristic %s. Using the 'rand' heuristic instead." heuristicCode
+                parseCommandLineRec xs optionsSoFar
+
+        | x::xs ->
+            printfn "Option '%s' is unrecognized" x
+            parseCommandLineRec xs optionsSoFar
+
+    let parseCommandLine args =
+        let defaultOptions = {
+            fileName = null;
+            precision = 1.0;
+            heuristic = Heuristics.Random
+            }
+
+        parseCommandLineRec args defaultOptions
 
     [<EntryPoint>]
     let main args =
-        let constraints, variables, mainVars =
-            match args with
-            | [|filePath; precision|] ->
-                filePath
-            | [|filePath|] ->
-                filePath
-            | _ ->
-                printfn "%s" FILE_PROMPT
-                Console.ReadLine()
 
+        let options = parseCommandLine (args |> List.ofArray)
+
+        let constraints, variables =
+            options.fileName
             |> validateFile
             |> parseFile
 
-        let precision =
-            match args with
-            | [|filePath; precision|] ->
-                precision
-            | _ ->
-                printfn "%s" PRECISION_PROMPT
-                Console.ReadLine()
-            |> validatePrecision
-
         let stopWatch = System.Diagnostics.Stopwatch.StartNew()
 
-        Problem(constraints, variables, mainVars, precision)
-        |> Solver.solve
+        Problem(constraints, variables)
+        |> Solver.solve options
         |> ignore
 
         stopWatch.Stop()

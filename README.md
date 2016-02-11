@@ -27,7 +27,7 @@ You need Mono: `sudo apt-get install mono-complete fsharp`
 
 Build the project with: `xbuild`
 
-Run with: `mono ./bin/Debug/HullSolver.exe inputFile precision`
+Run with: `mono ./bin/Debug/HullSolver.exe -f <path> -p <number> -h <heuristic name>`
 
 See more info at http://fsharp.org/use/linux/
 
@@ -36,15 +36,18 @@ You need Mono: `brew install mono`
 
 Build the project with: `xbuild`
 
-Run with: `mono ./bin/Debug/HullSolver.exe inputFile precision`
+Run with: `mono ./bin/Debug/HullSolver.exe -f <path> -p <number> -h <heuristic name>`
 
 See more info at http://fsharp.org/use/mac/
 
-# Run
+# Usage
 
-The program can be executed either by running the executable or from the command line with arguments `inputFile` (path to a file with the problem you want to solve) and `precision` (determines the size of the box at which the algorithm stops - try to fiddle with this value to get good results).
+`HullSolver.exe -f <path> -p <number> -h <heuristic name>`
+- `-f` - path to a file with the problem you want to solve
+- `-p` - float size under which the domains need to get to finish the calculation - try to fiddle with this value to get good results. If unspecified, 1.0 will be used.
+- `-h` - heuristic you want to use, currently supported values are `rand`, `max-cand`, `dom-first`. If unspecified, `rand` will be used.
 
-The file path when running under Mono on Linux/OSX is relative to the root of the project! E.g. `mono ./bin/Debug/HullSolver.exe tests/test1 0.5`.
+The file path when running under Mono on Linux/OSX is relative to the root of the project! E.g. `mono ./bin/Debug/HullSolver.exe -f tests/test1 -p 0.5`.
 
 # License
 GNU GPL
