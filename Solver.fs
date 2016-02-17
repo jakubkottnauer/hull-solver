@@ -6,6 +6,8 @@ module Solver =
 
     let MAX_ITERATIONS = 1000
     let mutable private counter = 0
+    let mutable private ind_halving_count = 0
+    let mutable private ind_narrowing_count = 0
 
     /// Removes element from a list at the specified index.
     /// <param name="i">The index of the element to be removed.</param>
@@ -38,6 +40,7 @@ module Solver =
                            |> List.find (fun (item:Variable) -> item.Name = variableName)
 
             let reducedVariable = cons.Propagate variable vars
+            ind_narrowing_count <- ind_narrowing_count + 1
 
             match reducedVariable.Domain with
             | this when this.IsEmpty ->
@@ -74,20 +77,38 @@ module Solver =
         hc3Rec q q p.Variables o
         |> p.Clone p.WasSplitBy
 
-    /// Entry function of the solver which solves the given NCSP by performing a branch-and-prune algorithm.
-    let rec solve o (p:Problem) =
+    /// Recursively solves the NCSP passed into this function using a branch-and-prune algorithm.
+    let rec solveRec options (p:Problem) =
         //printfn "Box size: %f" p.Size
 
-        if p.LargestSize > o.precision && counter < MAX_ITERATIONS then
+        if p.LargestSize > options.precision && counter < MAX_ITERATIONS then
             counter <- counter + 1
 
-            let reducedProblem = hc3 o p
+            let reducedProblem = hc3 options p
             if reducedProblem.HasSolution then
                 let half1, half2 = reducedProblem.Split
-                solve o half1
-                solve o half2
+                ind_halving_count <- ind_halving_count + 1
+                solveRec options half1
+                solveRec options half2
 
         else
-            let reducedProblem = hc3 o p
+            let reducedProblem = hc3 options p
             if reducedProblem.HasSolution then
                 reducedProblem.Print
+
+    /// Entry function of the solver.
+    let solve options (p:Problem) =
+        let stopWatch = System.Diagnostics.Stopwatch.StartNew()
+        
+        solveRec options p
+        
+        stopWatch.Stop()
+        
+        printfn "Heuristic: %s" options.heuristicName
+        printfn "Precision: %f" options.precision
+        printfn "File: %s" options.fileName
+        printfn "Number of narrowing: %i" ind_narrowing_count
+        printfn "Number of solution halving: %i" ind_halving_count
+        printfn "Duration (s): %f" stopWatch.Elapsed.TotalSeconds
+
+        printfn "---------"

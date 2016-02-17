@@ -88,13 +88,16 @@ module Main =
         | "-h"::heuristicCode::xs ->
             match heuristicCode with
             | "rand" ->
-                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.Random}
+                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.Random
+                                                          heuristicName="Random"}
                 parseCommandLineRec xs newOptionsSoFar
             | "dom-first" ->
-                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.DominantFirst}
+                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.DominantFirst
+                                                          heuristicName="Dominant-First"}
                 parseCommandLineRec xs newOptionsSoFar
             | "max-cand" ->
-                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.MaxCand}
+                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.MaxCand
+                                                          heuristicName="Max-Cand"}
                 parseCommandLineRec xs newOptionsSoFar
             | _ ->
                 printfn "Unknown heuristic %s. Using the 'rand' heuristic instead." heuristicCode
@@ -108,7 +111,8 @@ module Main =
         let defaultOptions = {
             fileName = null;
             precision = 1.0;
-            heuristic = Heuristics.Random
+            heuristic = Heuristics.Random;
+            heuristicName = "random";
             }
 
         parseCommandLineRec args defaultOptions
@@ -123,16 +127,8 @@ module Main =
             |> validateFile
             |> parseFile
 
-        let stopWatch = System.Diagnostics.Stopwatch.StartNew()
-
         Problem(constraints, variables)
         |> Solver.solve options
-        |> ignore
-
-        stopWatch.Stop()
-        printfn "Duration (s): %f" stopWatch.Elapsed.TotalSeconds
-
-        Console.ReadKey()
         |> ignore
 
         0

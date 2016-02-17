@@ -47,7 +47,5 @@ See more info at http://fsharp.org/use/mac/
 - `-p` - float size under which the domains need to get to finish the calculation - try to fiddle with this value to get good results. If unspecified, 1.0 will be used.
 - `-h` - heuristic you want to use, currently supported values are `rand`, `max-cand`, `dom-first`. If unspecified, `rand` will be used.
 
-The file path when running under Mono on Linux/OSX is relative to the root of the project! E.g. `mono ./bin/Debug/HullSolver.exe -f tests/test1 -p 0.5`.
-
 # License
 GNU GPL

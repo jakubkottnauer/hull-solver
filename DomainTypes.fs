@@ -305,11 +305,14 @@ module DomainTypes =
             else
                 raise <| new ArgumentException(VAR_INVALID)
 
-    // A type containing various heuristics for selecting constraint-variable pairs.
+    /// Heuristics for selecting constraint-variable pairs.
     type Heuristics =
+
+        /// Selects a pseudo random pair.
         static member Random (q: (Constraint * string) list) (vars: Variable list) =
             rnd.Next q.Length
 
+        /// Selects the first pair containing a dominant variable. Selects the first pair if no such is available.
         static member DominantFirst (q: (Constraint * string) list) (vars: Variable list) =
             let dominantList = q
                                 |> List.map(fun (c, v) -> vars |> findVar v)
@@ -320,6 +323,7 @@ module DomainTypes =
             else 
                 q |> List.findIndex(fun (c, v) -> v = dominantList.Head.Name)
 
+        /// Selects the pair whose variable's domain has the highest right bound.
         static member MaxCand (q: (Constraint * string) list) (vars: Variable list) =
             let varsOnly = q
                         |> List.map(fun (c, v) -> vars |> findVar v)
@@ -327,11 +331,13 @@ module DomainTypes =
                         |> List.maxBy(fun item -> item.Domain.b)
 
             q |> List.findIndex(fun (c, v) -> v = max.Name)
-
+    
+    /// Command line options.
     type Options = {
         fileName: string;
         precision: float;
-        heuristic: (Constraint * string) list -> Variable list -> int
+        heuristic: (Constraint * string) list -> Variable list -> int;
+        heuristicName: string;
         }
 
     /// An NCSP problem to be solved.
