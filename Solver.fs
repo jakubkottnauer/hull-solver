@@ -108,7 +108,7 @@ module Solver =
         printfn "Heuristic: %s" options.heuristicName
         printfn "Precision: %f" options.precision
         printfn "File: %s" options.fileName
-        printfn "Number of narrowing: %i" ind_narrowing_count
+        printfn "Number of narrowings: %i" ind_narrowing_count
         printfn "Number of solution halving: %i" ind_halving_count
         printfn "Duration (s): %f" stopWatch.Elapsed.TotalSeconds
 
