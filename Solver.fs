@@ -40,16 +40,16 @@ module Solver =
                            |> List.find (fun (item:Variable) -> item.Name = variableName)
 
             let reducedVariable = cons.Propagate variable vars
-            ind_narrowing_count <- ind_narrowing_count + 1
 
             match reducedVariable.Domain with
             | this when this.IsEmpty ->
                 [] // The CSP is inconsistent, terminate.
 
-            | this when variable.Domain.a = this.a && variable.Domain.b = this.b ->
+            | this when abs(variable.Domain.a - this.a) < ZERO_EPSILON && abs(variable.Domain.b - this.b) < ZERO_EPSILON ->
                 hc3Rec q pairs vars options // The variable's domain has not changed - continue.
 
             | _ ->
+               ind_narrowing_count <- ind_narrowing_count + 1
                let filteredVars = reducedVariable::(vars
                                                |> List.filter (fun v -> v.Name <> reducedVariable.Name))
 
@@ -78,7 +78,7 @@ module Solver =
         |> p.Clone p.WasSplitBy
 
     /// Recursively solves the NCSP passed into this function using a branch-and-prune algorithm.
-    let rec solveRec options (p:Problem) =
+    let rec private solveRec options (p:Problem) =
         //printfn "Box size: %f" p.Size
 
         if p.LargestSize > options.precision && counter < MAX_ITERATIONS then
@@ -92,9 +92,10 @@ module Solver =
                 solveRec options half2
 
         else
-            let reducedProblem = hc3 options p
-            if reducedProblem.HasSolution then
-                reducedProblem.Print
+              ()
+//            let reducedProblem = hc3 options p
+//            if reducedProblem.HasSolution then
+//                reducedProblem.Print
 
     /// Entry function of the solver.
     let solve options (p:Problem) =

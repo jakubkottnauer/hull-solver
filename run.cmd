@@ -5,7 +5,7 @@ SET "testName=%1"
 SET "filename=tests\%testName%"
 SET "outputFolder=out"
 SET "output=%outputFolder%\%testName%_out.txt"
-SET "precision=0.1"
+SET "precision=0.001"
 
 if not exist %outputFolder% mkdir %outputFolder%
 

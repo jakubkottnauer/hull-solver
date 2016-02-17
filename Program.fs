@@ -112,7 +112,7 @@ module Main =
             fileName = null;
             precision = 1.0;
             heuristic = Heuristics.Random;
-            heuristicName = "random";
+            heuristicName = "Random";
             }
 
         parseCommandLineRec args defaultOptions
@@ -122,6 +122,13 @@ module Main =
 
         let options = parseCommandLine (args |> List.ofArray)
 
+//        let options = {
+//            fileName = "quadfor2";
+//            precision = 0.0001;
+//            heuristic = Heuristics.DominantFirst;
+//            heuristicName = "dom-first";
+//            }
+
         let constraints, variables =
             options.fileName
             |> validateFile
@@ -130,5 +137,7 @@ module Main =
         Problem(constraints, variables)
         |> Solver.solve options
         |> ignore
+
+//        Console.ReadKey() |> ignore
 
         0

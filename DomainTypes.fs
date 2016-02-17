@@ -235,9 +235,11 @@ module DomainTypes =
         let interval_div4 x1 x2 y1 y2 =
             if y1 < 0.0 && y2 > 0.0 then
                 if x1 > 0.0 then
-                    ({ a = div_hi(x1, y1);  b = div_lo(x1, y2)}, false)
+                    ({ a = Double.NegativeInfinity;  b = Double.PositiveInfinity}, true)
+                    //({ a = div_hi(x1, y1);  b = div_lo(x1, y2)}, false)
                 elif x2 < 0.0 then
-                    ({ a = div_hi(x2,y2);  b = div_lo(x2,y1)}, false)
+                    ({ a = Double.NegativeInfinity;  b = Double.PositiveInfinity}, true)
+                    //({ a = div_hi(x2,y2);  b = div_lo(x2,y1)}, false)
                 else
                     ({ a = Double.NegativeInfinity;  b = Double.PositiveInfinity}, true)
 
