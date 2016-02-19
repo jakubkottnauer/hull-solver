@@ -5,7 +5,6 @@ module Solver =
     open DomainTypes
 
     let MAX_ITERATIONS = 1000
-    let mutable private counter = 0
     let mutable private ind_halving_count = 0
     let mutable private ind_narrowing_count = 0
 
@@ -81,8 +80,7 @@ module Solver =
     let rec private solveRec options (p:Problem) =
         //printfn "Box size: %f" p.Size
 
-        if not(p.AllFraction options.eps) && counter < MAX_ITERATIONS then
-            counter <- counter + 1
+        if not(p.AllFraction options.eps) then
 
             let reducedProblem = hc3 options p
             if reducedProblem.HasSolution then
@@ -93,9 +91,9 @@ module Solver =
 
         else
               ()
-//            let reducedProblem = hc3 options p
-//            if reducedProblem.HasSolution then
-//                reducedProblem.Print
+              let reducedProblem = hc3 options p
+              if reducedProblem.HasSolution then
+                  reducedProblem.Print
 
     /// Entry function of the solver.
     let solve options (p:Problem) =

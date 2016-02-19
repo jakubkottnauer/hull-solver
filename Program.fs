@@ -7,9 +7,6 @@ module Main =
 
     let private UNSUPPORTED_CONSTRAINT = "Unsupported constraint format."
     let private FILE_NOT_EXISTS = "File does not exist. Please specify a file containing the problem you want to solve."
-    let private FILE_PROMPT = "Please specify a file containing the problem you want to solve."
-    let private PRECISION_PROMPT = "Please enter your desired precision."
-    let private PRECISION_INVALID = "Invalid input. Please enter your desired precision."
 
     let private parseConstraint text =
         let text = Regex.Replace(text, @"\s+", "")
