@@ -37,7 +37,8 @@ module Main =
         let tokens3 = tokens2.[1].Split ','
 
         let varName = tokens.[0]
-        Variable(varName, { a = double tokens3.[0]; b = double tokens3.[1]}, dominantVars |> Array.contains varName)
+        let domain = { a = double tokens3.[0]; b = double tokens3.[1]}
+        Variable(varName, domain, domain, dominantVars |> Array.contains varName)
 
     let rec private validateFile path =
         let exists = System.IO.File.Exists path
@@ -76,10 +77,10 @@ module Main =
             let newOptionsSoFar = { optionsSoFar with fileName=fileName}
             parseCommandLineRec xs newOptionsSoFar
 
-        | "-p"::precision::xs ->
-            let success, value = Double.TryParse precision
+        | "-p"::eps::xs ->
+            let success, value = Double.TryParse eps
             if success then
-                let newOptionsSoFar = { optionsSoFar with precision=value}
+                let newOptionsSoFar = { optionsSoFar with eps=value}
                 parseCommandLineRec xs newOptionsSoFar
             else
                 printfn "Invalid precision. Using the default value 1.0 instead."
@@ -110,7 +111,7 @@ module Main =
     let parseCommandLine args =
         let defaultOptions = {
             fileName = null;
-            precision = 1.0;
+            eps = 1.0;
             heuristic = Heuristics.Random;
             heuristicName = "Random";
             }
@@ -124,7 +125,7 @@ module Main =
 
 //        let options = {
 //            fileName = "quadfor2";
-//            precision = 0.0001;
+//            eps = 0.0001;
 //            heuristic = Heuristics.DominantFirst;
 //            heuristicName = "dom-first";
 //            }

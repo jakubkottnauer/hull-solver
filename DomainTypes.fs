@@ -103,10 +103,14 @@ module DomainTypes =
             abs(this.a - y.a) < ZERO_EPSILON && abs(this.b - y.b) < ZERO_EPSILON
 
     /// A variable.
-    type Variable(name:string, domain:Interval, isDominant:bool) =
+    type Variable(name:string, domain:Interval, originalDomain:Interval, isDominant:bool) =
         member this.Name = name
         member this.Domain = domain
+        member this.OriginalDomain = originalDomain
         member this.IsDominant = isDominant
+
+        member this.CloneWithDomain x =
+            Variable(name, x, originalDomain, isDominant)
 
         override this.Equals(y) =
             match y with
@@ -165,17 +169,17 @@ module DomainTypes =
             if var.Name = X then
                 let ZminusY = varZ.Domain - varY.Domain
                 let domain = ZminusY <*> varX.Domain
-                Variable(var.Name, domain, var.IsDominant)
+                var.CloneWithDomain domain
 
             elif var.Name = Y then
                 let ZminusX = varZ.Domain - varX.Domain
                 let domain = ZminusX <*> varY.Domain
-                Variable(var.Name, domain, var.IsDominant)
+                var.CloneWithDomain domain
 
             elif var.Name = Z then
                 let XplusY = varX.Domain + varY.Domain
                 let domain = XplusY <*> varZ.Domain
-                Variable(var.Name, domain, var.IsDominant)
+                var.CloneWithDomain domain
             else
                 raise <| new ArgumentException(VAR_INVALID)
 
@@ -275,35 +279,35 @@ module DomainTypes =
                     let minZ = if varZ.Domain.a <= 0.0 then 0.0 else Math.Floor(Math.Sqrt(varZ.Domain.a))
                     let maxZ = if varZ.Domain.b <= 0.0 then 0.0 else Math.Ceiling(Math.Sqrt(varZ.Domain.b))
 
-                    let reducedX = ({ a = minZ; b = maxZ} <+> { a = -maxZ; b = -minZ}) <*> varX.Domain
+                    let domain = ({ a = minZ; b = maxZ} <+> { a = -maxZ; b = -minZ}) <*> varX.Domain
 
-                    Variable(var.Name, reducedX, var.IsDominant)
+                    var.CloneWithDomain domain
                 else
                     let almostReducedX, success = interval_div4 varZ.Domain.a varZ.Domain.b varY.Domain.a varY.Domain.b
-                    let reducedX = almostReducedX <*> varX.Domain
-                    Variable(var.Name, reducedX, var.IsDominant)
+                    let domain = almostReducedX <*> varX.Domain
+                    var.CloneWithDomain domain
 
             elif var.Name = Y then
                 let almostReducedY, success = interval_div4 varZ.Domain.a varZ.Domain.b varX.Domain.a varX.Domain.b
 
                 if not success then
                     if varY.Domain.a > almostReducedY.a && varY.Domain.b < almostReducedY.b then
-                            Variable(var.Name, Interval.Empty, var.IsDominant)
+                            var.CloneWithDomain Interval.Empty
                         elif varY.Domain.a > almostReducedY.a || (abs(varY.Domain.a - almostReducedY.a) < ZERO_EPSILON && abs(almostReducedY.a) < ZERO_EPSILON) then
-                            let reducedY = {a = almostReducedY.b; b = Double.PositiveInfinity} <*> varY.Domain
-                            Variable(var.Name, reducedY, var.IsDominant)
+                            let domain = {a = almostReducedY.b; b = Double.PositiveInfinity} <*> varY.Domain
+                            var.CloneWithDomain domain
                         elif varY.Domain.b < almostReducedY.b || (abs(varY.Domain.b - almostReducedY.b) < ZERO_EPSILON && abs(almostReducedY.b) < ZERO_EPSILON) then
-                            let reducedY = {a = Double.NegativeInfinity; b = almostReducedY.a} <*> varY.Domain
-                            Variable(var.Name, reducedY, var.IsDominant)
+                            let domain = {a = Double.NegativeInfinity; b = almostReducedY.a} <*> varY.Domain
+                            var.CloneWithDomain domain
                     else
-                        Variable(var.Name, Interval.Empty, var.IsDominant)
+                        var.CloneWithDomain Interval.Empty
                 else
-                    let reducedY = almostReducedY <*> varY.Domain
-                    Variable(var.Name, reducedY, var.IsDominant)
+                    let domain = almostReducedY <*> varY.Domain
+                    var.CloneWithDomain domain
 
             elif var.Name = Z then
-                let reducedZ = (interval_mul4 varX.Domain.a varX.Domain.b varY.Domain.a varY.Domain.b) <*> varZ.Domain
-                Variable(var.Name, reducedZ, var.IsDominant)
+                let domain = (interval_mul4 varX.Domain.a varX.Domain.b varY.Domain.a varY.Domain.b) <*> varZ.Domain
+                var.CloneWithDomain domain
             else
                 raise <| new ArgumentException(VAR_INVALID)
 
@@ -317,12 +321,12 @@ module DomainTypes =
         /// Selects the first pair containing a dominant variable. Selects the first pair if no such is available.
         static member DominantFirst (q: (Constraint * string) list) (vars: Variable list) =
             let dominantList = q
-                                |> List.map(fun (c, v) -> vars |> findVar v)
-                                |> List.filter(fun v -> v.IsDominant)
+                              |> List.map(fun (c, v) -> vars |> findVar v)
+                              |> List.filter(fun v -> v.IsDominant)
 
-            if dominantList.Length = 0 then 
-                0 
-            else 
+            if dominantList.Length = 0 then
+                0
+            else
                 q |> List.findIndex(fun (c, v) -> v = dominantList.Head.Name)
 
         /// Selects the pair whose variable's domain has the highest right bound.
@@ -333,11 +337,11 @@ module DomainTypes =
                         |> List.maxBy(fun item -> item.Domain.b)
 
             q |> List.findIndex(fun (c, v) -> v = max.Name)
-    
+
     /// Command line options.
     type Options = {
         fileName: string;
-        precision: float;
+        eps: float;
         heuristic: (Constraint * string) list -> Variable list -> int;
         heuristicName: string;
         }
@@ -350,9 +354,9 @@ module DomainTypes =
         member this.Constraints = c
         member this.WasSplitBy = defaultArg wasSplitBy -1
 
-        /// Returns the length of the largest domain.
-        member this.LargestSize =
-            mainVars |> List.map(fun item -> item.Domain.Length) |> List.max
+        /// Tests whether all dominant variables have been narrowed enough relative to their original size.
+        member this.AllFraction eps =
+            mainVars |> List.forall(fun item -> (item.Domain.Length / item.OriginalDomain.Length) < eps)
 
         /// Splits the problem into two halves by halving the chosen variable's domain.
         member this.Split =
@@ -361,8 +365,8 @@ module DomainTypes =
             let splitBy = mainVars.[splitIndex]
             let rest = this.Variables |> List.except (seq{yield splitBy})
 
-            let half1 = Variable(splitBy.Name, {a = splitBy.Domain.a; b = splitBy.Domain.Middle}, splitBy.IsDominant) :: rest
-            let half2 = Variable(splitBy.Name, {a = splitBy.Domain.Middle; b = splitBy.Domain.b}, splitBy.IsDominant) :: rest
+            let half1 = splitBy.CloneWithDomain {a = splitBy.Domain.a; b = splitBy.Domain.Middle} :: rest
+            let half2 = splitBy.CloneWithDomain {a = splitBy.Domain.Middle; b = splitBy.Domain.b} :: rest
 
             (this.Clone splitIndex half1, this.Clone splitIndex half2)
 

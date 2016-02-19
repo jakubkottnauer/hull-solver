@@ -81,7 +81,7 @@ module Solver =
     let rec private solveRec options (p:Problem) =
         //printfn "Box size: %f" p.Size
 
-        if p.LargestSize > options.precision && counter < MAX_ITERATIONS then
+        if not(p.AllFraction options.eps) && counter < MAX_ITERATIONS then
             counter <- counter + 1
 
             let reducedProblem = hc3 options p
@@ -100,13 +100,13 @@ module Solver =
     /// Entry function of the solver.
     let solve options (p:Problem) =
         let stopWatch = System.Diagnostics.Stopwatch.StartNew()
-        
+
         solveRec options p
-        
+
         stopWatch.Stop()
-        
+
         printfn "Heuristic: %s" options.heuristicName
-        printfn "Precision: %f" options.precision
+        printfn "Epsilon: %f" options.eps
         printfn "File: %s" options.fileName
         printfn "Number of narrowings: %i" ind_narrowing_count
         printfn "Number of solution halving: %i" ind_halving_count
