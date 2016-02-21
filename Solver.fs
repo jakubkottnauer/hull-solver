@@ -93,7 +93,8 @@ module Solver =
               ()
               let reducedProblem = hc3 options p
               if reducedProblem.HasSolution then
-                  reducedProblem.Print
+                  printfn "Volume of solution box: %.32f" reducedProblem.Volume
+                  //reducedProblem.Print
 
     /// Entry function of the solver.
     let solve options (p:Problem) =
@@ -108,6 +109,7 @@ module Solver =
         printfn "File: %s" options.fileName
         printfn "Number of narrowings: %i" ind_narrowing_count
         printfn "Number of solution halving: %i" ind_halving_count
-        printfn "Duration (s): %f" stopWatch.Elapsed.TotalSeconds
+        printfn "Original volume: %.32f" p.Volume
+        printfn "Duration (s): %.32f" stopWatch.Elapsed.TotalSeconds
 
         printfn "---------"

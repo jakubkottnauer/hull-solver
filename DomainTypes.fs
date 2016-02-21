@@ -358,6 +358,11 @@ module DomainTypes =
         member this.AllFraction eps =
             mainVars |> List.forall(fun item -> (item.Domain.Length / item.OriginalDomain.Length) < eps)
 
+        /// Calculate the volume of the box created by the dominant variables in this problem.
+        member this.Volume =
+            mainVars |> List.fold (fun acc item -> item.Domain.Length * acc) 1.0
+
+
         /// Splits the problem into two halves by halving the chosen variable's domain.
         member this.Split =
 
