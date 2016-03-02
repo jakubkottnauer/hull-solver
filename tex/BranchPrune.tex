@@ -1,0 +1,24 @@
+\begin{algorithm}
+\caption{Branch \& Prune}
+\label{BranchPrune}
+\begin{algorithmic}[1]
+\Require Množina dvojic $(c, x)$, kde $c$ je omezující podmínka definovaná nad proměnnou $x$.
+\Ensure Seznam nalezených boxů.
+\Procedure{Solve}{$P$}
+\If{Problém není dostatečně malý}
+\State $P' \gets HC3(P)$
+\State $(P_1, P_2) \gets $ rozděl box tvořený proměnnými z $P'$ na poloviny.
+\State Solve($P_1$)
+\State Solve($P_2$)
+\Else
+\State Vypiš/ulož box tvořený proměnnými z $P$ jako jeden z výsledků.
+\EndIf
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+V algoritmu \ref{BranchPrune} jsou dva řádky, které je nutné dále rozebrat - podmínku pro ukončení algoritmu (řádek č.~2) a~způsob rozdělení problému na~poloviny (řádek č.~4).
+
+Pro ukončení algoritmu je potřeba stanovit mezní velikost, pod kterou se musí domény dominantních proměnných zúžit. Tato mez může být absolutní (velikost domény maximálně například 0,01), nebo relativní vzhledem k původním nezúženým doménám (například požadavek za zmenšení domény na tisícinu původní velikosti).
+
+

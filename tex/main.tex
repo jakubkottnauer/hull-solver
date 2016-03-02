@@ -1,0 +1,168 @@
+\documentclass[thesis=B,czech]{FITthesis}[2012/06/26]
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{graphicx} %graphics files inclusion
+\usepackage{amsmath} %advanced maths
+\usepackage{amsthm}
+\usepackage{dirtree} %directory tree visualisation
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{amssymb} %additional math symbols
+\usepackage{bm}
+
+% % list of acronyms
+% \usepackage[acronym,nonumberlist,toc,numberedsection=autolabel]{glossaries}
+% \iflanguage{czech}{\renewcommand*{\acronymname}{Seznam pou{\v z}it{\' y}ch zkratek}}{}
+% \makeglossaries
+
+\newcommand{\tg}{\mathop{\mathrm{tg}}} %cesky tangens
+\newcommand{\cotg}{\mathop{\mathrm{cotg}}} %cesky cotangens
+\newcommand{\Break}{\State \textbf{break} } %prikaz break v algoritmech
+\renewcommand{\algorithmicrequire}{\textbf{In:}}
+\renewcommand{\algorithmicensure}{\textbf{Out:}}
+
+\floatname{algorithm}{Algoritmus}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definice}
+
+\department{Katedra teoretické informatiky}
+\title{Heuristiky pro propagaci intervalů}
+\authorGN{Jakub}
+\authorFN{Kottnauer}
+\authorWithDegrees{Jakub Kottnauer}
+\supervisor{doc. Ing. Stefan Ratschan}
+\acknowledgements{Doplňte, máte-li komu a za co děkovat. V~opačném případě úplně odstraňte tento příkaz.}
+\abstractCS{Hlavním cílem práce je otestování vlivu heuristik na~efektivitu řešení numerických CSP pomocí propagací intervalů. Problém splnitelnosti omezujících podmínek (CSP) je problém o~nalezení hodnot proměnných tak, aby byly splněny všechny dané podmínky. Jako součást práce byl napsán řešič v~jazyce F\# implementující algoritmus HC3 s~podporou pro podmínky s~operacemi sčítání, odčítání a násobení. Byly nalezeny podstatné parametry algoritmu ovlivňující jeho účinnost a~následně byly s~\textbf{DOPLNIT POČET} heuristikami provedeny výpočetní experimenty a~jejich výsledky porovnány. Výstup práce bude možno využít při rozvažování, kterou heuristiku použít při řešení soustav omezujících podmínek převeditelných na~podmínky s~výše uvedenými operacemi.}
+\abstractEN{Sem doplňte ekvivalent abstraktu Vaší práce v~angličtině.}
+\placeForDeclarationOfAuthenticity{V~Praze}
+\declarationOfAuthenticityOption{4} %volba Prohlášení (číslo 1-6)
+\keywordsCS{propagace intervalů, algoritmus HC3, problém splnitelnosti, omezující podmínky, heuristiky, konzistenční techniky, funkcionální programování, FSharp}
+\keywordsEN{Nahraďte seznamem klíčových slov v angličtině oddělených čárkou.}
+
+\begin{document}
+
+% \newacronym{CVUT}{{\v C}VUT}{{\v C}esk{\' e} vysok{\' e} u{\v c}en{\' i} technick{\' e} v Praze}
+% \newacronym{FIT}{FIT}{Fakulta informa{\v c}n{\' i}ch technologi{\' i}}
+
+\begin{introduction}
+
+\end{introduction}
+
+\chapter{Popis problematiky}
+V mnoha oblastech lidské činnosti existují problémy, které je možné popsat s využitím omezujících podmínek. Ať už je to generování školního rozvrhu (kde jednou z omezujících podmínek může být například volný čas jednotlivých vyučujících), či vyhýbání se překážkám u samořídících automobilů, obecně jde vždy o nějaký problém, pro který je potřeba najít optimální řešení při splnění daných omezení. Těmto problémům se říká \emph{constraint satisfaction problems} (CSP, česky \emph{problémy splnitelnosti omezujících podmínek}).
+
+\section{Constraint programming}
+\emph{Constraint programming} (či \emph{programování s omezujícími podmínkami}) je jedním z odvětví umělé inteligence pro řešení optimalizačních úloh (konkrétně CSP úloh). Asociace ACM v \cite{Wegner1996} označila toto téma jako jedno z klíčových oblastí pro budoucí výzkum, neboť se problémy s omezujícími podmínkami přirozeně vyskytují v každodenním životě. Předností constraint programming je navíc to, že uživatel popíše problém k vyřešení pouze deklarativně - nedá tedy počítači žádný postup k řešení, jen zadá aktuální stav problému a specializovaný program (řešič) najde řešení (pokud existuje).
+
+Typickým příkladem problému s omezujícími podmínkami jsou různé hry, například sudoku. Jak ukazuje definice \ref{def:csp}, CSP se skládá z proměnných, domén a omezujících podmínek. V sudoku jsou proměnnými volná políčka na hracím poli, z nichž každá má svoji \emph{doménu} (množinu hodnot, kterých může teoreticky nabývat, v tomto případě čísla 1 a 9). Omezujícími podmínkami jsou samotná pravidla hry - požadavek na unikátnost číslice v řádku, sloupci, resp. ve~čtverci. Pojmy \emph{doména} a \emph{omezující podmínka} přesněji vysvětlují následující podkapitoly.
+
+\begin{definition}
+\label{def:csp}
+\emph{CSP} (\emph{problém splnitelnosti omezujících podmínek}) je trojice $(V, D, C)$, kde
+\begin{itemize}
+  \item $V$ je množina proměnných,
+  \item $D$ je množina domén náležejících k proměnným,
+  \item $C$ je množina omezujících podmínek.
+\end{itemize}
+\end{definition}
+
+Známý SAT problém\footnote{Boolean satisfiability problem} je také příkladem problému s omezujícími podmínkami.
+
+
+\subsection{Doména}
+\begin{definition}
+\label{def:domain}
+\emph{Doména} (nebo také \emph{definiční obor}) proměnné je množina všech hodnot, kterých může proměnná nabývat.
+\end{definition}
+
+Doménou, jak ukazuje definice \ref{def:domain}, může být jakákoliv množina. Domény mohou být diskrétní (podmnožina přirozených čísel, ${red, green, blue}$ při obarvování grafu, ${true, false}$ u SAT problém, apod.) či spojité (interval reálných čísel)
+
+
+\subsection{Omezující podmínka}
+\begin{definition}
+\label{def:constraint}
+\emph{Omezující podmínka} $c$ na konečné posloupnosti proměnných\\$(x_1, \dots, x_n)$ s doménami $(\boldsymbol{D_1}, \dots, \boldsymbol{D_n})$, $n \in \boldsymbol{N}$, je podmnožina kartézského součinu $\boldsymbol{D_1} \times \dots \times \boldsymbol{D_n}$.
+\end{definition}
+
+Omezující podmínka je tedy relace mezi proměnnými a lze ji zapsat jako $c(x_1, \dots, x_n)$.
+
+V praktické části této práce budou omezující podmínky reprezentovány rovnicemi (jednoduchá rovnice $x = 0, x \in \boldsymbol{N}$ zjevně omezuje možné hodnoty proměnné $x$, jedná se tedy o omezující podmínku).
+
+
+\subsection{}
+
+\section{Numerical constraint satisfaction problem}
+
+
+
+Práce se zabývá řešením \emph{numerických CSP} (\emph{NCSP}, \emph{numerical CSP}), což je podmnožina CSP problémů, které se dají reprezentovat soustavami rovnic či nerovnic. Tyto rovnice nebo nerovnice vlastně kladou na proměnné nějaká omezení a zmenšují tak množiny hodnot, kterých mohou nabývat.
+
+Na počátku řešení NCSP má každá proměnná přiřazený spojitý interval hodnot (\emph{doménu}), kterých může nabývat (např. $(-10;10)$), a cílem je co nejvíce zúžit tyto intervaly (zužování domény podle omezující podmínky se říká \emph{propagace}), aby ale stále byly všechny omezující podmínky splněny, viz jednoduchý příklad \ref{eq:simpleConstraint}.
+
+\begin{equation} \label{eq:simpleConstraint}
+x^2 = 1\qquad x \in \boldsymbol{R}
+\end{equation}
+
+Nechť rovnice \ref{eq:simpleConstraint} představuje omezující podmínku a pro doménu $D_x$ proměnné $x$ platí $D_x = (-5;5)$. Všechna řešení této rovnice určitě leží v intervalu $D_x$, ale také například v $\langle -1;2)$, nikoliv však v $(0;2)$ (tento interval obsahuje jen jedno ze dvou řešení). Metody řešení numerických CSP dokáží problém vyřešit nalezením minimálního intervalu obsahujícího všechna řešení, tj. $D_x' = \langle -1;1\rangle$. Nalezený interval vlastně tvoří jakési ohraničení všech možných řešení, anglicky se toto ohraničení nazývá \emph{box}. V praxi je pak třeba řešit soustavy těchto podmínek a nalezená ohraničení (boxy) jsou tvořena kartézským součinem intervalů.
+
+Teoretické základy pro problematiku popsanou v bakalářské práci položil John G. Cleary v roce 1987 ve svém článku \emph{Logical Arithmetic}~\cite{cleary87}, kde jsou popsány metody pro redukci domén proměnných v omezujících podmínkách se základními aritmetickými operacemi. Tabulka~\ref{narrowingTable} ukazuje příklad (převzatý z \cite{cleary87}) redukce domény pro omezující podmínku ve tvaru $z = x + y$. Například pro zredukovanou doménu $D_z'$ proměnné $z$ platí $D_z' = D_z \cap (D_x + D_y)$. Aritmetické operace nad intervaly definuje \emph{intervalová aritmetika}. Pro součet uzavřených intervalů platí $\langle a;b \rangle + \langle c;d \rangle = \langle a + c ; b + d \rangle$.
+
+\begin{table}[ht]
+\centering
+\label{narrowingTable}
+\begin{tabular}{|l|l|l|l|}
+\hline
+ Počáteční domény & $x \in \langle 0;2 \rangle$ & $y \in \langle 1;3 \rangle$ & $z \in \langle 4;6 \rangle$  \\ \hline
+ $z = x+y$  &  & &  $\langle 1;5 \rangle$  \\ \hline
+ $y = z-x$  & & $\langle 2;6 \rangle$  &  \\ \hline
+ $x = z-y$  & $\langle 1;5 \rangle$  &  &  \\ \hline
+ Nové domény & $x \in \langle 1;2 \rangle$ & $y \in \langle 2;3 \rangle$ & $z \in \langle 4;5 \rangle$ \\ \hline
+\end{tabular}
+\caption{Příklad redukce domén proměnných v podmínce $z = x + y$}
+\end{table}
+
+\section{Využití}
+
+
+\chapter{Cíl práce}
+Cílem práce je vytvoření jednoduchého řešiče pro NCSP ve funkcionálním jazyce \texttt{F\#} komunikujícího s uživatel přes příkazovou řádku, nalezení částí algoritmu, které ovlivňují jeho účinnost a rychlost, implementace heuristik nalezených v literatuře či vlastních nápadů (v jakém pořadí je nejlepší domény zužovat, atp.) a experimentálně porovnat účinnost jednotlivých heuristik.
+
+
+\chapter{Návrh řešení}
+\chapter{Realizace}
+\chapter{Výpočetní experimenty}
+
+\begin{conclusion}
+	%sem napište závěr Vaší práce
+\end{conclusion}
+
+\bibliographystyle{csn690}
+\bibliography{bib}
+
+\appendix
+
+\chapter{Seznam použitých zkratek}
+% \printglossaries
+\begin{description}
+	\item[CSP] Constraint Satisfaction Problem
+	\item[NCSP] Numerical Constraint Satisfaction Problem
+\end{description}
+
+\chapter{Obsah přiloženého CD}
+
+\begin{figure}
+	\dirtree{%
+		.1 readme.txt\DTcomment{stručný popis obsahu CD}.
+		.1 exe\DTcomment{adresář se spustitelnou formou implementace}.
+		.1 src.
+		.2 impl\DTcomment{zdrojové kódy implementace}.
+		.2 thesis\DTcomment{zdrojová forma práce ve formátu \LaTeX{}}.
+		.1 text\DTcomment{text práce}.
+		.2 thesis.pdf\DTcomment{text práce ve formátu PDF}.
+		.2 thesis.ps\DTcomment{text práce ve formátu PS}.
+	}
+\end{figure}
+
+\end{document}
