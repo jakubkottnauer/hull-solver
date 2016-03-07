@@ -1,0 +1,132 @@
+\chapter{Popis problematiky}
+V mnoha oblastech lidské činnosti existují problémy, které je možné popsat s využitím omezujících podmínek. Ať už je to generování školního rozvrhu (kde jednou z omezujících podmínek může být například volný čas jednotlivých vyučujících), či vyhýbání se překážkám u samořídících automobilů, obecně jde vždy o nějaký problém, pro který je potřeba najít optimální řešení při splnění daných omezení. Těmto problémům se říká \emph{constraint satisfaction problems} (CSP, česky \emph{problémy splnitelnosti omezujících podmínek}).
+
+\section{Constraint programming}
+\emph{Constraint programming} (či \emph{programování s omezujícími podmínkami}) je jedním z odvětví umělé inteligence pro řešení optimalizačních úloh (konkrétně CSP úloh). Asociace ACM v \cite{Wegner1996} označila toto téma jako jedno z klíčových oblastí pro budoucí výzkum, neboť se problémy s omezujícími podmínkami přirozeně vyskytují v každodenním životě. Předností constraint programming je navíc to, že uživatel popíše problém k vyřešení pouze deklarativně - nedá tedy počítači žádný postup k řešení, jen zadá aktuální stav problému a specializovaný program (řešič) najde řešení (pokud existuje).
+
+Typickým příkladem problému s omezujícími podmínkami jsou různé hry, například sudoku. Jak ukazuje definice \ref{def:csp}, CSP se skládá z proměnných, domén a omezujících podmínek. V sudoku jsou proměnnými volná políčka na hracím poli, z nichž každá má svoji \emph{doménu} (množinu hodnot, kterých může teoreticky nabývat, v tomto případě čísla 1 a 9). Omezujícími podmínkami jsou samotná pravidla hry - požadavek na unikátnost číslice v řádku, sloupci, resp. ve~čtverci. Pojmy \emph{doména} a \emph{omezující podmínka} přesněji vysvětlují následující podkapitoly.
+
+\begin{definition}
+\label{def:csp}
+\emph{CSP} (\emph{problém splnitelnosti omezujících podmínek}) je trojice $(V, D, C)$, kde
+\begin{itemize}
+  \item $V$ je množina proměnných,
+  \item $D$ je množina domén náležejících k proměnným,
+  \item $C$ je množina omezujících podmínek.
+\end{itemize}
+\end{definition}
+
+Známý SAT problém\footnote{Boolean satisfiability problem} je také příkladem problému s omezujícími podmínkami.
+
+
+\subsection{Doména}
+\begin{definition}
+\label{def:domain}
+\emph{Doména} (nebo také \emph{definiční obor}) proměnné je množina všech hodnot, kterých může proměnná nabývat.
+\end{definition}
+
+Doménou, jak ukazuje definice \ref{def:domain}, může být jakákoliv množina. Domény mohou být diskrétní (podmnožina přirozených čísel, ${red, green, blue}$ při obarvování grafu, ${true, false}$ u SAT problém, apod.) či spojité (interval reálných čísel)
+
+
+\subsection{Omezující podmínka}
+\begin{definition}
+\label{def:constraint}
+\emph{Omezující podmínka} $c$ na konečné posloupnosti proměnných\\$(x_1, \dots, x_n)$ s doménami $(\boldsymbol{D_1}, \dots, \boldsymbol{D_n})$, $n \in \boldsymbol{N}$, je podmnožina kartézského součinu $\boldsymbol{D_1} \times \dots \times \boldsymbol{D_n}$.
+\end{definition}
+
+Omezující podmínka dle definice \ref{def:constraint} je tedy relace mezi proměnnými a lze ji zapsat jako $c(x_1, \dots, x_n)$. Vzhledem k tomu, že se jedná o relaci, lze omezující podmínky rozdělit na podle arity relace na unární ($x \leq 1$), binární ($x = y$) a více-ární ($x + y > z $).
+
+V praktické části této práce budou omezující podmínky reprezentovány rovnicemi (jednoduchá rovnice $x = 0, x \in \boldsymbol{N}$ zjevně omezuje možné hodnoty proměnné $x$, jedná se tedy o omezující podmínku).
+
+Omezující podmínka je \emph{redundantní} (nadbytečná), nemá-li její odebrání z CSP vliv na řešení problému (v problému \\ $P = (V, D, C)$, kde $C = {c_1: x > y, c_2: x > y, c_3: y < x}$ jsou libovolné dvě podmínky redundantní).
+
+(TODO: později třeba zmínit, že program neprovádí detekci redundantních podmínek a že to je prostor pro zlepšení...)
+
+\subsection{Řešení a splnitelnost CSP}
+Přiřazení konkrétní hodnoty z domény proměnné se nazývá \emph{ohodnocení} (\emph{label}). Přiřazuje-li ohodnocení hodnotu všem proměnným problému, jedná se o \emph{úplné ohodnocení} (\emph{compound label}). Tyto pojmy stačí k definici řešení a splnitelnosti problému s omezujícími podmínkami (definice \ref{def:solution}, resp. \ref{def:satisfiability}).
+
+\begin{definition}
+\label{def:solution}
+\emph{Řešení} (\emph{solution}) CSP je takové úplné ohodnocení, pro které platí všechny omezující podmínky.
+\end{definition}
+
+\begin{definition}
+\label{def:satisfiability}
+CSP problém je \emph{splnitelný} (\emph{satisfiable}), existuje-li pro něj řešení.
+\end{definition}
+
+
+\section{Numerical constraint satisfaction problem}
+
+Tato práce se zabývá řešením \emph{numerických CSP} (\emph{NCSP}, \emph{numerical CSP}), což je podmnožina CSP problémů, které se dají reprezentovat soustavami rovnic či nerovnic a domény proměnných v těchto problémech bývají zpravidla spojité. Rovnice nebo nerovnice vlastně kladou na proměnné nějaká omezení a zmenšují tak množiny hodnot, kterých mohou nabývat.
+
+Na počátku řešení NCSP má každá proměnná přiřazený spojitý interval hodnot (\emph{doménu}), kterých může nabývat (např. $(-10;10)$), a cílem je co nejvíce zúžit tyto intervaly (zužování domény podle omezující podmínky se říká \emph{propagace}), aby ale stále byly všechny omezující podmínky splněny, viz jednoduchý příklad \ref{eq:simpleConstraint}.
+
+\begin{equation} \label{eq:simpleConstraint}
+x^2 = 1\qquad x \in \boldsymbol{R}
+\end{equation}
+
+Nechť rovnice \ref{eq:simpleConstraint} představuje omezující podmínku a pro doménu $D_x$ proměnné $x$ platí $D_x = (-5;5)$. Všechna řešení této rovnice určitě leží v intervalu $D_x$, ale také například v $\langle -1;2)$, nikoliv však v $(0;2)$ (tento interval obsahuje jen jedno ze dvou řešení). Metody řešení numerických CSP dokáží problém vyřešit nalezením minimálního intervalu obsahujícího všechna řešení, tj. $D_x' = \langle -1;1\rangle$. Nalezený interval vlastně tvoří jakési ohraničení všech možných řešení, anglicky se toto ohraničení nazývá \emph{box}. V praxi je pak třeba řešit soustavy těchto podmínek a nalezená ohraničení (boxy) jsou tvořena kartézským součinem intervalů.
+
+Zbytek práce bude věnován především problematice numerických CSP.
+
+\subsection{Historie NCSP}
+
+Teoretické základy pro problematiku popsanou v bakalářské práci položil John G. Cleary v roce 1987 ve svém článku \emph{Logical Arithmetic}~\cite{cleary87}, kde jsou popsány metody pro redukci domén proměnných v omezujících podmínkách se základními aritmetickými operacemi. Tabulka~\ref{narrowingTable} ukazuje příklad (převzatý z \cite{cleary87}) redukce domény pro omezující podmínku ve tvaru $z = x + y$. Například pro zredukovanou doménu $D_z'$ proměnné $z$ platí $D_z' = D_z \cap (D_x + D_y)$. Aritmetické operace nad intervaly definuje \emph{intervalová aritmetika}. Pro součet uzavřených intervalů platí $\langle a;b \rangle + \langle c;d \rangle = \langle a + c ; b + d \rangle$.
+
+\begin{table}[ht]
+\centering
+\label{narrowingTable}
+\begin{tabular}{|l|l|l|l|}
+\hline
+ Počáteční domény & $x \in \langle 0;2 \rangle$ & $y \in \langle 1;3 \rangle$ & $z \in \langle 4;6 \rangle$  \\ \hline
+ $z = x+y$  &  & &  $\langle 1;5 \rangle$  \\ \hline
+ $y = z-x$  & & $\langle 2;6 \rangle$  &  \\ \hline
+ $x = z-y$  & $\langle 1;5 \rangle$  &  &  \\ \hline
+ Nové domény & $x \in \langle 1;2 \rangle$ & $y \in \langle 2;3 \rangle$ & $z \in \langle 4;5 \rangle$ \\ \hline
+\end{tabular}
+\caption{Příklad redukce domén proměnných v podmínce $z = x + y$}
+\end{table}
+
+\section{Intervalová aritmetika}
+
+\section{Algoritmy pro řešení NCSP}
+\section{Heuristiky}
+\subsection{Typy heuristik}
+
+\begin{itemize}
+  \item Statické parametry
+    \subitem dominantní vs. nedominantní proměnná
+    \subitem vstupní množina podmínek
+        \subsubitem počet podmínek, ve kterých se proměnná vyskytuje
+        \subsubitem počet dominantních proměnných v constraintu
+        \subsubitem operace v constraintu (sčítání/násobení)
+  \item Dynamické parametry (tj. mění se během průběhu algoritmu)
+    \subitem intervaly
+        \subsubitem velikost
+        \subsubitem v kladných i záporných hodnotách
+    \subitem dvojice se používá ke zredukování domény
+\end{itemize}
+
+U dynamických parametrů mám k dispozici celou posloupnost jejich hodnot. V praxi se ale nepoužívá celá posloupnost. Příklady:
+
+\begin{itemize}
+  \item poměr aktuální velikosti k původní velikosti
+  \item poměr aktuální velikosti k velikosti v minulém průběhu smyčky
+  \item číslo průběhu smyčky, kdy se naposledy používala dvojice ke zredukování domény
+\end{itemize}
+
+
+
+
+
+\section{Charakteristiky problémových instancí pro algoritmus HC3}
+\begin{itemize}
+  \item výskyt jedné proměnné ve více constraintech
+  \item počáteční velikosti domén
+  \item počet proměnných
+  \item počet constraintů
+\end{itemize}
+
+
+\section{Využití v praxi}
