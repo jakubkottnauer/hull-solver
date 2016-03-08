@@ -42,6 +42,8 @@ Omezující podmínka je \emph{redundantní} (nadbytečná), nemá-li její odeb
 
 (TODO: později třeba zmínit, že program neprovádí detekci redundantních podmínek a že to je prostor pro zlepšení...)
 
+Pro práci je důležité ještě jedno dělení omezujících podmínek, a to na \emph{primitivní} a \emph{komplexní} tvary. Omezující podmínka reprezentovaná rovnicí v primitivním tvaru obsahuje maximálně dvě aritmetické operace (maximální arita podmínky je tedy rovna třem) (doplnit)
+
 \subsection{Řešení a splnitelnost CSP}
 Přiřazení konkrétní hodnoty z domény proměnné se nazývá \emph{ohodnocení} (\emph{label}). Přiřazuje-li ohodnocení hodnotu všem proměnným problému, jedná se o \emph{úplné ohodnocení} (\emph{compound label}). Tyto pojmy stačí k definici řešení a splnitelnosti problému s omezujícími podmínkami (definice \ref{def:solution}, resp. \ref{def:satisfiability}).
 
@@ -60,7 +62,7 @@ CSP problém je \emph{splnitelný} (\emph{satisfiable}), existuje-li pro něj ř
 
 Tato práce se zabývá řešením \emph{numerických CSP} (\emph{NCSP}, \emph{numerical CSP}), což je podmnožina CSP problémů, které se dají reprezentovat soustavami rovnic či nerovnic a domény proměnných v těchto problémech bývají zpravidla spojité. Rovnice nebo nerovnice vlastně kladou na proměnné nějaká omezení a zmenšují tak množiny hodnot, kterých mohou nabývat.
 
-Na počátku řešení NCSP má každá proměnná přiřazený spojitý interval hodnot (\emph{doménu}), kterých může nabývat (např. $(-10;10)$), a cílem je co nejvíce zúžit tyto intervaly (zužování domény podle omezující podmínky se říká \emph{propagace}), aby ale stále byly všechny omezující podmínky splněny, viz jednoduchý příklad \ref{eq:simpleConstraint}.
+Domény proměnných v NCSP problémech jsou reálné intervaly, a cílem je co nejvíce tyto intervaly zúžit (zužování domény podle omezující podmínky se říká \emph{propagace}), aby ale stále byly všechny omezující podmínky splněny, viz jednoduchý příklad \ref{eq:simpleConstraint}.
 
 \begin{equation} \label{eq:simpleConstraint}
 x^2 = 1\qquad x \in \boldsymbol{R}
@@ -68,11 +70,11 @@ x^2 = 1\qquad x \in \boldsymbol{R}
 
 Nechť rovnice \ref{eq:simpleConstraint} představuje omezující podmínku a pro doménu $D_x$ proměnné $x$ platí $D_x = (-5;5)$. Všechna řešení této rovnice určitě leží v intervalu $D_x$, ale také například v $\langle -1;2)$, nikoliv však v $(0;2)$ (tento interval obsahuje jen jedno ze dvou řešení). Metody řešení numerických CSP dokáží problém vyřešit nalezením minimálního intervalu obsahujícího všechna řešení, tj. $D_x' = \langle -1;1\rangle$. Nalezený interval vlastně tvoří jakési ohraničení všech možných řešení, anglicky se toto ohraničení nazývá \emph{box}. V praxi je pak třeba řešit soustavy těchto podmínek a nalezená ohraničení (boxy) jsou tvořena kartézským součinem intervalů.
 
-Zbytek práce bude věnován především problematice numerických CSP.
+Zbytek textu již bude věnován především problematice numerických CSP.
 
 \subsection{Historie NCSP}
 
-Teoretické základy pro problematiku popsanou v bakalářské práci položil John G. Cleary v roce 1987 ve svém článku \emph{Logical Arithmetic}~\cite{cleary87}, kde jsou popsány metody pro redukci domén proměnných v omezujících podmínkách se základními aritmetickými operacemi. Tabulka~\ref{narrowingTable} ukazuje příklad (převzatý z \cite{cleary87}) redukce domény pro omezující podmínku ve tvaru $z = x + y$. Například pro zredukovanou doménu $D_z'$ proměnné $z$ platí $D_z' = D_z \cap (D_x + D_y)$. Aritmetické operace nad intervaly definuje \emph{intervalová aritmetika}. Pro součet uzavřených intervalů platí $\langle a;b \rangle + \langle c;d \rangle = \langle a + c ; b + d \rangle$.
+Teoretické základy pro problematiku popsanou v bakalářské práci položil John G. Cleary v roce 1987 ve svém článku \emph{Logical Arithmetic}~\cite{cleary87}, kde jsou popsány metody pro redukci domén proměnných v omezujících podmínkách se základními aritmetickými operacemi. Tabulka~\ref{narrowingTable} ukazuje příklad (převzatý z \cite{cleary87}) redukce domény pro omezující podmínku ve tvaru $z = x + y$. Například pro zredukovanou doménu $D_z'$ proměnné $z$ platí $D_z' = D_z \cap (D_x + D_y)$. Aritmetické operace nad intervaly definuje \emph{intervalová aritmetika} (více viz kapitola \ref{ch:interval_arithmetic}). Pro součet uzavřených intervalů platí $\langle a;b \rangle + \langle c;d \rangle = \langle a + c ; b + d \rangle$.
 
 \begin{table}[ht]
 \centering
@@ -89,9 +91,35 @@ Teoretické základy pro problematiku popsanou v bakalářské práci položil J
 \end{table}
 
 \section{Intervalová aritmetika}
+\label{ch:interval_arithmetic}
+Intervalová aritmetika je rozšířením aritmetiky reálných čísel na intervaly. (doplnit)
+
+\begin{definition}
+\label{def:interval_add}
+\emph {Součet intervalů} $a = (x_1; y_1)$ a $b = (x_2; y_2)$ je množina $a + b = \{x+y | x \in a; y \in b \}$, tedy platí, že $(x_1; y_1) + (x_2; y_2) = (x_1 + x_2; y_1 + y_2)$.
+\end{definition}
+
+\begin{definition}
+\label{def:interval_sub}
+\emph {Rozdíl intervalů} $a = (x_1; y_1)$ a $b = (x_2; y_2)$ je množina $a - b = \{x-y | x \in a; y \in b \}$, tedy platí, že $(x_1; y_1) - (x_2; y_2) = (x_1 - y_2; y_1 - x_2)$.
+\end{definition}
+
+V případě součinu je situace složitější... 
+
 
 \section{Algoritmy pro řešení NCSP}
+
+
 \section{Heuristiky}
+\begin{itemize}
+  \item Heuristika \emph{dominant-first} se snaží nejprve redukovat domény \uv{dominantních proměnných} - tím jsou myšleny proměnné vyskytující se v původních nerozložených podmínkách,
+  \item \emph{small-interval-first/last} se snaží dále zúžit nejužší, resp. nejširší intervaly,
+  \item \emph{shrunk-interval-first/last} vybírá nejprve proměnné, jejichž domény byly od běhu nejvíce, resp. nejméně, od začátku běhu algoritmu zmenšeny (vypočítává se kvocient z původní a aktuální velikosti domény),
+  \item \emph{max-cand} vybírá proměnnou s nejvyšší levou či pravou mezí domény. Např. proměnná s doménou $(1;6)$ může být vybrána dříve než proměnná s doménou $(1;3)$, protože má vyšší pravou mez.
+\end{itemize}
+
+
+
 \subsection{Typy heuristik}
 
 \begin{itemize}
@@ -115,9 +143,6 @@ U dynamických parametrů mám k dispozici celou posloupnost jejich hodnot. V pr
   \item poměr aktuální velikosti k velikosti v minulém průběhu smyčky
   \item číslo průběhu smyčky, kdy se naposledy používala dvojice ke zredukování domény
 \end{itemize}
-
-
-
 
 
 \section{Charakteristiky problémových instancí pro algoritmus HC3}

@@ -32,17 +32,6 @@ Oproti tomu jsou BC algoritmy složitější na implementaci než hull consisten
 
 Tyto techniky se dají dále kombinovat například s \emph{branch and prune} algoritmy, které umožňují rekurzivně rozpůlit nalezený box a tyto poloviční boxy dále zmenšovat pomocí HC či BC algoritmů. Je tak možné získat několik menších boxů, které budou zahrnovat méně nadbytečných hodnot.
 
-\subsection{Existující heuristiky}
-V této sekci je pro přehled uvedeno několik příkladů existujících heuristik, ve výsledné bakalářské práci ale možná nebudou zkoumány pouze následující heuristiky, ale i některé jiné. Uvedené heuristiky jsou převzaty z \cite{feiten10}:
-
-\begin{itemize}
-  \item Heuristika \emph{dominant-first} se snaží nejprve redukovat domény \uv{dominantních proměnných} - tím jsou myšleny proměnné vyskytující se v původních nerozložených podmínkách,
-  \item \emph{small-interval-first/last} se snaží dále zúžit nejužší, resp. nejširší intervaly,
-  \item \emph{shrunk-interval-first/last} vybírá nejprve proměnné, jejichž domény byly od běhu nejvíce, resp. nejméně, od začátku běhu algoritmu zmenšeny (vypočítává se kvocient z původní a aktuální velikosti domény),
-  \item \emph{max-cand} vybírá proměnnou s nejvyšší levou či pravou mezí domény. Např. proměnná s doménou $(1;6)$ může být vybrána dříve než proměnná s doménou $(1;3)$, protože má vyšší pravou mez.
-\end{itemize}
-
-
 S vedoucím práce bylo dohodnuto, že řešič bude podporovat omezující podmínky s operacemi sčítání, odčítání a násobení. Podmínky budou zadávány v jednoduchém tvaru, případně bude práce rozšířena o podporu rozkladu komplexních podmínek (\emph{complex constraints}) do konjunkcí jednoduchých podmínek. 
 
 Řešení vstupních problémů bude probíhat s využitím algoritmu HC3 zmíněném v předchozí kapitole s mírnou úpravou pro pestřejší možnosti využití heuristik. Zatímco originální algoritmus vždy vybere z množiny podmínek jednu náhodnou a zredukuje domény všech proměnných v ní obsažených, upravený algoritmus heuristicky vybere dvojici $(c, x)$, kde $c$ je omezující podmínka a $x$ je proměnná obsažená v $c$, a podle této podmínky zúží doménu proměnné $x$. Algoritmus~\ref{HC3Algorithm} uvádí pseudokód takto upraveného algoritmu HC3.
