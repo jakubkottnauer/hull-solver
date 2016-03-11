@@ -31,7 +31,7 @@ module Solver =
             vars
 
         | _ ->
-            let idx = options.heuristic q vars
+            let idx = options.heuristic q pairs vars
             let cons, variableName = q.[idx]
             let q = q |> removeAt idx
 

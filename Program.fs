@@ -4,6 +4,7 @@ module Main =
     open System
     open System.Text.RegularExpressions
     open DomainTypes
+    open Heuristics
 
     let private UNSUPPORTED_CONSTRAINT = "Unsupported constraint format."
     let private FILE_NOT_EXISTS = "File does not exist. Please specify a file containing the problem you want to solve."
@@ -94,8 +95,36 @@ module Main =
                                                           heuristicName="Dominant-First"}
                 parseCommandLineRec xs newOptionsSoFar
             | "max-cand" ->
-                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.MaxCand
-                                                          heuristicName="Max-Cand"}
+                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.MaxRightCand
+                                                          heuristicName="Max-Right-Cand"}
+                parseCommandLineRec xs newOptionsSoFar
+            | "max-right-cand" ->
+                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.MaxRightCand
+                                                          heuristicName="Max-Right-Cand"}
+                parseCommandLineRec xs newOptionsSoFar
+            | "min-right-cand" ->
+                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.MinRightCand
+                                                          heuristicName="Min-Right-Cand"}
+                parseCommandLineRec xs newOptionsSoFar
+            | "large-int-first" ->
+                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.LargeIntervalFirst
+                                                          heuristicName="Large-Interval-First"}
+                parseCommandLineRec xs newOptionsSoFar
+            | "small-int-first" ->
+                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.SmallIntervalFirst
+                                                          heuristicName="Small-Interval-First"}
+                parseCommandLineRec xs newOptionsSoFar
+            | "shrunk-most-first" ->
+                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.ShrunkMostFirst
+                                                          heuristicName="Shrunk-Most-First"}
+                parseCommandLineRec xs newOptionsSoFar
+            | "shrunk-least-first" ->
+                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.ShrunkLeastFirst
+                                                          heuristicName="Shrunk-Least-First"}
+                parseCommandLineRec xs newOptionsSoFar
+            | "fail-first" ->
+                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.FailFirst
+                                                          heuristicName="Fail-First"}
                 parseCommandLineRec xs newOptionsSoFar
             | _ ->
                 printfn "Unknown heuristic %s. Using the 'rand' heuristic instead." heuristicCode
@@ -117,15 +146,7 @@ module Main =
 
     [<EntryPoint>]
     let main args =
-
         let options = parseCommandLine (args |> List.ofArray)
-
-//        let options = {
-//            fileName = "quadfor2";
-//            eps = 0.0001;
-//            heuristic = Heuristics.DominantFirst;
-//            heuristicName = "dom-first";
-//            }
 
         let constraints, variables =
             options.fileName
@@ -135,7 +156,5 @@ module Main =
         Problem(constraints, variables)
         |> Solver.solve options
         |> ignore
-
-//        Console.ReadKey() |> ignore
 
         0

@@ -57,12 +57,14 @@ Přiřazení konkrétní hodnoty z domény proměnné se nazývá \emph{ohodnoce
 CSP problém je \emph{splnitelný} (\emph{satisfiable}), existuje-li pro něj řešení.
 \end{definition}
 
+Podle charakteru problému někdy stačí nalézt jen jedno řešení, jindy je třeba nalézt všechna řešení, jindy je nutné najít optimální řešení.
+
 
 \section{Numerical constraint satisfaction problem}
 
-Tato práce se zabývá řešením \emph{numerických CSP} (\emph{NCSP}, \emph{numerical CSP}), což je podmnožina CSP problémů, které se dají reprezentovat soustavami rovnic či nerovnic a domény proměnných v těchto problémech bývají zpravidla spojité. Rovnice nebo nerovnice vlastně kladou na proměnné nějaká omezení a zmenšují tak množiny hodnot, kterých mohou nabývat.
+Tato práce se zabývá řešením \emph{numerických CSP} (\emph{NCSP}, \emph{numerical CSP}), což je podmnožina CSP problémů, jejichž domény jsou spojité (a tedy jsou to intervaly) a které se dají reprezentovat soustavami rovnic či nerovnic. Rovnice nebo nerovnice vlastně kladou na proměnné nějaká omezení a zmenšují tak množiny hodnot, kterých mohou nabývat.
 
-Domény proměnných v NCSP problémech jsou reálné intervaly, a cílem je co nejvíce tyto intervaly zúžit (zužování domény podle omezující podmínky se říká \emph{propagace}), aby ale stále byly všechny omezující podmínky splněny, viz jednoduchý příklad \ref{eq:simpleConstraint}.
+Domény proměnných v NCSP problémech jsou reálné intervaly, a cílem je co nejvíce tyto intervaly zúžit (zužování domény podle omezující podmínky se říká \emph{propagace omezující podmínky}), aby ale stále byly všechny omezující podmínky splněny, viz jednoduchý příklad \ref{eq:simpleConstraint}.
 
 \begin{equation} \label{eq:simpleConstraint}
 x^2 = 1\qquad x \in \boldsymbol{R}
@@ -107,8 +109,11 @@ Intervalová aritmetika je rozšířením aritmetiky reálných čísel na inter
 V případě součinu je situace složitější... 
 
 
-\section{Algoritmy pro řešení NCSP}
+\section{Řešení NCSP}
+Rozlišují se dva základní přístupy k řešení CSP a NCSP problémů, a to systematické prohledávání a propagace omezujících podmínek. \cite{Vu2005}
 
+\subsection{Konzistenční techniky}
+Konzistenční techniky slouží k odebrání nekonzistentních hodnot z domén proměnných.
 
 \section{Heuristiky}
 \begin{itemize}

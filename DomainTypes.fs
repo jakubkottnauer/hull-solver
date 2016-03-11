@@ -7,7 +7,6 @@ module DomainTypes =
     let private DIVISOR_ZERO = "Divisor must not be zero."
     let private VAR_INVALID = "Invalid variable."
     let ZERO_EPSILON = 0.00000000000000000000000000000000001
-    let private rnd = Random DateTime.Now.Millisecond
 
     /// An interval
     ///
@@ -311,38 +310,11 @@ module DomainTypes =
             else
                 raise <| new ArgumentException(VAR_INVALID)
 
-    /// Heuristics for selecting constraint-variable pairs.
-    type Heuristics =
-
-        /// Selects a pseudo random pair.
-        static member Random (q: (Constraint * string) list) (vars: Variable list) =
-            rnd.Next q.Length
-
-        /// Selects the first pair containing a dominant variable. Selects the first pair if no such is available.
-        static member DominantFirst (q: (Constraint * string) list) (vars: Variable list) =
-            let dominantList = q
-                              |> List.map(fun (c, v) -> vars |> findVar v)
-                              |> List.filter(fun v -> v.IsDominant)
-
-            if dominantList.Length = 0 then
-                0
-            else
-                q |> List.findIndex(fun (c, v) -> v = dominantList.Head.Name)
-
-        /// Selects the pair whose variable's domain has the highest right bound.
-        static member MaxCand (q: (Constraint * string) list) (vars: Variable list) =
-            let varsOnly = q
-                        |> List.map(fun (c, v) -> vars |> findVar v)
-            let max = varsOnly
-                        |> List.maxBy(fun item -> item.Domain.b)
-
-            q |> List.findIndex(fun (c, v) -> v = max.Name)
-
     /// Command line options.
     type Options = {
         fileName: string;
         eps: float;
-        heuristic: (Constraint * string) list -> Variable list -> int;
+        heuristic: (Constraint * string) list -> (Constraint * string) list -> Variable list -> int;
         heuristicName: string;
         }
 
