@@ -63,7 +63,7 @@ module Solver =
                hc3Rec unitedQueue pairs filteredVars options
 
     /// Function which prepares data for the main HC3 algorithm.
-    let private hc3 (o: Options) (p : Problem) =
+    let private hc3 options (p : Problem) =
         let collectTuple (x, items) =
             items
             |> List.map (fun y -> x, y)
@@ -73,11 +73,11 @@ module Solver =
             |> List.map (fun item -> (item, item.VariableNames))
             |> List.collect collectTuple
 
-        hc3Rec q q p.Variables o
+        hc3Rec q q p.Variables options
         |> p.Clone p.WasSplitBy
 
     /// Recursively solves the NCSP passed into this function using a branch-and-prune algorithm.
-    let rec private solveRec options (p:Problem) =
+    let rec private solveRec options (p : Problem) =
         //printfn "Box size: %f" p.Size
 
         if not(p.AllFraction options.eps) then
@@ -97,7 +97,7 @@ module Solver =
                   //reducedProblem.Print
 
     /// Entry function of the solver.
-    let solve options (p:Problem) =
+    let solve options (p : Problem) =
         let stopWatch = System.Diagnostics.Stopwatch.StartNew()
 
         solveRec options p

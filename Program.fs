@@ -148,6 +148,13 @@ module Main =
     let main args =
         let options = parseCommandLine (args |> List.ofArray)
 
+//        let options = {
+//             fileName = "C:\\git\\hull-solver\\tests\\solotarev";
+//             eps = 0.0001;
+//             heuristic = Heuristics.MinRightCand;
+//             heuristicName = "max-right-cand";
+//            }
+
         let constraints, variables =
             options.fileName
             |> validateFile
@@ -156,5 +163,7 @@ module Main =
         Problem(constraints, variables)
         |> Solver.solve options
         |> ignore
+
+        Console.ReadKey()
 
         0
