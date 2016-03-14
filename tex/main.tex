@@ -10,6 +10,7 @@
 \usepackage{algpseudocode}
 \usepackage{amssymb} %additional math symbols
 \usepackage{bm}
+\usepackage{epstopdf}
 
 % % list of acronyms
 % \usepackage[acronym,nonumberlist,toc,numberedsection=autolabel]{glossaries}
@@ -34,12 +35,12 @@
 \authorWithDegrees{Jakub Kottnauer}
 \supervisor{doc. Ing. Stefan Ratschan}
 \acknowledgements{Doplňte, máte-li komu a za co děkovat. V~opačném případě úplně odstraňte tento příkaz.}
-\abstractCS{Hlavním cílem práce je otestování vlivu heuristik na~efektivitu řešení numerických CSP pomocí propagací intervalů. Problém splnitelnosti omezujících podmínek (CSP) je problém o~nalezení hodnot proměnných tak, aby byly splněny všechny dané podmínky. Jako součást práce byl napsán řešič v~jazyce F\# implementující algoritmus HC3 s~podporou pro podmínky s~operacemi sčítání, odčítání a násobení. Byly nalezeny podstatné parametry algoritmu ovlivňující jeho účinnost a~následně byly s~\textbf{DOPLNIT POČET} heuristikami provedeny výpočetní experimenty a~jejich výsledky porovnány. Výstup práce bude možno využít při rozvažování, kterou heuristiku použít při řešení soustav omezujících podmínek převeditelných na~podmínky s~výše uvedenými operacemi.}
-\abstractEN{Sem doplňte ekvivalent abstraktu Vaší práce v~angličtině.}
+\abstractCS{Hlavním cílem práce je otestování vlivu heuristik na~efektivitu řešení numerických CSP pomocí propagací intervalů. Problém splnitelnosti omezujících podmínek (CSP) je problém o~nalezení hodnot proměnných tak, aby byly splněny všechny dané podmínky. Jako součást práce byl napsán řešič v~jazyce F\# implementující algoritmy HC3 a branch-and-prune s~podporou pro podmínky s~operacemi sčítání, odčítání a~násobení. Byly nalezeny podstatné parametry algoritmu ovlivňující jeho účinnost a~následně byly s~\textbf{DOPLNIT POČET} heuristikami provedeny výpočetní experimenty a~jejich výsledky porovnány. Výstup práce bude možno využít při rozvažování, kterou heuristiku použít při řešení soustav omezujících podmínek převeditelných na~podmínky s~výše uvedenými operacemi.}
+\abstractEN{The~main goal of this thesis is to test the influence of several heuristics on the effectivenes of solving numerical CSP problems by interval propagation. Constraint safisfaction problem (CSP) is a~problem of finding the~values of variables while satisfying all the given constraints. A~problem solver written in the F\# language utilizing the HC3 algorithm and a branch-and-prune algorithm has been created, important aspects of the HC3 algorithm influencing its effectivenes have been found and then experiments with \textbf{NUMBER} different heuristics were performed. The results found in the thesis can be used when deciding which heuristic to use when solving constraint systems.}
 \placeForDeclarationOfAuthenticity{V~Praze}
 \declarationOfAuthenticityOption{4} %volba Prohlášení (číslo 1-6)
 \keywordsCS{propagace intervalů, algoritmus HC3, problém splnitelnosti, omezující podmínky, heuristiky, konzistenční techniky, funkcionální programování, FSharp}
-\keywordsEN{Nahraďte seznamem klíčových slov v angličtině oddělených čárkou.}
+\keywordsEN{interval propagation, HC3 algorithm, constraint satisfaction problem, constraints, heuristics, consistency, functional programming, FSharp}
 
 \begin{document}
 

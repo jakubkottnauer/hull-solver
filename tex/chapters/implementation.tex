@@ -1,2 +1,50 @@
 \chapter{Implementace}
 \section{Použité technologie}
+\section{Algoritmy}
+
+S vedoucím práce bylo dohodnuto, že řešič bude podporovat omezující podmínky s operacemi sčítání, odčítání a násobení. Podmínky budou zadávány v jednoduchém tvaru, případně bude práce rozšířena o podporu rozkladu komplexních podmínek (\emph{complex constraints}) do konjunkcí jednoduchých podmínek. 
+
+Řešení vstupních problémů bude probíhat s využitím algoritmu HC3 zmíněném v předchozí kapitole s mírnou úpravou pro pestřejší možnosti využití heuristik. Zatímco originální algoritmus vždy vybere z množiny podmínek jednu náhodnou a zredukuje domény všech proměnných v ní obsažených, upravený algoritmus heuristicky vybere dvojici $(c, x)$, kde $c$ je omezující podmínka a $x$ je proměnná obsažená v $c$, a podle této podmínky zúží doménu proměnné $x$. Algoritmus~\ref{HC3Algorithm} uvádí pseudokód takto upraveného algoritmu HC3.
+
+\begin{algorithm}
+\caption{Algoritmus HC3}
+\label{HC3Algorithm}
+\begin{algorithmic}[1]
+\Procedure{HC3}{$P$}
+\State $Q \gets P$
+\While{$Q \neq \emptyset$ }
+\State Pomocí heuristiky vyber z $Q$ pár $p = (c, x)$.
+\State $Q \gets Q \setminus \left\{ p \right\}$
+\State $D_x' \gets$ Zredukuj doménu $D_x$ proměnné $x$ podle podmínky $c$.
+\If{$D_x' = \emptyset $}
+\State Konec - CSP je nekonzistentní.
+\EndIf
+\If{$D_x \neq D_x'$}
+\State $D_x \gets D_x'$
+\State Přidej zpět do $Q$ pár $p$ a všechny další páry z $P$, které obsahují proměnnou $x$.
+\EndIf
+\EndWhile
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+Nad HC3 algoritmem bude postaven jednoduchý branch and prune algoritmus (viz Algoritmus \ref{BranchPrune}), který zároveň tvoří hlavní funkci programu. Při spuštění je mu předán množina dvojic omezujících podmínek a proměnných v nich obsažených. Domény proměnných dohromady tvoří box a tento box je následně algoritmem HC3 zmenšen. Nový je poté rozpůlen a obě poloviny opět vstupují do branch and prune algoritmu. V pseudokódu se rovněž vyskytuje konstanta $\epsilon$, která určuje mez, kdy je nalezený box dostatečně malý a již ho není potřeba dále zmenšovat.
+
+\begin{algorithm}
+\caption{Branch \& Prune}
+\label{BranchPrune}
+\begin{algorithmic}[1]
+\Require Množina dvojic $(c, x)$, kde $c$ je omezující podmínka definovaná nad proměnnou $x$.
+\Ensure Seznam nalezených boxů.
+\Procedure{Solve}{$P$}
+\If{Problém není dostatečně malý}
+\State $P' \gets HC3(P)$
+\State $(P_1, P_2) \gets $ rozděl box tvořený proměnnými z $P'$ na poloviny.
+\State Solve($P_1$)
+\State Solve($P_2$)
+\Else
+\State Vypiš/ulož box tvořený proměnnými z $P$ jako jeden z výsledků.
+\EndIf
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}

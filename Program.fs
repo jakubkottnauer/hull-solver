@@ -164,6 +164,6 @@ module Main =
         |> Solver.solve options
         |> ignore
 
-        Console.ReadKey()
+        // Console.ReadKey()
 
         0
