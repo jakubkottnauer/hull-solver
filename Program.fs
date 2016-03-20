@@ -66,6 +66,42 @@ module Main =
 
         (constraints, variables)
 
+    let matchHeuristic code options =
+        match code with
+            | "rand" ->
+                { options with heuristic=Heuristics.Random
+                               heuristicName="Random"}
+            | "dom-first" ->
+                { options with heuristic=Heuristics.DominantFirst
+                               heuristicName="Dominant-First"}
+            | "max-cand" ->
+                { options with heuristic=Heuristics.MaxRightCand
+                               heuristicName="Max-Right-Cand"}
+            | "max-right-cand" ->
+                { options with heuristic=Heuristics.MaxRightCand
+                               heuristicName="Max-Right-Cand"}
+            | "min-right-cand" ->
+                { options with heuristic=Heuristics.MinRightCand
+                               heuristicName="Min-Right-Cand"}
+            | "large-int-first" ->
+                { options with heuristic=Heuristics.LargeIntervalFirst
+                               heuristicName="Large-Interval-First"}
+            | "small-int-first" ->
+                { options with heuristic=Heuristics.SmallIntervalFirst
+                               heuristicName="Small-Interval-First"}
+            | "shrunk-most-first" ->
+                { options with heuristic=Heuristics.ShrunkMostFirst
+                               heuristicName="Shrunk-Most-First"}
+            | "shrunk-least-first" ->
+                { options with heuristic=Heuristics.ShrunkLeastFirst
+                               heuristicName="Shrunk-Least-First"}
+            | "fail-first" ->
+                { options with heuristic=Heuristics.FailFirst
+                               heuristicName="Fail-First"}
+            | _ ->
+                printfn "Unknown heuristic %s. Using the 'rand' heuristic instead." code
+                options
+
     let rec parseCommandLineRec args optionsSoFar =
         match args with
         | [] ->
@@ -85,50 +121,8 @@ module Main =
                 parseCommandLineRec xs optionsSoFar
 
         | "-h"::heuristicCode::xs ->
-            match heuristicCode with
-            | "rand" ->
-                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.Random
-                                                          heuristicName="Random"}
-                parseCommandLineRec xs newOptionsSoFar
-            | "dom-first" ->
-                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.DominantFirst
-                                                          heuristicName="Dominant-First"}
-                parseCommandLineRec xs newOptionsSoFar
-            | "max-cand" ->
-                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.MaxRightCand
-                                                          heuristicName="Max-Right-Cand"}
-                parseCommandLineRec xs newOptionsSoFar
-            | "max-right-cand" ->
-                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.MaxRightCand
-                                                          heuristicName="Max-Right-Cand"}
-                parseCommandLineRec xs newOptionsSoFar
-            | "min-right-cand" ->
-                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.MinRightCand
-                                                          heuristicName="Min-Right-Cand"}
-                parseCommandLineRec xs newOptionsSoFar
-            | "large-int-first" ->
-                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.LargeIntervalFirst
-                                                          heuristicName="Large-Interval-First"}
-                parseCommandLineRec xs newOptionsSoFar
-            | "small-int-first" ->
-                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.SmallIntervalFirst
-                                                          heuristicName="Small-Interval-First"}
-                parseCommandLineRec xs newOptionsSoFar
-            | "shrunk-most-first" ->
-                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.ShrunkMostFirst
-                                                          heuristicName="Shrunk-Most-First"}
-                parseCommandLineRec xs newOptionsSoFar
-            | "shrunk-least-first" ->
-                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.ShrunkLeastFirst
-                                                          heuristicName="Shrunk-Least-First"}
-                parseCommandLineRec xs newOptionsSoFar
-            | "fail-first" ->
-                let newOptionsSoFar = { optionsSoFar with heuristic=Heuristics.FailFirst
-                                                          heuristicName="Fail-First"}
-                parseCommandLineRec xs newOptionsSoFar
-            | _ ->
-                printfn "Unknown heuristic %s. Using the 'rand' heuristic instead." heuristicCode
-                parseCommandLineRec xs optionsSoFar
+            matchHeuristic heuristicCode optionsSoFar
+            |> parseCommandLineRec xs
 
         | x::xs ->
             printfn "Option '%s' is unrecognized" x
