@@ -11,6 +11,9 @@
 \usepackage{amssymb} %additional math symbols
 \usepackage{bm}
 \usepackage{epstopdf}
+\usepackage{mathtools}
+\usepackage{hyperref}
+\usepackage{xr}
 
 % % list of acronyms
 % \usepackage[acronym,nonumberlist,toc,numberedsection=autolabel]{glossaries}
@@ -36,7 +39,7 @@
 \supervisor{doc. Ing. Stefan Ratschan}
 \acknowledgements{Doplňte, máte-li komu a za co děkovat. V~opačném případě úplně odstraňte tento příkaz.}
 \abstractCS{Hlavním cílem práce je otestování vlivu heuristik na~efektivitu řešení numerických CSP pomocí propagací intervalů. Problém splnitelnosti omezujících podmínek (CSP) je problém o~nalezení hodnot proměnných tak, aby byly splněny všechny dané podmínky. Jako součást práce byl napsán řešič v~jazyce F\# implementující algoritmy HC3 a branch-and-prune s~podporou pro podmínky s~operacemi sčítání, odčítání a~násobení. Byly nalezeny podstatné parametry algoritmu ovlivňující jeho účinnost a~následně byly s~\textbf{DOPLNIT POČET} heuristikami provedeny výpočetní experimenty a~jejich výsledky porovnány. Výstup práce bude možno využít při rozvažování, kterou heuristiku použít při řešení soustav omezujících podmínek převeditelných na~podmínky s~výše uvedenými operacemi.}
-\abstractEN{The~main goal of this thesis is to test the influence of several heuristics on the effectivenes of solving numerical CSP problems by interval propagation. Constraint safisfaction problem (CSP) is a~problem of finding the~values of variables while satisfying all the given constraints. A~problem solver written in the F\# language utilizing the HC3 algorithm and a branch-and-prune algorithm has been created, important aspects of the HC3 algorithm influencing its effectivenes have been found and then experiments with \textbf{NUMBER} different heuristics were performed. The results found in the thesis can be used when deciding which heuristic to use when solving constraint systems.}
+\abstractEN{The~main goal of this thesis is to test the influence of various heuristics on the efficiency of solving numerical CSP problems by interval propagation. Constraint safisfaction problem (CSP) is a~problem of finding the~values of variables while satisfying all the given constraints. A~problem solver written in the F\# language utilizing the HC3 algorithm and a branch-and-prune algorithm has been created, important aspects of the HC3 algorithm influencing its efficiency have been found and then experiments with \textbf{NUMBER} different heuristics were performed. The results found in the thesis can be used when deciding which heuristic to use when solving constraint systems.}
 \placeForDeclarationOfAuthenticity{V~Praze}
 \declarationOfAuthenticityOption{4} %volba Prohlášení (číslo 1-6)
 \keywordsCS{propagace intervalů, algoritmus HC3, problém splnitelnosti, omezující podmínky, heuristiky, konzistenční techniky, funkcionální programování, FSharp}
@@ -53,7 +56,6 @@
 
 \input{chapters/theory}
 \input{chapters/goals}
-\input{chapters/implementationSteps}
 \input{chapters/implementation}
 \input{chapters/experiments}
 
@@ -73,16 +75,61 @@
 	\item[NCSP] Numerical Constraint Satisfaction Problem
 \end{description}
 
+
+
+\chapter{Manuál k programu HullSolver}
+\label{hullSolverManual}
+\section{Kompilace}
+Pro zkompilování zdrojových kódu na Windows lze použít kompilátor \verb|fsc.exe| (\verb|fsc HullSolver.sln|) dodávaný společně s Microsoft Visual Studio. Na Linuxu a OS~X je potřeba nejprve nainstalovat Mono, které umožňuje kompilovat a spouštět .NET aplikace i na ostatních platformách, než jen Windows. Na Linuxu, resp. OS~X jej lze nainstalovat příkazem \\ \verb|apt-get install mono-complete fsharp|, resp. \verb|brew install mono|. Poté již půjde zdrojové kódy zkompilovat příkazem \verb|xbuild HullSolver.sln|. Oba kompilátory uloží zkompilovanou aplikaci do adresáře \verb|bin/Debug|.
+
+\section{Spuštění}
+
+Zkompilovaný program se spouští z příkazové řádky na Windows jednoduše jako \verb|bin\Debug\HullSolver.exe|, na terminálu na Linuxu a OS~X jako \\ \verb|mono bin/Debug/HullSolver.exe|. Program podporuje tři přepínače:
+
+\begin{itemize}
+    \item \verb|-f <path>| - cesta k souboru s problémem k vyřešení
+    \item \verb|-p <precision>| - kolikrát se musí velikost domény dominantní proměnné snížit, aby byla považována za řešení
+    \item \verb|-h <heuristic>| - použitá heuristika (seznam použitelných názvů je níže)
+\end{itemize}
+
+\section{Vstup}
+Vstupem programu HullSolver jsou textové soubory, ve kterém jsou nejprve uvedeny dominantní proměnné následované seznamem omezujících podmínek v primitivním tvaru a nakonec jsou uvedeny domény jednotlivých proměnných. Formát souboru je následující:
+
+\begin{verbatim}
+// Dominantní proměnné
+x y a b
+
+// Omezující podmínky
+x * x = a
+x + y = b
+
+// Domény proměnných
+x in [1,10]
+y in [0,100]
+a in [16,16]
+b in [10,10]
+\end{verbatim}
+
+
+Pro intervaly je využita anglosaská notace, $[1,10]$ odpovídá intervalu $\langle 1;10 \rangle$.
+
+V repozitáři je několik dávkových souborů (pouze pro Windows), které umožňují pohodlnější opakované spouštění programu - spustí jej postupně se všemi heuristikami pro všechny vstupní problémy a naměřené hodnoty uloží do adresáře \verb|./out|.
+
+
+
 \chapter{Obsah přiloženého CD}
 
 \begin{figure}
 	\dirtree{%
-		.1 readme.txt\DTcomment{stručný popis obsahu CD}.
-		.1 exe\DTcomment{adresář se spustitelnou formou implementace}.
+		.1 README.md\DTcomment{stručný manuál k programu a popis obsahu CD}.
+		.1 bin.
+		.2 linux\DTcomment{spustitelný program pro Linux}.
+		.2 osx\DTcomment{spustitelný program pro OS~X}.
+		.2 win\DTcomment{spustitelný program pro Windows}.
 		.1 src.
-		.2 impl\DTcomment{zdrojové kódy implementace}.
+		.2 hullsolver\DTcomment{zdrojové kódy implementace}.
 		.2 thesis\DTcomment{zdrojová forma práce ve formátu \LaTeX{}}.
-		.1 text\DTcomment{text práce}.
+		.1 text.
 		.2 thesis.pdf\DTcomment{text práce ve formátu PDF}.
 		.2 thesis.ps\DTcomment{text práce ve formátu PS}.
 	}

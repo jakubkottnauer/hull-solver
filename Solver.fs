@@ -78,8 +78,6 @@ module Solver =
 
     /// Recursively solves the NCSP passed into this function using a branch-and-prune algorithm.
     let rec private solveRec options (p : Problem) =
-        //printfn "Box size: %f" p.Size
-
         if not(p.AllFraction options.eps) then
 
             let reducedProblem = hc3 options p
@@ -90,11 +88,10 @@ module Solver =
                 solveRec options half2
 
         else
-              ()
               let reducedProblem = hc3 options p
               if reducedProblem.HasSolution then
                   printfn "Volume of solution box: %.32f" reducedProblem.Volume
-                  //reducedProblem.Print
+                  reducedProblem.Print
 
     /// Entry function of the solver.
     let solve options (p : Problem) =

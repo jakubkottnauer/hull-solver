@@ -1,11 +1,59 @@
 \chapter{Popis problematiky}
-V mnoha oblastech lidské činnosti existují problémy, které je možné popsat s využitím omezujících podmínek. Ať už je to generování školního rozvrhu (kde jednou z omezujících podmínek může být například volný čas jednotlivých vyučujících), či vyhýbání se překážkám u samořídících automobilů, obecně jde vždy o nějaký problém, pro který je potřeba najít optimální řešení při splnění daných omezení. Těmto problémům se říká \emph{constraint satisfaction problems} (CSP, česky \emph{problémy splnitelnosti omezujících podmínek}).
+V mnoha oblastech lidské činnosti existují problémy, které je možné popsat s využitím omezujících podmínek. Ať už je to generování školního rozvrhu (kde jednou z omezujících podmínek může být například volný čas jednotlivých vyučujících), či vyhýbání se překážkám u samořídících automobilů, obecně jde vždy o nějaký problém, pro který je potřeba najít optimální řešení při splnění daných omezení. Těmto problémům se říká \emph{constraint satisfaction problems} (CSP, česky \emph{problémy splnitelnosti omezujících podmínek}). Než ale bude být tento pojem podrobněji rozebrán, je nutné se seznámit s oblastí matematiky nazývanou\emph{intervalová aritmetika}.
 
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Intervalová aritmetika}
+\label{ch:interval_arithmetic}
+Intervalová aritmetika je rozšířením aritmetiky reálných čísel na interval. Pro značení otevřených a uzavřených intervalů je v této práci využita notace používaná v české literatuře:
+
+\begin{itemize}
+    \item $\langle a;b \rangle \equiv \{x \in R | a \le x \le b \} $ - uzavřený interval
+    \item $(a;b) \equiv \{ x \in R | a < x < b \}$ - otevřený interval
+\end{itemize}
+
+Pro sčítání, odčítání, násobení a dělení intervalů platí následující vztahy ($x = \langle a; b \rangle$ a $y = \langle c; d \rangle$ jsou intervaly a odpovídající vztahy platí i pro otevřené intervaly):
+
+\begin{subequations}
+\begin{align}
+   x+y = \langle & a + c;  b + d \rangle\\
+   x-y = \langle & a - c;  b - d \rangle\\
+   \begin{split}x  \cdot y = \langle & min(ab, ad, bc, bd); \\ & max(ab, ad, bc, bd) \rangle \end{split}\\
+   \frac{x}{y} = x & \cdot \frac{1}{y} \mbox{ pokud } 0 \notin y, \mbox{ kde } \frac{1}{y} \equiv \langle  \frac{1}{b}; \frac{1}{a} \rangle
+\end{align}
+\end{subequations}
+
+Odčítání lze převést na sčítání pomocí tohoto vztahu:
+
+\begin{subequations}
+\begin{align}
+   -x = - \langle a;b \rangle = \langle -b; -a \rangle
+\end{align}
+\end{subequations}
 
 
+Dalšími potřebnými operacemi jsou průnik a sjednocení:
+
+\begin{subequations}
+\begin{align}
+   x \cap y = \{ & i \in R | i \in x \wedge i \in y \} \\
+   x \cup y = \langle & min(a, c); max(b, d) \rangle
+\end{align}
+\end{subequations}
+
+
+U všech vztahů si lze povšimnout, že výsledkem je vždy nejširší možný interval.
+
+Jako \emph{obal} (\emph{hull}, značeno $H$) se označuje nejmenší interval \uv{obalující} podmnožinu reálných čísel. Například platí, že $H(\{2,5,8\}) = \langle 2; 8 \rangle$, $H((1;3) \cup (5;7)) = (1;7)$.
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Constraint programming}
 \emph{Constraint programming} (či \emph{programování s omezujícími podmínkami}) je jedním z odvětví umělé inteligence pro řešení optimalizačních úloh (konkrétně CSP úloh). Asociace ACM v \cite{Wegner1996} označila toto téma jako jedno z klíčových oblastí pro budoucí výzkum, neboť se problémy s omezujícími podmínkami přirozeně vyskytují v každodenním životě. Předností constraint programming je navíc to, že uživatel popíše problém k vyřešení pouze deklarativně - nedá tedy počítači žádný postup k řešení, jen zadá aktuální stav problému a specializovaný program (řešič) najde řešení (pokud existuje).
 
@@ -29,7 +77,7 @@ Známý SAT problém\footnote{Boolean satisfiability problem} je také příklad
 \emph{Doména} (nebo také \emph{definiční obor}) proměnné je množina všech hodnot, kterých může proměnná nabývat.
 \end{definition}
 
-Doménou, jak ukazuje definice \ref{def:domain}, může být jakákoliv množina. Domény mohou být diskrétní (podmnožina přirozených čísel, ${red, green, blue}$ při obarvování grafu, ${true, false}$ u SAT problém, apod.) či spojité (interval reálných čísel)
+Doménou, jak ukazuje definice \ref{def:domain}, může být jakákoliv množina. Domény mohou být diskrétní (podmnožina přirozených čísel, ${red, green, blue}$ při obarvování grafu, ${true, false}$ u SAT problém, apod.) či spojité (interval reálných čísel).
 
 
 \subsection{Omezující podmínka}
@@ -62,8 +110,8 @@ v_1 = 2y \quad \wedge \quad v_2 = z - 1 \quad \wedge \quad v_3 = x + v_1 \quad \
 
 
 
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Numerical constraint satisfaction problem}
 
 Tato práce se zabývá řešením \emph{numerických CSP} (\emph{NCSP}, \emph{numerical CSP}), což je podmnožina CSP problémů, jejichž domény jsou spojité (a tedy jsou to intervaly) a které se dají reprezentovat soustavami rovnic či nerovnic. Rovnice nebo nerovnice vlastně kladou na proměnné nějaká omezení a zmenšují tak množiny hodnot, kterých mohou nabývat.
@@ -84,7 +132,10 @@ Nebude-li řečeno jinak, bude se zbývající text právě věnovat předevší
 
 
 
-\section{Řešení a splnitelnosti CSP}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Řešení a splnitelnost CSP}
 Přiřazení konkrétní hodnoty z domény proměnné se nazývá \emph{ohodnocení} (\emph{label}). Přiřazuje-li ohodnocení hodnotu všem proměnným problému, jedná se o \emph{úplné ohodnocení} (\emph{compound label}). Tyto pojmy stačí k definici řešení a splnitelnosti problému s omezujícími podmínkami (definice \ref{def:solution}, resp. \ref{def:satisfiability}).
 
 \begin{definition}
@@ -140,7 +191,7 @@ Algoritmus \verb|Solve| má tři důležité části - volání \verb|Happy| fun
     \item Nebyl-li problém dostatečně zmenšen, dojde k jeho rozdělení na více částí (resp. na několik menších CSP). To v praxi nejčastěji znamená, že dojde k rozdělení domén podle pravidla, kterých lze vymyslet poměrně velké množství. U CSP s diskrétními doménami je jedno z možných rozdělení takové, kdy se z domény nějaké proměnné vyjme jedna hodnota a ta se použije u problému $P_1$ a zbytek hodnot z domény se použije u problému $P_2$. U problému $P_1$ pak lze velmi rychle rozhodnout, zda patří do řešení, nebo ne. U numerických CSP problémů je nejjednodušší nějakým způsobem rozdělit jeden či více intervalů (domén). V programu vytvořeném pro tuto práci je při každém rozdělení rozpůlena doména jedné proměnné, která je vybrána metodou \emph{round-robin}. To znamená, že jsou voleny jedna po druhé, tak jak jdou za sebou v definici problému zadaného uživatelem.
 \end{itemize}
 
-Ohledně rozdělení problému na menší části se možná nabízí otázka, proč je to vůbec potřeba, když redukce problému (řádek č.~4 v pseudokódu) by měla být schopná odstranit nekonzistentní hodnoty z domén. V některých typech problému (a je to případ i NCSP problémů řešených zde)  a v závislosti na použitém algoritmu se může stát, že se algoritmus zastaví na krajních hodnotách domény. Obrázek č. níže znázorňuje průběh řešení NCSP problému s využitím splittingu. Červená a modrá křivka jsou omezující podmínky (rovnice) a zelený rámeček okolo nich v bodu 1 je box tvořený doménami proměnných. Řešení problému se pochopitelně nalézá v průsečících obou křivek, algoritmus ale při prvním průchodu dokáže box zmenšit maximálně tak, jak je ukázáno v bodu 2. Následně dojde k rozpůlení jedné z domén a algoritmus se znovu spustí pro obě poloviny, které se již podaří maximálně zredukovat.
+Ohledně rozdělení problému na menší části se možná nabízí otázka, proč je to vůbec potřeba, když redukce problému (řádek č.~4 v pseudokódu) by měla být schopná odstranit nekonzistentní hodnoty z domén. V některých typech problému (a je to případ i NCSP problémů řešených zde) a v závislosti na použitém algoritmu se může stát, že se algoritmus zastaví na krajních hodnotách domény. Obrázek č. níže znázorňuje průběh řešení NCSP problému s využitím splittingu. Červená a modrá křivka jsou omezující podmínky (rovnice) a zelený rámeček okolo nich v bodu 1 je box tvořený doménami proměnných. Řešení problému se pochopitelně nalézá v průsečících obou křivek, algoritmus ale při prvním průchodu dokáže box zmenšit maximálně tak, jak je ukázáno v bodu 2. Následně dojde k rozpůlení jedné z domén a algoritmus se znovu spustí pro obě poloviny, které se již podaří maximálně zredukovat.
 
 \begin{figure}
 \label{img:solving}
@@ -151,25 +202,10 @@ Ohledně rozdělení problému na menší části se možná nabízí otázka, p
 
 
 
-Algoritmům tohoto typu se také říká \emph{branch-and-prune} algoritmy, což je volně přeložitelné jako \uv{větvení a odřezávání větví}. 
+Algoritmům tohoto typu se říká \emph{branch-and-prune} algoritmy, což je volně přeložitelné jako \uv{větvení a odřezávání větví} - řešení se při zavolání \verb|Split| rozdělí na několik větví, z nichž ty, které nevedou k řešení, budou odřezány.
 
 Jak bude vidět později, řešič implementovaný v této práci používá podobný algoritmus v rekurzivní variantě (pseudokód konkrétně použité varianty je v patřičné kapitole).
 
-\section{Intervalová aritmetika}
-\label{ch:interval_arithmetic}
-Intervalová aritmetika je rozšířením aritmetiky reálných čísel na intervaly. (doplnit)
-
-\begin{definition}
-\label{def:interval_add}
-\emph {Součet intervalů} $a = (x_1; y_1)$ a $b = (x_2; y_2)$ je množina $a + b = \{x+y | x \in a; y \in b \}$, tedy platí, že $(x_1; y_1) + (x_2; y_2) = (x_1 + x_2; y_1 + y_2)$.
-\end{definition}
-
-\begin{definition}
-\label{def:interval_sub}
-\emph {Rozdíl intervalů} $a = (x_1; y_1)$ a $b = (x_2; y_2)$ je množina $a - b = \{x-y | x \in a; y \in b \}$, tedy platí, že $(x_1; y_1) - (x_2; y_2) = (x_1 - y_2; y_1 - x_2)$.
-\end{definition}
-
-V případě součinu je situace složitější... 
 
 
 
@@ -177,97 +213,23 @@ V případě součinu je situace složitější...
 
 
 
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Vyhledávání, redukce problému a narrowing funkce}
 \label{ch:searchReduction}
-Rozlišují se dva základní přístupy k řešení CSP a NCSP problémů, a to systematické prohledávání a propagace omezujících podmínek. Základní rozdíl mezi nimi by se dal popsat tak, že zatímco prohledávání hledá platná ohodnocení ve stavovém prostoru, propagace podmínek z něj naopak odstraňuje neplatná ohodnocení. \cite{Vu2005}
+Rozlišují se dva základní přístupy k řešení CSP a NCSP problémů, a to systematické prohledávání a propagace omezujících podmínek. Základní rozdíl mezi nimi by se dal popsat tak, že zatímco prohledávání hledá platná ohodnocení ve stavovém prostoru, propagace podmínek z něj naopak odstraňuje neplatná ohodnocení \cite{Vu2005}.
 
 Pro řešení problémů s omezujícími podmínkami pomocí prohledávání se mimo jiné dají použít i klasické algoritmy umělé inteligence. Jsou jimi například \emph{hill climbing} (vybere se jedno ohodnocení, vygeneruje se několik sousedů - podobných ohodnocení - a z nich se vybere to nejlepší), či vylepšení tohoto algoritmu, např. \emph{simulated annealing} a \emph{tabu search}. Tyto algoritmy dobře fungují pro klasické CSP problémy s diskrétními doménami proměnných. U NCSP problémů, kde jsou domény proměnných tvořeny intervaly, narážejí na obrovské množství různých ohodnocení (podle požadované přesnosti řešení).
 
-
-
-\subsection{Konzistenční techniky}
-Konzistenční techniky slouží k odebrání nekonzistentních hodnot z domén proměnných.
-
-\subsection{Algoritmy}
-Většina řešičů omezujících podmínek propagací intervalů je založena na snaze dostat omezující podmínky do stavu \emph{hull consistency}, nebo \emph{box consistency} \cite{Benhamou99revisinghull}.
-
-Omezující podmínka je hull konzistentní, pokud se podařilo nalézt nejmenší box, který obaluje všechna řešení splňující danou podmínku. Jsou známy dva základní algoritmy k dosažení hull consistency - \emph{HC3} a \emph{HC4}. Algoritmus HC3 byl navržen jako první z algoritmů pro propagaci intervalů v roce 1997 v článku \cite{Benhamou97applyinginterval}, autoři ho tehdy nazvali jednoduše jako \uv{A narrowing algorithm}. Název HC3 byl vytvořen později v článku \cite{Benhamou99revisinghull}, kde byl uveden i pokročilejší algoritmus HC4.
-
-Tyto algoritmy jsou vhodné především v případě, kdy se jedna proměnná nevyskytuje ve více podmínkách najednou. Pokud tomu tak je, nastává tzv. \emph{dependency problem} (problém závislosti) a HC algoritmy se stávají neefektivními, neboť nalezený obal intervalů může být větší, než je ve skutečnosti potřeba \cite{BenhamouCLPIntervals}.
-
-Oproti tomu jsou BC algoritmy složitější na implementaci než hull consistency algoritmy, efektivně ale řeší situaci, kdy se proměnná objevuje v několika omezujících podmínkách.
-
-Tyto techniky se dají dále kombinovat například s \emph{branch and prune} algoritmy, které umožňují rekurzivně rozpůlit nalezený box a tyto poloviční boxy dále zmenšovat pomocí HC či BC algoritmů. Je tak možné získat několik menších boxů, které budou zahrnovat méně nadbytečných hodnot.
+(TODO: doplnit)
 
 
 
+\subsection{Propagace omezujících podmínek se sčítáním a násobením}
+\label{ch:narrowingHowWorks}
+Teoretický základ pro propagaci omezujících podmínek se sčítáním, násobením a několika dalšími operaci položil John G. Cleary v roce 1987 ve svém článku \emph{Logical Arithmetic}~\cite{cleary87}. Tabulka~\ref{narrowingTable} ukazuje příklad (převzatý z \cite{cleary87}) redukce domény pro omezující podmínku ve tvaru $z = x + y$. Pro zúžení domény jedné proměnné si ji stačí vyjádřit z rovnice a provést průnik její domény s intervalem vzniklým z pravé strany rovnice. Například pro zredukovanou doménu $D_z'$ proměnné $z$ platí $D_z' = D_z \cap (D_x + D_y)$.
 
 
-
-
-
-
-
-
-\subsection{Heuristiky}
-Heuristiky slouží
-
-\begin{itemize}
-  \item Heuristika \emph{dominant-first} se snaží nejprve redukovat domény \uv{dominantních proměnných} - tím jsou myšleny proměnné vyskytující se v původních nerozložených podmínkách,
-  \item \emph{small-interval-first/last} se snaží dále zúžit nejužší, resp. nejširší intervaly,
-  \item \emph{shrunk-interval-first/last} vybírá nejprve proměnné, jejichž domény byly od běhu nejvíce, resp. nejméně, od začátku běhu algoritmu zmenšeny (vypočítává se kvocient z původní a aktuální velikosti domény),
-  \item \emph{max-cand} vybírá proměnnou s nejvyšší levou či pravou mezí domény. Např. proměnná s doménou $(1;6)$ může být vybrána dříve než proměnná s doménou $(1;3)$, protože má vyšší pravou mez.
-\end{itemize}
-
-
-
-\subsection{Typy heuristik}
-Heuristiky používané při řešení problémů s omezujícími podmínkami jsou stále předmětem výzkumu, pro řešení NCSP se dají rozdělit do dvou skupin \cite{feiten10}:
-
-\begin{itemize}
-  \item Heuristiky rozhodující podle statických (neměnných) vlastností proměnných, například počtu jejich výskytů, nebo aritmetických operací, kterých se účastní.
-  \item Heuristiky rozhodující podle domén proměnných - zúžit širokou doménu může být výhodnější než dále zužovat malou doménu.
-\end{itemize}
-
-\begin{itemize}
-  \item Statické parametry
-    \subitem dominantní vs. nedominantní proměnná
-    \subitem vstupní množina podmínek
-        \subsubitem počet podmínek, ve kterých se proměnná vyskytuje
-        \subsubitem počet dominantních proměnných v constraintu
-        \subsubitem operace v constraintu (sčítání/násobení)
-  \item Dynamické parametry (tj. mění se během průběhu algoritmu)
-    \subitem intervaly
-        \subsubitem velikost
-        \subsubitem v kladných i záporných hodnotách
-    \subitem dvojice se používá ke zredukování domény
-\end{itemize}
-
-U dynamických parametrů mám k dispozici celou posloupnost jejich hodnot. V praxi se ale nepoužívá celá posloupnost. Příklady:
-
-\begin{itemize}
-  \item poměr aktuální velikosti k původní velikosti
-  \item poměr aktuální velikosti k velikosti v minulém průběhu smyčky
-  \item číslo průběhu smyčky, kdy se naposledy používala dvojice ke zredukování domény
-\end{itemize}
-
-
-\section{Charakteristiky problémových instancí pro algoritmus HC3}
-\begin{itemize}
-  \item výskyt jedné proměnné ve více constraintech
-  \item počáteční velikosti domén
-  \item počet proměnných
-  \item počet constraintů
-\end{itemize}
-
-
-\section{Využití v praxi}
-
-\section{Historie NCSP}
- % TODO: Zakomponovat příklad do zbytku práce
-Teoretické základy pro problematiku popsanou v bakalářské práci položil John G. Cleary v roce 1987 ve svém článku \emph{Logical Arithmetic}~\cite{cleary87}, kde jsou popsány metody pro redukci domén proměnných v omezujících podmínkách se základními aritmetickými operacemi. Tabulka~\ref{narrowingTable} ukazuje příklad (převzatý z \cite{cleary87}) redukce domény pro omezující podmínku ve tvaru $z = x + y$. Například pro zredukovanou doménu $D_z'$ proměnné $z$ platí $D_z' = D_z \cap (D_x + D_y)$. Aritmetické operace nad intervaly definuje \emph{intervalová aritmetika}. Pro součet uzavřených intervalů platí $\langle a;b \rangle + \langle c;d \rangle = \langle a + c ; b + d \rangle$.
 
 \begin{table}
 \centering
@@ -282,3 +244,226 @@ Teoretické základy pro problematiku popsanou v bakalářské práci položil J
 \end{tabular}
 \caption{Příklad redukce domén proměnných v podmínce $z = x + y$}
 \end{table}
+
+
+Propagace podmínek s násobením lze provést podobně, s jednou komplikací, kterou odhalí následující příklad. Omezující podmínku $y = z \cdot x; x \in \langle -2;3 \rangle; y \in \langle -\infty ; \infty \rangle; z \in \langle 1;1 \rangle $ lze chápat jako rovnici $ y = \frac{1}{x}$ a je vidět, že žádný z intervalů není možné přímo zmenšit a to i přesto, že doména proměnné $y$ obsahuje podmnožinu hodnot, kterých nemůže nabývat ($ \langle -\frac{1}{2};\frac{1}{3} \rangle $). Tento problém lze vyřešit pomocí funkce \verb|Split| z algoritmu~\ref{alg:GeneralSolutionAlg}. O operacích, které trpí stejným problém se říká \emph{intervalově konvexní}, zatímco operace jako sčítání jsou \emph{intervalově konkávní}.
+
+Samotný algoritmus pro propagaci omezující podmínky je poměrně dlouhý, a proto zde nebude uveden celý. Jeho délka je způsobena tím, že se rozvětvuje podle toho, které meze intervalů jsou větší či menší než nula. Rozvětvení je uvedeno v tabulce v článku \cite{hickeyImplementation}.
+
+V několika jednoduchých krocích (a to pouze s využitím pravidel intervalové aritmetiky) se tak povedlo zúžit domény všech proměnných a vztahy mezi proměnnými přitom stále platí. Existuje důkaz (viz \cite{cleary87}), že je zbytečné snažit se volat zužovací funkci na omezující podmínku vícekrát okamžitě po sobě, domény se vždy maximálně zmenší již při prvním spuštění. V případě, kdy se proměnná vyskytuje ve více než jedné omezující podmínce ale může nastat situace, kdy následkem zúžení domény podle jedné podmínky dojde k rozšíření domény vzhledem k jiné podmínce a tak může být potřeba znovu zúžit tuto doménu podle již použité podmínky.
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Konzistenční techniky a algoritmy}
+Konzistenční techniky slouží k rychlému odebrání nekonzistentních (neplatných) hodnot z domén proměnných a jejich cílem je dostat CSP do \emph{konzistentního stavu}, kdy domény neobsahují žádné nekonzistentní hodnoty. V této kapitole je popsáno několik základních technik využitelných především pro nenumerické CSP a je ukázán přechod od nich na techniku zvanou \emph{hull consistency}, používanou pro NCSP, která je pro tuto práci nejdůležitější, protože právě ona je využita v praktické části.
+
+\subsection{Node consistency}
+
+\begin{definition}
+\label{def:nodeConsistency}
+Proměnná je \emph{node konzistentní}, je-li každá hodnota z její domény konzistentní pro všechny unární omezující podmínky.
+\end{definition}
+
+Nejjednodušší konzistenční technikou je \emph{node consistency} \cite{bartakGuide} (viz algoritmus č.~\ref{NCAlgorithm}), pomocí které se dá velmi snadno (alespoň u diskrétních domén) dosáhnout konzistence tím, že program prochází hodnoty z domény jednu po druhé a pro každou hodnotu ověřuje, zda má pro všechny unární omezující podmínky smysl. Pokud nemá, je odebrána.
+
+
+\begin{algorithm}
+\caption{Algoritmus NC}
+\label{NCAlgorithm}
+\begin{algorithmic}[1]
+\Require CSP - $(V, D, C)$.
+\Ensure CSP bez nekonzistentních hodnot v doménách.
+\Procedure{NC3}{$C$}
+\For{každou proměnnou $v \in V$}
+\For{každou hodnotu $x$ v doméně proměnné $v$}
+\For{každou omezující podmínku $c \in C$}
+\If{$x$ nesplňuje podmínku $c$}
+\State Odstraň $x$ z domény.
+\EndIf
+\EndFor
+\EndFor
+\EndFor
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+
+\subsection{Arc consistency}
+
+\begin{definition}
+\label{def:arcConsistency}
+Proměnné $x$ a $y$ jsou \emph{arc konzistentní}, existuje-li pro každou hodnotu z domény proměnné $x$ hodnota z domény proměnné $y$ tak, že všechny omezující podmínky mezi těmito dvěma podmínkami platí.
+\end{definition}
+
+Pro dosažení tohoto typu konzistence existuje několik algoritmů (AC1, AC3, AC4).
+
+
+
+
+
+
+\subsection{Hull consistency}
+
+Jak node consistency, tak i arc consistency, se hodí spíše pro CSP s diskrétními doménami, protože vždy pracují s konkrétními hodnotami. V případě spojitých domén je výhodnější nalézt obal, který zaručeně pokrývá všechny konzistentní hodnoty, i za cenu toho, že některé hodnoty v něm budou nadbytečné. Takto funguje právě hull consistency.
+
+\begin{definition}
+\label{def:hullConsistency}
+Omezující podmínka je \emph{hull konzistentní}, pokud kartézský součin domény proměnných z dané podmínky tvoří obal všech řešení splňující danou podmínku. Problém $P$ je hull konzistentní, jsou-li všechny omezující podmínky hull konzistentní.
+\end{definition}
+
+Jsou známy dva základní algoritmy k dosažení hull consistency - \emph{HC3} a \emph{HC4}.
+
+Tyto algoritmy jsou vhodné především v případě, kdy se jedna proměnná nevyskytuje v mnoha podmínkách najednou. Pokud tomu tak je, nastává tzv. \emph{dependency problem} (problém závislosti) a HC algoritmy se stávají neefektivními, neboť nalezený obal intervalů může být větší, než je ve skutečnosti potřeba \cite{BenhamouCLPIntervals}. Dependency problem se projeví i na velmi jednoduché podmínce $x - x = 0, x \in \langle 0;10 \rangle$. Na první pohled je správným řešením zúžení domény na $\langle 0;0\rangle$, podle pravidel pro součet v intervalové aritmetice bude ale výsledek $\langle 0;10 \rangle - \langle 0;10\rangle = \langle -10; 10 \rangle$. Existují jiné konzistenční techniky (např. \emph{box consistency}), které si s tímto problémem poradí \cite{rueherDependency}.
+
+Tyto techniky se dají dále kombinovat například s \emph{branch and prune} algoritmy, které umožňují rekurzivně rozpůlit nalezený box a tyto poloviční boxy dále zmenšovat pomocí HC algoritmů. Je tak možné získat několik menších boxů, které budou zahrnovat méně nadbytečných hodnot.
+
+\subsubsection{HC3}
+Algoritmus HC3 byl navržen jako první z algoritmů pro propagaci intervalů v roce 1997 v článku \cite{Benhamou97applyinginterval}, autoři ho tehdy nazvali jednoduše jako \uv{A narrowing algorithm}. Název HC3 byl vytvořen později v článku \cite{Benhamou99revisinghull} (tento název byl vybrán pro podobnost s algoritmem AC3 používaný pro dosažení arc consistency), kde byl uveden i pokročilejší algoritmus HC4, který narozdíl od HC3 nevyžaduje vstupní podmínky rozložené do primitivního tvaru.
+ 
+Původní algoritmus HC3 navržený v článku \cite{Benhamou97applyinginterval} je uveden v pseudokódu č.~\ref{HC3Algorithm}, tvar algoritmu reálně použitý v této práci je uveden v implementační části.
+
+\begin{algorithm}
+\caption{Algoritmus HC3}
+\label{HC3Algorithm}
+\begin{algorithmic}[1]
+\Require Seznam $C$ omezujících podmínek z CSP.
+\Ensure Informace o nekonzistenci, nebo box obalující řešení.
+\Procedure{HC3}{$C$}
+\State $Q \gets C$
+\While{$Q \neq \emptyset$ }
+\State Vyber podmínku $c$ z $Q$.
+\State $Q \gets Q \setminus \{ c \}$
+\State $\{ x_1, ..., x_n\} \gets $ proměnné z podmínky $c$.
+
+\For{každé $x_i \in \{x_1, ..., x_n \} $}
+\State $D_i' \gets $ zredukuj doménu $D_i$ proměnné $x_i$ podle podmínky $c$.
+\If{$D_i' = \emptyset$}
+\State Konec - CSP je nekonzistentní.
+\EndIf
+\If{$D_i' \neq D_i $}
+\State $D_i \gets D_i'$
+\State Přidej do $Q$ podmínku $c$ a všechny další podmínky z $C$, které obsahují proměnnou $x_i$.
+\EndIf
+\EndFor
+\EndWhile
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+
+\subsubsection{HC4}
+Výhoda algoritmu HC4 oproti HC3 spočívá ve faktu, že umí pracovat i s komplexními podmínkami a není tak potřeba jejich rozklad, což ve výsledku zkracuje i dobu algoritmu \cite{Benhamou99revisinghull}. Nevýhodou je ovšem mnohem složitější implementace, která se skládá ze čtyř funkcí: \verb|HC4|, \verb|Hc4Revise|, \verb|ForwardEvaluation| a \verb|BackwardEvaluation|.
+
+Celý algoritmus funguje tak, že prochází syntaktický strom výrazu a při dopředném průchodu (forward evaluation) od listů ke kořeni odhaduje s využitím intervalové aritmetiky domény rodičovských uzlů podle domén synů. Průběh pro omezující podmínku $2x = z - y^2$ s doménami $D_x = \langle 0;20\rangle$, $D_y = \langle -10;10\rangle$ a $D_z = \langle 0;16\rangle$ ukazuje obrázek č.~\ref{img:forwardPropag}
+
+\begin{figure}
+\label{img:forwardPropag}
+\centering
+\includegraphics[scale=.65]{img/forwardPropag.eps}
+\caption{Dopředný průchod u algoritmu HC4}
+\end{figure}
+
+Při zpětném průchodu (obrázek č.~\ref{img:backwardPropag}) od kořene k listům se pak zpřesňuje výsledná doména - podle rodičovského uzlu se zúží domény synů. Algoritmus u kořene provede stromu z předchozího příkladu provede průnik (kvůli rovnosti v kořeni stromu) domén obou synů ($\langle 0;40\rangle \cap \langle -100;16\rangle$), které byly vypočteny při dopředném průchodu. Tímto je kořen zpracován a zpětný průchod se může spustit rekurzivně pro oba podstromy. V případě levého podstromu je novým kořenem uzel s operací násobení a doménou $\langle 0;16 \rangle$. Nyní je již snadné zúžit doménu proměnné $x$ na její finální hodnotu, $\langle 0;8 \rangle$. Stejným postupme se podaří zúžit i domény proměnných $y$ a $z$ na $\langle -4;4 \rangle$, resp. $\langle 0;16 \rangle$.
+
+\begin{figure}
+\label{img:backwardPropag}
+\centering
+\includegraphics[scale=.65]{img/backwardPropag.eps}
+\caption{Zpětný průchod u algoritmu HC4}
+\end{figure}
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Heuristiky}
+Heuristiky při řešení problémů s omezujícími podmínkami pomáhají vybrat podle jaké omezující podmínky zužovat domény a v jakém pořadí je zužovat. Jsou stále předmětem výzkumu a neexistuje žádný důkaz, který by prokazoval nějakou heuristiku lepší, než všechny ostatní. 
+
+\subsection{Typy heuristik}
+Heuristiky pro řešení NCSP se dají rozdělit do následujících dvou skupin \cite{feiten10}:
+
+\begin{itemize}
+  \item Heuristiky rozhodující podle statických (neměnných) vlastností proměnných, například počtu jejich výskytů, nebo aritmetických operací, kterých se účastní,
+  \item heuristiky rozhodující podle domén proměnných - zúžit širokou doménu může být výhodnější než dále zužovat malou doménu. Tyto vlastnosti jsou dynamické, tj. mění se během průběhu algoritmu.
+\end{itemize}
+
+
+Jedním z cílů této práce je otestovat vliv heuristik na efektivitu řešení různých problémů a v následujících podkapitolách je uvedeno několik nápadů na možné heuristiky (část jich je převzata z \cite{feiten10}), z nichž některé jsou využity v praktické části. Seznam není vyčerpávající, jistě jich lze vymyslet o mnoho více.
+
+\subsubsection{Statické parametry}
+
+\begin{itemize}
+  \item dominantní vs. nedominantní proměnná
+  \item vstupní množina podmínek
+        \subitem počet podmínek, ve kterých se proměnná vyskytuje
+        \subitem počet dominantních proměnných v podmínce
+        \subitem operace použitá v omezující podmínce (sčítání/násobení)
+\end{itemize}
+
+\subsubsection{Dynamické parametry}
+
+\begin{itemize}
+    \item intervaly
+        \subitem velikost
+        \subitem v kladných i záporných hodnotách
+    \item dvojice se používá ke zredukování domény
+\end{itemize}
+
+U dynamických parametrů se vyplatí ukládat posloupnost změn hodnot, tak, jak se měnily během běhu programu. V praxi se ale při rozhodování nepoužívá celá posloupnost, jen její část. Následují parametry pracují s historií změn:
+
+\begin{itemize}
+  \item poměr velikosti domény či problému k původní velikosti
+  \item poměr aktuální velikosti k velikosti v minulém průběhu smyčky
+  \item číslo průběhu smyčky, kdy se naposledy používala dvojice ke zredukování domény
+\end{itemize}
+
+\subsection{Použité heuristiky}
+Níže jsou uvedeny heuristiky využity v praktické části této práce. Každá heuristika má svůj krátký název, kterým je identifikována ve výsledcích experimentů.
+
+\begin{itemize}
+  \item \emph{dom-first} se snaží nejprve redukovat domény dominantních proměnných - tím jsou myšleny proměnné vyskytující se v původních nerozložených podmínkách,
+  \item \emph{small-interval-first/last} se snaží dále zúžit nejužší, resp. nejširší intervaly,
+  \item \emph{shrunk-interval-first/last} vybírá nejprve proměnné, jejichž domény byly nejvíce, resp. nejméně, od začátku běhu algoritmu zmenšeny (vypočítává se kvocient z původní a aktuální velikosti domény),
+  \item \emph{max-right-cand} vybírá proměnnou s nejvyšší pravou mezí domény. Např. proměnná s doménou $(1;6)$ může být vybrána dříve než proměnná s doménou $(1;3)$, protože má vyšší pravou mez,
+  \item \emph{min-right-cand} vybírá proměnnou s nejmenší pravou mezí domény,
+  \item \emph{large-int-first} vybírá proměnnou s nejširší doménou,
+  \item \emph{small-int-first} vybírá proměnnou s nejmenší doménou,
+  \item \emph{shrunk-most-first} vybírá proměnnou, jejíž doména se nejvíce zmenšila od začátku běhu algoritmu,
+  \item \emph{shrunk-least-first} vybírá proměnnou, jejíž doména se nejméně zmenšila od začátku běhu algoritmu,
+  \item \emph{fail-first} vybírá proměnnou, která je přítomna v největším počtu omezujících podmínek.
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Charakteristiky problémových instancí pro algoritmus HC3}
+\begin{itemize}
+  \item výskyt jedné proměnné ve více omezujících podmínkách
+  \item počáteční velikosti domén
+  \item počet proměnných
+  \item počet omezujících podmínek
+\end{itemize}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Využití NCSP v praxi}
+
+Kromě využití pro reprezentaci her a řešení matematických problémů mají problémy s omezujícími podmínkami řadu využití i v průmyslu a vědě.
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Historie NCSP}
