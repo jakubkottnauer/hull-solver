@@ -105,14 +105,14 @@ module Main =
             optionsSoFar
 
         | "-f"::fileName::xs ->
-            let newOptionsSoFar = { optionsSoFar with fileName=fileName}
-            parseCommandLineRec xs newOptionsSoFar
+            { optionsSoFar with fileName = fileName }
+            |> parseCommandLineRec xs
 
         | "-p"::eps::xs ->
             let success, value = Double.TryParse eps
             if success then
-                let newOptionsSoFar = { optionsSoFar with eps=value}
-                parseCommandLineRec xs newOptionsSoFar
+                { optionsSoFar with eps = value }
+                |> parseCommandLineRec xs
             else
                 printfn "Invalid precision. Using the default value 1.0 instead."
                 parseCommandLineRec xs optionsSoFar
@@ -121,16 +121,21 @@ module Main =
             matchHeuristic heuristicCode optionsSoFar
             |> parseCommandLineRec xs
 
+        | "-l"::xs ->
+            { optionsSoFar with latex = true }
+            |> parseCommandLineRec xs
+
         | x::xs ->
             printfn "Option '%s' is unrecognized" x
             parseCommandLineRec xs optionsSoFar
 
     let parseCommandLine args =
         let defaultOptions = {
-            fileName = null;
             eps = 1.0;
+            fileName = null;
             heuristic = Heuristics.Random;
             heuristicName = "Random";
+            latex = false;
             }
 
         parseCommandLineRec args defaultOptions

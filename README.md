@@ -46,6 +46,7 @@ See more info at http://fsharp.org/use/mac/
 - `-f` - path to a file with the problem you want to solve
 - `-p` - float size under which the domains need to get to finish the calculation - try to fiddle with this value to get good results. If unspecified, 1.0 will be used.
 - `-h` - heuristic you want to use, currently supported values are `rand`, `max-cand`, `dom-first`. If unspecified, `rand` will be used.
+- `-l` - output in LaTeX-friendly format.
 
 # License
 GNU GPL

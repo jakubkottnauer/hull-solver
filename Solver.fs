@@ -89,9 +89,27 @@ module Solver =
 
         else
               let reducedProblem = hc3 options p
-              if reducedProblem.HasSolution then
+              if reducedProblem.HasSolution && not options.latex then
                   printfn "Volume of solution box: %.32f" reducedProblem.Volume
                   reducedProblem.Print
+
+    let printResults options (p : Problem) runtime =
+        match options.latex with
+        | false ->
+            printfn "Heuristic: %s" options.heuristicName
+            printfn "Epsilon: %f" options.eps
+            printfn "File: %s" options.fileName
+            printfn "Number of narrowings: %i" ind_narrowing_count
+            printfn "Number of solution halving: %i" ind_halving_count
+            printfn "Original volume: %.32f" p.Volume
+            printfn "Duration (s): %.32f" runtime
+            printfn "---------"
+        | true ->
+            printf "%s" options.fileName.[6..]
+            printf " & %i" ind_halving_count
+            printf " & %i" ind_narrowing_count
+            printf " & %.5f" runtime
+            printfn " & \\\\"
 
     /// Entry function of the solver.
     let solve options (p : Problem) =
@@ -101,12 +119,6 @@ module Solver =
 
         stopWatch.Stop()
 
-        printfn "Heuristic: %s" options.heuristicName
-        printfn "Epsilon: %f" options.eps
-        printfn "File: %s" options.fileName
-        printfn "Number of narrowings: %i" ind_narrowing_count
-        printfn "Number of solution halving: %i" ind_halving_count
-        printfn "Original volume: %.32f" p.Volume
-        printfn "Duration (s): %.32f" stopWatch.Elapsed.TotalSeconds
+        printResults options p stopWatch.Elapsed.TotalSeconds
 
-        printfn "---------"
+        

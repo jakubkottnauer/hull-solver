@@ -312,10 +312,11 @@ module DomainTypes =
 
     /// Command line options.
     type Options = {
-        fileName: string;
         eps: float;
+        fileName: string;
         heuristic: (Constraint * string) list -> (Constraint * string) list -> Variable list -> int;
         heuristicName: string;
+        latex: bool
         }
 
     /// An NCSP problem to be solved.
