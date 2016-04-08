@@ -10,17 +10,17 @@ SET "eps=0.001"
 if not exist %outputFolder% mkdir %outputFolder%
 
 >> %output% (
-  echo \begin{table}[]
+  echo \begin{table}[H]
   echo \centering
-  echo \label{!heuristicName!}
-  echo \begin{tabular}{lllll}
+  echo \begin{tabular}{lrrrr}
   echo \hline
-  echo Testovací soubor ^& Poèet rozpùlení intervalu ^& Poèet zúžení intervalù ^& Èas ^&  \\ \hline
+  echo problém ^& \# pùlení ^& \# zúžení ^& pomìr objemu ^& èas (s^) \\ \hline
 
   for %%i in (%testsFolder%\*) do bin\Debug\HullSolver.exe -f %%i -h %heuristicName% -p %eps% -l
 
   echo \end{tabular}
-  echo \caption{!heuristicName!}
+  echo \caption{Výsledky pro heuristiku \emph{!heuristicName!}}
+  echo \label{!heuristicName!}
   echo \end{table}
   echo.
   echo.

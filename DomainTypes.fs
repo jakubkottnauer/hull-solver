@@ -6,7 +6,7 @@ module DomainTypes =
 
     let private DIVISOR_ZERO = "Divisor must not be zero."
     let private VAR_INVALID = "Invalid variable."
-    let ZERO_EPSILON = 0.00000000000000000000000000000000001
+    let ZERO_EPSILON = 0.0000000000000000000000000000001
 
     /// An interval
     ///
@@ -331,10 +331,13 @@ module DomainTypes =
         member this.AllFraction eps =
             mainVars |> List.forall(fun item -> (item.Domain.Length / item.OriginalDomain.Length) < eps)
 
-        /// Calculate the volume of the box created by the dominant variables in this problem.
+        /// Calculate the volume of the box formed by the dominant variables in this problem.
         member this.Volume =
             mainVars |> List.fold (fun acc item -> item.Domain.Length * acc) 1.0
 
+        /// Calculate the original volume of the box formed by the dominant variables in this problem.
+        member this.OriginalVolume =
+            mainVars |> List.fold (fun acc item -> item.OriginalDomain.Length * acc) 1.0
 
         /// Splits the problem into two halves by halving the chosen variable's domain.
         member this.Split =

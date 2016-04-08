@@ -7,6 +7,8 @@ module Solver =
     let MAX_ITERATIONS = 1000
     let mutable private ind_halving_count = 0
     let mutable private ind_narrowing_count = 0
+    let mutable private ind_solution_volume = 0.0
+    let mutable private smallest_solution = 10000.0
 
     /// Removes element from a list at the specified index.
     /// <param name="i">The index of the element to be removed.</param>
@@ -89,9 +91,13 @@ module Solver =
 
         else
               let reducedProblem = hc3 options p
-              if reducedProblem.HasSolution && not options.latex then
-                  printfn "Volume of solution box: %.32f" reducedProblem.Volume
-                  reducedProblem.Print
+              if reducedProblem.HasSolution then
+                  if smallest_solution > reducedProblem.Volume then
+                    smallest_solution <- reducedProblem.Volume
+                    ind_solution_volume <- reducedProblem.Volume / reducedProblem.OriginalVolume
+                  if not options.latex then
+                    printfn "Volume of solution box: %.32f" reducedProblem.Volume
+                    reducedProblem.Print
 
     let printResults options (p : Problem) runtime =
         match options.latex with
@@ -101,15 +107,16 @@ module Solver =
             printfn "File: %s" options.fileName
             printfn "Number of narrowings: %i" ind_narrowing_count
             printfn "Number of solution halving: %i" ind_halving_count
-            printfn "Original volume: %.32f" p.Volume
+            printfn "Original volume: %.32f" p.OriginalVolume
             printfn "Duration (s): %.32f" runtime
             printfn "---------"
         | true ->
             printf "%s" options.fileName.[6..]
             printf " & %i" ind_halving_count
             printf " & %i" ind_narrowing_count
-            printf " & %.5f" runtime
-            printfn " & \\\\"
+            printf " & %.4g" ind_solution_volume
+            printf " & %.4f" runtime
+            printfn " \\\\"
 
     /// Entry function of the solver.
     let solve options (p : Problem) =

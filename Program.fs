@@ -126,7 +126,7 @@ module Main =
             |> parseCommandLineRec xs
 
         | x::xs ->
-            printfn "Option '%s' is unrecognized" x
+            printfn "Option '%s' is unrecognized." x
             parseCommandLineRec xs optionsSoFar
 
     let parseCommandLine args =
@@ -145,10 +145,11 @@ module Main =
         let options = parseCommandLine (args |> List.ofArray)
 
 //        let options = {
-//             fileName = "C:\\git\\hull-solver\\tests\\solotarev";
-//             eps = 0.0001;
+//             fileName = "C:\\git\\hull-solver\\tests\\wright";
+//             eps = 0.01;
 //             heuristic = Heuristics.MinRightCand;
-//             heuristicName = "max-right-cand";
+//             heuristicName = "min-right-cand";
+//             latex = false
 //            }
 
         let constraints, variables =
@@ -160,6 +161,6 @@ module Main =
         |> Solver.solve options
         |> ignore
 
-        // Console.ReadKey()
+//      Console.ReadKey()
 
         0
