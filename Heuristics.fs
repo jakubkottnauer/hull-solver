@@ -75,3 +75,15 @@ module Heuristics =
                         |> List.maxBy(fun item -> (pairs |> List.filter(fun (c, v) -> v = item.Name) |> List.length))
 
             q |> List.findIndex(fun (c, v) -> v = max.Name)
+
+        /// Selects the first pair whose constraint uses addition.
+        static member PreferAdd (q: (Constraint * string) list) pairs (vars: Variable list) =
+            let constraints = q
+                              |> List.filter(fun (c, v) -> c :? VarPlusVarEqVarConstraint)
+            if constraints.Length = 0 then 0 else q |> List.findIndex(fun (c, v) -> c :? VarPlusVarEqVarConstraint)
+
+        /// Selects the first pair whose constraint uses multiplication.
+        static member PreferMult (q: (Constraint * string) list) pairs (vars: Variable list) =
+            let constraints = q
+                              |> List.filter(fun (c, v) -> c :? VarTimesVarEqVarConstraint)
+            if constraints.Length = 0 then 0 else q |> List.findIndex(fun (c, v) -> c :? VarTimesVarEqVarConstraint)

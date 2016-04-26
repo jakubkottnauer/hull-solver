@@ -397,14 +397,14 @@ Jedním z~cílů této práce je otestovat vliv heuristik na~efektivitu řešen�
 
 \subsubsection{Statické parametry}
 
-Heuristikami rozhodujícími podle statických parametrů mohou být:
+Heuristiky rozhodující podle statických parametrů se mohou řídit podle:
 
 \begin{itemize}
-  \item dominanci či nedominanci proměnné,
-  \item vstupní množinu podmínek:
-        \subitem počet podmínek, ve~kterých se proměnná vyskytuje,
-        \subitem počet dominantních proměnných v~podmínce,
-        \subitem operace použitou v~omezující podmínce (sčítání/násobení).
+  \item dominance či nedominance proměnné,
+  \item vstupní množiny podmínek:
+        \subitem počtu podmínek, ve~kterých se proměnná vyskytuje,
+        \subitem počtu dominantních proměnných v~podmínce,
+        \subitem operace použité v~omezující podmínce (sčítání/násobení).
 \end{itemize}
 
 \subsubsection{Dynamické parametry}
@@ -413,9 +413,9 @@ Heuristiky využívající dynamické parametry mohou brát ohled na:
 
 \begin{itemize}
     \item intervaly:
-        \subitem velikost,
-        \subitem zda pokrývá kladné i záporné hodnoty,
-    \item zda se dvojice již použila ke zredukování domény.
+        \subitem jejich velikost,
+        \subitem zda pokrývají kladné i záporné hodnoty,
+    \item zda se omezující podmínka již použila ke zredukování domény.
 \end{itemize}
 
 U dynamických parametrů se může vyplatit ukládat posloupnost změn hodnot, tak, jak se měnily během běhu programu. V~praxi se ale při rozhodování nepoužívá celá posloupnost, jen její část. Následující parametry pracují s~historií změn:
@@ -423,10 +423,11 @@ U dynamických parametrů se může vyplatit ukládat posloupnost změn hodnot, 
 \begin{itemize}
   \item poměr velikosti domény či problému k~původní velikosti,
   \item poměr aktuální velikosti k~velikosti v~minulém průběhu smyčky,
-  \item číslo průběhu smyčky, kdy se naposledy používala dvojice ke zredukování domény.
+  \item číslo průběhu smyčky, kdy se naposledy používala podmínka ke zredukování domény.
 \end{itemize}
 
 \subsection{Použité heuristiky}
+\label{ch:usedHeuristics}
 Níže jsou uvedeny heuristiky využity v~praktické části této práce. Každá heuristika má svůj krátký název, kterým je identifikována ve~výsledcích experimentů. Heuristiky převzaté z literatury jsou označeny odkazem na použitý zdroj.
 
 \begin{itemize}
@@ -436,7 +437,8 @@ Níže jsou uvedeny heuristiky využity v~praktické části této práce. Každ
   \item \emph{shrunk-most/least-first} \cite{feiten10} vybírá nejprve proměnné, jejichž domény byly nejvíce, resp. nejméně, od začátku běhu algoritmu zmenšeny (vypočítává se kvocient z~původní a aktuální velikosti domény),
   \item \emph{max-right-cand} \cite{feiten10} vybírá proměnnou s~nejvyšší pravou mezí domény. Např. proměnná s~doménou $(1;6)$ může být vybrána dříve než proměnná s~doménou $(1;3)$, protože má vyšší pravou mez,
   \item \emph{min-right-cand} \cite{feiten10} vybírá proměnnou s~nejmenší pravou mezí domény,
-  \item \emph{fail-first} vybírá proměnnou, která je přítomna v~největším počtu omezujících podmínek.
+  \item \emph{fail-first} vybírá proměnnou, která je přítomna v~největším počtu omezujících podmínek,
+  \item \emph{prefer-add/mult} vybírá omezující podmínku s operací sčítání, resp. násobení.
 \end{itemize}
 
 

@@ -70,31 +70,37 @@ module Main =
         match code with
             | "rand" ->
                 { options with heuristic=Heuristics.Random
-                               heuristicName="Random"}
+                               heuristicName="random"}
             | "dom-first" ->
                 { options with heuristic=Heuristics.DominantFirst
-                               heuristicName="Dominant-First"}
+                               heuristicName="dominant-first"}
             | "max-right-cand" ->
                 { options with heuristic=Heuristics.MaxRightCand
-                               heuristicName="Max-Right-Cand"}
+                               heuristicName="max-right-cand"}
             | "min-right-cand" ->
                 { options with heuristic=Heuristics.MinRightCand
-                               heuristicName="Min-Right-Cand"}
+                               heuristicName="min-right-cand"}
             | "large-int-first" ->
                 { options with heuristic=Heuristics.LargeIntervalFirst
-                               heuristicName="Large-Interval-First"}
+                               heuristicName="large-interval-first"}
             | "small-int-first" ->
                 { options with heuristic=Heuristics.SmallIntervalFirst
-                               heuristicName="Small-Interval-First"}
+                               heuristicName="small-interval-first"}
             | "shrunk-most-first" ->
                 { options with heuristic=Heuristics.ShrunkMostFirst
-                               heuristicName="Shrunk-Most-First"}
+                               heuristicName="shrunk-most-first"}
             | "shrunk-least-first" ->
                 { options with heuristic=Heuristics.ShrunkLeastFirst
-                               heuristicName="Shrunk-Least-First"}
+                               heuristicName="shrunk-least-first"}
             | "fail-first" ->
                 { options with heuristic=Heuristics.FailFirst
-                               heuristicName="Fail-First"}
+                               heuristicName="fail-first"}
+            | "prefer-add" ->
+                { options with heuristic=Heuristics.PreferAdd
+                               heuristicName="prefer-add"}
+            | "prefer-mult" ->
+                { options with heuristic=Heuristics.PreferMult
+                               heuristicName="prefer-mult"}
             | _ ->
                 printfn "Unknown heuristic %s. Using the 'rand' heuristic instead." code
                 options
