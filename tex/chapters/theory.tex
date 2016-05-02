@@ -1,3 +1,5 @@
+\externaldocument{implementation.tex}
+
 \chapter{Popis problematiky}
 První část práce představuje úvod do teorie řešení problémů s omezujícími podmínkami. Nejprve jsou zde popsány základní typy těchto problémů a způsoby, jak je řešit. Poté následuje popis několika algoritmů a na závěr kapitoly jsou uvedeny heuristiky, které mohou pomoci zvýšit efektivitu řešení.
 
@@ -393,7 +395,7 @@ Heuristiky pro řešení NCSP se dají rozdělit do následujících dvou skupin
 \end{itemize}
 
 
-Jedním z~cílů této práce je otestovat vliv heuristik na~efektivitu řešení různých problémů a v~následujících podkapitolách je uvedeno několik nápadů na~možné heuristiky (část jich je převzata z~\cite{feiten10}), z~nichž některé jsou využity v~praktické části. Seznam není vyčerpávající, jistě jich lze vymyslet o mnoho více.
+Jedním z~cílů této práce je otestovat vliv heuristik na~efektivitu řešení různých problémů a v~následujících podkapitolách je uvedeno několik nápadů na~možné heuristiky (část jich je převzata z~\cite{feiten10}), z~nichž některé jsou využity v~praktické části. Seznam není vyčerpávající, jistě jich lze vymyslet o mnoho více. Konkrétní heuristiky využité v této práci jsou uvedeny v praktické části v~kapitole~\ref{ch:usedHeuristics}.
 
 \subsubsection{Statické parametry}
 
@@ -424,21 +426,6 @@ U dynamických parametrů se může vyplatit ukládat posloupnost změn hodnot t
   \item poměr velikosti domény či problému k~původní velikosti,
   \item poměr aktuální velikosti k~velikosti v~minulém průběhu smyčky,
   \item číslo průběhu smyčky, kdy se naposledy používala podmínka ke zredukování domény.
-\end{itemize}
-
-\subsection{Použité heuristiky}
-\label{ch:usedHeuristics}
-Níže jsou uvedeny heuristiky, které jsou využité v~praktické části této práce. Každá heuristika má svůj krátký název, kterým je identifikována ve~výsledcích experimentů. Heuristiky převzaté z~literatury jsou označeny odkazem na~použitý zdroj.
-
-\begin{itemize}
-  \item \emph{rand} je \uv{heuristika} vybírající pseudonáhodnou dvojici,
-  \item \emph{dom-first} \cite{feiten10} se snaží nejprve redukovat domény dominantních proměnných - proměnné vyskytující se v~původních nerozložených podmínkách,
-  \item \emph{small/large-int-first} \cite{feiten10} se snaží dále zúžit nejužší, resp. nejširší intervaly,
-  \item \emph{shrunk-most/least-first} \cite{feiten10} vybírá nejprve proměnné, jejichž domény byly nejvíce, resp. nejméně, od začátku běhu algoritmu zmenšeny (vypočítává se kvocient z~původní a aktuální velikosti domény),
-  \item \emph{max-right-cand} \cite{feiten10} vybírá proměnnou s~nejvyšší pravou mezí domény. Např. proměnná s~doménou $(1;6)$ může být vybrána dříve než proměnná s~doménou $(1;3)$, protože má vyšší pravou mez,
-  \item \emph{min-right-cand} \cite{feiten10} vybírá proměnnou s~nejmenší pravou mezí domény,
-  \item \emph{fail-first} vybírá proměnnou, která je přítomna v~největším počtu omezujících podmínek,
-  \item \emph{prefer-add/mult} vybírá omezující podmínku s operací sčítání, resp. násobení.
 \end{itemize}
 
 

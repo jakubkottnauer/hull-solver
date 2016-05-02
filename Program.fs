@@ -101,6 +101,9 @@ module Main =
             | "prefer-mult" ->
                 { options with heuristic=Heuristics.PreferMult
                                heuristicName="prefer-mult"}
+            | "fifo"->
+                { options with heuristic=Heuristics.Fifo
+                               heuristicName="fifo"}
             | _ ->
                 printfn "Unknown heuristic %s. Using the 'rand' heuristic instead." code
                 options

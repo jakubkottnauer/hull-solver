@@ -87,3 +87,7 @@ module Heuristics =
             let constraints = q
                               |> List.filter(fun (c, v) -> c :? VarTimesVarEqVarConstraint)
             if constraints.Length = 0 then 0 else q |> List.findIndex(fun (c, v) -> c :? VarTimesVarEqVarConstraint)
+
+        /// Selects the first pair (i.e. the one that has been in the queue the longest time).
+        static member Fifo (q: (Constraint * string) list) pairs (vars: Variable list) =
+            0

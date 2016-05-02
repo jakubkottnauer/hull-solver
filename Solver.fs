@@ -20,13 +20,16 @@ module Solver =
         | i, [] -> failwith "Index out of range"
 
     /// Returns the union of two lists.
+    /// <param name="left">The first list to union.</param>
+    /// <param name="right">The second list to union.</param>
     let union left right =
       left @ right |> Seq.distinct |> List.ofSeq
 
     /// The main HC3 recursive algorithm.
     /// <param name="q">The "queue" (not a FIFO queue) of pairs to be processed.</param>
-    /// <param name="p">All pairs.</param>
+    /// <param name="pairs">All pairs.</param>
     /// <param name="vars">All variable instances.</param>
+    /// <param name="options">Options of the solver.</param>
     let rec private hc3Rec (q : (Constraint * string) list) pairs vars options =
         match q.Length with
         | 0 ->
@@ -65,6 +68,8 @@ module Solver =
                hc3Rec unitedQueue pairs filteredVars options
 
     /// Function which prepares data for the main HC3 algorithm.
+    /// <param name="options">Options of the solver.</param>
+    /// <param name="p">The problem to solve.</param>
     let private hc3 options (p : Problem) =
         let collectTuple (x, items) =
             items
@@ -79,6 +84,8 @@ module Solver =
         |> p.Clone p.WasSplitBy
 
     /// Recursively solves the NCSP passed into this function using a branch-and-prune algorithm.
+    /// <param name="options">Options of the solver.</param>
+    /// <param name="p">The problem to solve.</param>
     let rec private solveRec options (p : Problem) =
         if not(p.AllFraction options.eps) then
 
@@ -99,6 +106,10 @@ module Solver =
                     printfn "Volume of solution box: %.32f" reducedProblem.Volume
                     reducedProblem.Print
 
+    /// Prints results of the solving process (latex or regular format).
+    /// <param name="options">Options of the solver.</param>
+    /// <param name="p">The problem to solve.</param>
+    /// <param name="runtime">Total execution time.</param>
     let printResults options (p : Problem) runtime =
         match options.latex with
         | false ->
@@ -119,6 +130,8 @@ module Solver =
             printfn " \\\\"
 
     /// Entry function of the solver.
+    /// <param name="options">Options of the solver.</param>
+    /// <param name="p">The problem to solve.</param>
     let solve options (p : Problem) =
         let stopWatch = System.Diagnostics.Stopwatch.StartNew()
 

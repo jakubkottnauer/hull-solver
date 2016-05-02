@@ -34,7 +34,7 @@ S~vedoucím práce bylo dohodnuto, že řešič bude podporovat omezující podm
 \EndIf
 \If{$D_x \neq D_x'$}
 \State $D_x \gets D_x'$
-\State Přidej do $Q$ pár $p$ a všechny další páry z $P$, které obsahují $x$.
+\State Přidej do $Q$ pár $p$ a všechny další dvojice z $P$, které obsahují $x$.
 \EndIf
 \EndWhile
 \State \Return $P$
@@ -90,6 +90,24 @@ Celý program se skládá ze čtyř souborů - \verb|DomainTypes.fs|, \verb|Heur
 Dalším důsledkem je odlišná organizace kódu v~podobných jazycích jako \texttt{F\#} od klasických procedurálních či objektově orientovaných jazyků. V~\texttt{F\#} se typicky nevytváří samostatný soubor pro každý typ (typ přibližně odpovídá třídě z~objektově orientovaného programování), ale všechny typy se shlukují do jednoho modulu často nazývaného \verb|DomainTypes|. V~případě HullSolveru jsou doménovými typy \verb|Interval|, \verb|Variable|, \verb|Constraint|, \verb|Problem| a~\verb|Heuristic|, z~nichž poslední se pro~přehlednost nachází v~samostatném souboru \verb|Heuristics.fs|.
 
 Zatímco první dva soubory obsahují především deklarace typů a definují jejich funkce, soubor \verb|Solver.fs| tvoří hlavní výpočetní jádro programu - zde jsou implementace branch-and-prune algoritmu a algoritmu HC3. Posledním souborem je \verb|Program.fs|, který se už stará jen o ošetření a zpracování vstupu a spouští řešící algoritmy.
+
+\section{Použité heuristiky}
+\label{ch:usedHeuristics}
+Níže jsou uvedeny heuristiky, které jsou využité v~programu HullSolver. Každá heuristika má svůj krátký název, kterým je identifikována ve~výsledcích experimentů. Heuristiky převzaté z~literatury jsou označeny odkazem na~použitý zdroj.
+
+Všechny heuristiky se chovají stejně v tom, že v případě existence více než jedné dvojice splňující jejich kritéria vždy vyberou dvojici nacházející se v seznamu $Q$ jako první (prohledávání seznamu probíhá zleva doprava).
+
+\begin{itemize}
+  \item \emph{rand} je \uv{heuristika} vybírající pseudonáhodnou dvojici,
+  \item \emph{fifo} simuluje FIFO frontu - vybírá dvojici, která je ve frontě nejdéle,
+  \item \emph{dom-first} \cite{feiten10} se snaží nejprve redukovat domény dominantních proměnných - proměnné vyskytující se v~původních nerozložených podmínkách,
+  \item \emph{small/large-int-first} \cite{feiten10} se snaží dále zúžit nejužší, resp. nejširší domény,
+  \item \emph{shrunk-most/least-first} \cite{feiten10} vybírá nejprve proměnné, jejichž domény byly nejvíce, resp. nejméně, od začátku běhu algoritmu zmenšeny (vypočítává se kvocient z~původní a aktuální velikosti domény),
+  \item \emph{max-right-cand} \cite{feiten10} vybírá proměnnou s~nejvyšší pravou mezí domény. Např. proměnná s~doménou $(1;6)$ může být vybrána dříve než proměnná s~doménou $(1;3)$, protože má vyšší pravou mez,
+  \item \emph{min-right-cand} \cite{feiten10} vybírá proměnnou s~nejmenší pravou mezí domény,
+  \item \emph{fail-first} vybírá proměnnou, která je přítomna v~největším počtu omezujících podmínek,
+  \item \emph{prefer-add/mult} vybírá omezující podmínku s operací sčítání, resp. násobení.
+\end{itemize}
 
 \section{Výstup programu a indikátory}
 \label{ch:indicators}
