@@ -38,13 +38,13 @@
 \authorFN{Kottnauer}
 \authorWithDegrees{Jakub Kottnauer}
 \supervisor{doc. Ing. Stefan Ratschan}
-\acknowledgements{Doplňte, máte-li komu a za co děkovat. V~opačném případě úplně odstraňte tento příkaz.}
+\acknowledgements{Děkuji doc. Ing. Stefanu Ratschanovi za vedení mé bakalářské práce a za ochotu poradit s jakýmkoliv problémem při její tvorbě.}
 \abstractCS{Problém splnitelnosti omezujících podmínek (CSP) je problém o~nalezení hodnot proměnných tak, aby byly splněny všechny zadané omezující podmínky, což jsou relace mezi proměnnými omezující množiny hodnot, kterých mohou proměnné nabývat. Hlavním cílem práce je otestování vlivu heuristik na~efektivitu řešení numerických CSP pomocí propagací intervalů. Součástí práce byl napsán řešič v~jazyce F\# implementující algoritmy HC3 a branch-and-prune s~podporou pro podmínky s~operacemi sčítání, odčítání a~násobení. Byly nalezeny podstatné parametry algoritmu ovlivňující jeho účinnost a~následně byly s~jedenácti heuristikami provedeny výpočetní experimenty a~jejich výsledky porovnány. Výstup práce bude možno využít při rozvažování, kterou heuristiku použít při řešení soustav omezujících podmínek převeditelných na~podmínky s~výše uvedenými operacemi.}
 \abstractEN{A constraint safisfaction problem (CSP) is a~problem of finding the~values of variables while satisfying all the given constraints. A constraint is a relation between variables which reduces the set of values that can be assigned to a variable. The~main goal of this thesis is to test the influence of various heuristics on the efficiency of solving numerical CSP problems by interval propagation. A~problem solver written in the F\# language utilizing the HC3 algorithm and a branch-and-prune algorithm has been created, important aspects of the HC3 algorithm influencing its efficiency have been found and then experiments with eleven different heuristics were performed. The results found in the thesis can be used when deciding which heuristic to use for solving constraint systems.}
 \placeForDeclarationOfAuthenticity{V~Praze}
 \declarationOfAuthenticityOption{4} %volba Prohlášení (číslo 1-6)
-\keywordsCS{propagace intervalů, algoritmus HC3, problém splnitelnosti, omezující podmínky, heuristiky, konzistenční techniky, funkcionální programování, FSharp}
-\keywordsEN{interval propagation, HC3 algorithm, constraint satisfaction problem, constraints, heuristics, consistency, functional programming, FSharp}
+\keywordsCS{propagace intervalů, algoritmus HC3, branch and prune, problém splnitelnosti, omezující podmínky, heuristiky, konzistenční techniky, funkcionální programování, FSharp}
+\keywordsEN{interval propagation, HC3 algorithm, branch and prune, constraint satisfaction problem, constraints, heuristics, consistency, functional programming, FSharp}
 
 \begin{document}
 
@@ -54,7 +54,7 @@
 \begin{introduction}
 V mnoha oblastech lidské činnosti, ať už je to věda, podnikání, či sport, existují problémy, které kladou na svá řešení nějaká omezení. Takovým problémům se obecně říká problémy splnitelnosti omezujících podmínek (\emph{constraint satisfaction problems}). Omezující podmínky zde zužují množiny hodnot, kterých mohou nabývat proměnné vyskytující se v problému.
 
-Tato bakalářská práce se zabývá speciálním typem CSP problémů, nazývaných numerické CSP problémy. Numerické CSP jsou takové problémy, které se dají popsat soustavou rovnic a nerovnic a jejichž proměnné nabývají hodnot z reálných intervalů. Jednou z možností, jak tyto problémy řešit, se nazývá \emph{propagace intervalů}. Tyto metody postupně zmenšují intervaly jednotlivých proměnných, až je dosaženo dostatečné přesnosti řešení. K rozhodnutí, v jakém pořadí zmenšovat intervaly a zpracovávat omezující podmínky pomáhají heuristiky.
+Tato bakalářská práce se zabývá speciálním typem CSP problémů, nazývaných numerické CSP problémy. Numerické CSP jsou takové problémy, které se dají popsat soustavou rovnic a nerovnic a jejichž proměnné nabývají hodnot z reálných intervalů. Jedna z možností, jak tyto problémy řešit, se nazývá \emph{propagace intervalů}. Tyto metody postupně zmenšují intervaly jednotlivých proměnných, až je dosaženo dostatečné přesnosti řešení. K rozhodnutí, v jakém pořadí zmenšovat intervaly a zpracovávat omezující podmínky, pomáhají heuristiky.
 
 Hlavním cílem této práce je otestovat vliv různých heuristik na efektivitu hledání řešení numerických CSP problémů, přičemž jednotlivé heuristiky budou porovnány na základě několika indikátorů naměřených v průběhu experimentů.
 
@@ -71,9 +71,9 @@ Součástí dokumentu jsou také tři přílohy. V příloze A jsou vysvětleny 
 \input{chapters/experiments}
 
 \begin{conclusion}
-Hlavním cílem bakalářské práce byla implementace řešiče numerických CSP problémů a otestování vlivu heuristik na efektivitu řešení numerických CSP pomocí propagace intervalů. Tento cíl byl splněn - v jazyce \texttt{F\#} byl vytvořen volně dostupný program HullSolver, který je schopen pomocí algoritmu HC3 řešit problémy ve tvaru soustav polynomiálních rovnic s operacemi sčítání, odčítání a násobení. Pomocí této aplikace byl otestován vliv celkem jedenácti heuristik na \textbf{DOPLNIT POČET} benchmarkových úlohách a výsledky byly zpracovány.
+Hlavním cílem bakalářské práce byla implementace řešiče numerických CSP problémů a~otestování vlivu heuristik na~efektivitu řešení numerických CSP pomocí propagace intervalů. Tento cíl byl splněn - v~jazyce \texttt{F\#} byl vytvořen volně dostupný program HullSolver, který je schopen pomocí algoritmu HC3 řešit problémy ve~tvaru soustav polynomiálních rovnic s operacemi sčítání, odčítání a násobení. Pomocí této aplikace byl otestován vliv celkem jedenácti heuristik na~\textbf{DOPLNIT POČET} benchmarkových úlohách a~výsledky byly zpracovány.
 
-V samotném programu je velký prostor pro další vývoj a byla by škoda v něm nepokračovat, protože neexistuje jiný program, který by se specializoval na testování heuristik při řešení NCSP problémů. Prvním krokem by mohlo být přidání podpory pro více aritmetických operací a přidání automatického rozkladu komplexních podmínek do primitivního tvaru. V rámci dalšího vývoje by bylo také možné přidat některé další algoritmy, které by si mohly lépe poradit s nalezenými problémovými instancemi, a přidat grafický výstup programu, neboť aktuální verze komunikuje s uživatelem pouze prostřednictvím příkazové řádky.
+V samotném programu je velký prostor pro další vývoj a~byla by škoda v~něm nepokračovat, protože neexistuje jiný program, který by se specializoval na~testování heuristik při řešení NCSP problémů. Prvním krokem by mohlo být přidání podpory pro~více aritmetických operací a~přidání automatického rozkladu komplexních podmínek do primitivního tvaru. V~rámci dalšího vývoje by bylo také možné přidat některé další algoritmy, které by si mohly lépe poradit s~nalezenými problémovými instancemi, a~přidat grafický výstup programu, neboť aktuální verze komunikuje s~uživatelem pouze prostřednictvím příkazové řádky.
 
 
 
@@ -114,7 +114,7 @@ Zkompilovaný program se spouští z příkazové řádky na Windows jednoduše 
 
 V případě spuštění bez přepínače \verb|-h| bude využita heuristika \verb|rand| (pseudonáhodný výběr), pokud bude program spuštěn bez přepínače \verb|-p|, bude využita výchozí hodnota 1.0. Pokud uživatel spustí program bez zadání vstupního souboru, bude vybídnut k jeho zadání.
 
-V repozitáři se dále nachází dva dávkových souborů pro Windows, které umožňují pohodlnější opakované spouštění programu - spustí jej postupně se všemi heuristikami pro všechny vstupní problémy a naměřené hodnoty uloží do adresáře \verb|./out|.
+V~repozitáři se dále nachází dva dávkové souborů pro Windows, které umožňují pohodlnější opakované spouštění programu - spustí jej postupně se všemi heuristikami pro všechny vstupní problémy a naměřené hodnoty uloží do adresáře \verb|./out|.
 
 \section{Vstup}
 Vstupem programu HullSolver jsou textové soubory, které deklarativně popisují CSP problém, který chce uživatel vyřešit. V souboru jsou nejprve uvedeny dominantní proměnné následované seznamem omezujících podmínek v primitivním tvaru a nakonec jsou uvedeny domény jednotlivých proměnných. Podporovány jsou komentáře uvozené znaky \verb|//|.

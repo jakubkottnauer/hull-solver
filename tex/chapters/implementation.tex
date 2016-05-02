@@ -3,19 +3,19 @@
 
 
 \chapter{Implementace}
-Součástí bakalářské práce byl vytvořen řešič numerických CSP s~názvem \emph{HullSolver}, který jako jediný volně dostupný řešič umožňuje porovnávat efektivitu použitých heuristik. Zdrojové kódy jsou dostupné pod licencí GNU GPL na~serveru GitHub\footnote{\url{https://github.com/jakubkottnauer/hull-solver}}, případně jsou k nalezení i na~přiloženém CD. Manuál popisující kompilaci, spuštění a použití programu je uveden na~konci práce v~příloze \ref{hullSolverManual}.
+Jako součást bakalářské práce byl vytvořen řešič numerických CSP s~názvem \emph{HullSolver}, který jako jediný volně dostupný řešič umožňuje porovnávat efektivitu použitých heuristik. Zdrojové kódy jsou dostupné pod licencí GNU GPL na~serveru GitHub\footnote{\url{https://github.com/jakubkottnauer/hull-solver}}, případně jsou k nalezení i na~přiloženém CD. Manuál popisující kompilaci, spuštění a použití programu je uveden na~konci práce v~příloze \ref{hullSolverManual}.
 
-Tato část práce nejprve popisuje použité technologie a algoritmy v~programu HullSolver, následně se věnuje popisuje architektury programu a na~závěr uvádí několik existujících řešení, které řeší podobné problémy.
+Tato část práce nejprve popisuje použité technologie a~algoritmy v~programu HullSolver, následně se věnuje popisu architektury programu a na~závěr uvádí několik existujících řešení, které řeší podobné problémy.
 
 
 \section{Použité technologie}
-Jako jazyk pro implementaci byl zvolen funkcionální jazyk \texttt{F\#} (čteno jako F Sharp) běžící na~platformě .NET, který se v~posledních letech stal velmi populární pro vědecké využití. Tento jazyk byl poprvé uveden v~roce 2005 společností Microsoft, v~roce 2013 byla ale založena nezisková společnost \texttt{F\#} Software Foundation, která má na~starosti jeho další vývoj. Od té doby se z~jazyka stal open-source a díky projektu Mono je možné aplikaci napsané v~\texttt{F\#} spouštět i na~jiných platformách, než pouze na~Microsoft Windows.
+Jako jazyk pro implementaci byl zvolen funkcionální jazyk \texttt{F\#} (čteno jako F Sharp) běžící na~platformě .NET, který se v~posledních letech stal velmi populární pro vědecké využití. Tento jazyk byl poprvé uveden v~roce 2005 společností Microsoft, v~roce 2013 byla ale založena nezisková společnost \texttt{F\#} Software Foundation, která má na~starosti jeho další vývoj. Od~té doby se z~jazyka stal open-source a díky projektu Mono je možné aplikace napsané v~\texttt{F\#} spouštět i na~jiných platformách, než pouze na~Microsoft Windows.
 
 \section{Algoritmy}
 
 S~vedoucím práce bylo dohodnuto, že řešič bude podporovat omezující podmínky s~operacemi sčítání, odčítání a násobení.
 
-Řešení vstupních problémů probíhá s~využitím algoritmu HC3 s~malou úpravou pro pestřejší možnosti využití heuristik. Zatímco originální algoritmus vždy vybere z~množiny podmínek jednu náhodnou a zredukuje domény všech proměnných v~ní obsažených, upravený algoritmus na vstupu přijímá množinu všech dvojic $(c, x)$ (kde $c$ je omezující podmínka definovaná nad proměnnou $x$) a z této množiny heuristicky vybírá jednu dvojici. Následně podle podmínky $c$ zúží doménu proměnné $x$. Omezující podmínka $c$ se tedy na vstupu objeví tolikrát, nad kolika proměnnými je nadefinována - v případě programu HullSolver vždy právě třikrát, neboť program podporuje pouze ternární omezující podmínky. Algoritmus~\ref{HC3AlgorithmAltered} uvádí pseudokód takto upraveného algoritmu HC3.
+Řešení vstupních problémů probíhá s~využitím algoritmu HC3 s~malou úpravou pro pestřejší možnosti využití heuristik. Zatímco originální algoritmus vždy vybere z~množiny podmínek jednu náhodnou a zredukuje domény všech proměnných v~ní obsažených, upravený algoritmus na vstupu přijímá množinu všech dvojic $(c, x)$ (kde $c$ je omezující podmínka definovaná nad proměnnou $x$) a z~této množiny heuristicky vybírá jednu dvojici. Následně podle podmínky $c$ zúží doménu proměnné $x$. Omezující podmínka $c$ se tedy na~vstupu objeví tolikrát, nad~kolika proměnnými je nadefinována - v~případě programu HullSolver vždy právě třikrát, neboť program podporuje pouze ternární omezující podmínky. Algoritmus~\ref{HC3AlgorithmAltered} uvádí pseudokód takto upraveného algoritmu HC3.
 
 \begin{algorithm}
 \caption{Upravený algoritmus HC3}
@@ -81,13 +81,13 @@ member this.AllFraction eps =
 \end{Verbatim}
 
 
-Druhým prvkem algoritmu \verb|Solve|, jehož implementace je potřeba upřesnit, je rozpůlení boxu na řádku č.~4. Box, jak je popsáno v kapitole \ref{ch:ncsp} je ohraničením okolo řešení tvořeným doménami proměnných z CSP. Algoritmus box rozpůlí tím, že rozpůlí doménu jedné dominantní proměnné. Ve vstupním souboru uživatel označí dominantní proměnné a algoritmus je půlí metodou round-robin ve stejném pořadí, jako jsou zapsány ve vstupním souboru (při rozpůlení poslední dominantní proměnné přeskočí opět na první).
+Druhým prvkem algoritmu \verb|Solve|, jehož implementace je potřeba upřesnit, je rozpůlení boxu na~řádku č.~4. Box, jak je popsáno v kapitole \ref{ch:ncsp}, ohraničuje řešení a je tvořen doménami proměnných z~CSP. Algoritmus box rozpůlí tím, že rozpůlí doménu jedné dominantní proměnné. Ve~vstupním souboru uživatel označí dominantní proměnné a algoritmus je půlí metodou round-robin ve~stejném pořadí, jako jsou zapsány ve~vstupním souboru (při rozpůlení poslední dominantní proměnné přeskočí opět na~první).
 
 
 \section{Architektura}
 Celý program se skládá ze čtyř souborů - \verb|DomainTypes.fs|, \verb|Heuristics.fs|, \verb|Solver.fs|, \verb|Program.fs|. Při kompilování programu napsaného v~\texttt{F\#} záleží na~pořadí souborů a v~tomto případě jsou soubory zpracovávany v~tomto pořadí. Braním ohledu na~pořadí souborů kompilátor zabraňuje tvorbě kruhových závislostí mezi částmi programu, protože soubor později ve frontě může využívat pouze typy z~již zpracovaného souboru. Kód se tak stává modulárnější a přehlednější, protože přirozeně dochází ke striktnímu oddělení \uv{high-level} částí programů od \uv{low-level} částí.
 
-Dalším důsledkem je odlišná organizace kódu v~podobných jazycích jako \texttt{F\#} od klasických procedurálních či objektově orientovaných jazyků. V~\texttt{F\#} se typicky nevytváří samostatný soubor pro každý typ (typ přibližně odpovídá třídě z~objektově orientovaného programování), ale všechny typy se shlukují do jednoho modulu často nazývaného \verb|DomainTypes|. V~případě HullSolveru jsou doménovými typy \verb|Interval|, \verb|Variable|, \verb|Constraint|, \verb|Problem| a \verb|Heuristic|, z~nichž poslední se pro přehlednost nachází v~samostatném souboru \verb|Heuristics.fs|.
+Dalším důsledkem je odlišná organizace kódu v~podobných jazycích jako \texttt{F\#} od klasických procedurálních či objektově orientovaných jazyků. V~\texttt{F\#} se typicky nevytváří samostatný soubor pro každý typ (typ přibližně odpovídá třídě z~objektově orientovaného programování), ale všechny typy se shlukují do jednoho modulu často nazývaného \verb|DomainTypes|. V~případě HullSolveru jsou doménovými typy \verb|Interval|, \verb|Variable|, \verb|Constraint|, \verb|Problem| a~\verb|Heuristic|, z~nichž poslední se pro~přehlednost nachází v~samostatném souboru \verb|Heuristics.fs|.
 
 Zatímco první dva soubory obsahují především deklarace typů a definují jejich funkce, soubor \verb|Solver.fs| tvoří hlavní výpočetní jádro programu - zde jsou implementace branch-and-prune algoritmu a algoritmu HC3. Posledním souborem je \verb|Program.fs|, který se už stará jen o ošetření a zpracování vstupu a spouští řešící algoritmy.
 
