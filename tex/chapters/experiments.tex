@@ -21,9 +21,11 @@ Veškeré experimenty s~programem HullSolver byly provedeny na~počítači s~ope
 Následuje seznam testovacích úloh s~krátkým popisem. Úlohy převzaté z~databáze zmíněné výše jsou označeny hvězdičkou (*):
 
 \begin{itemize}
+    \item \emph{conform1*} - soustava tří polynomiálních rovnic stupně 3 o třech neznámých,
     \item \emph{mickey*} - soustava dvou polynomiálních rovnic stupně 2 o dvou neznámých,
     \item \emph{minus} - testovací rovnice pro ověření správnosti algoritmu $10(x - x + x - x + x - x + x) = 100$,
     \item \emph{polyn1} - rovnice $x^4 - 20x^2 + 64 = 0$,
+    \item \emph{polyn2} - rovnice $x^3 - 2x = 0$,
     \item \emph{quadfor2*} - soustava čtyř rovnic stupně 3 o čtyřech neznámých,
     \item \emph{solotarev*} - soustava čtyř rovnic stupně 2 o čtyřech neznámých,
     \item \emph{wright*} - soustava pěti rovnic stupně 2 o pěti neznámých.
@@ -42,17 +44,20 @@ Tabulky s výsledky jsou uvedeny v kapitole~\ref{ch:resultTables}. V těchto tab
 \section{Tabulky}
 \label{ch:resultTables}
 
+
 \begin{table}[H]
 \centering
 \begin{tabular}{lrrrr}
 \hline
 problém & \# půlení & \# zúžení & poměr objemu & čas (s) \\ \hline
-mickey & 30 & 222 & 5.722e-11 & 0.0465 \\
-minus & 42 & 781 & 0.0009277 & 0.0534 \\
-polyn1 & 35 & 633 & 0.0007813 & 0.0503 \\
-quadfor2 & 130 & 5527 & 6.248e-17 & 0.2136 \\
-solotarev & 104 & 17592 & 5.055e-16 & 0.6950 \\
-wright & 2286 & 96633 & 3.458e-19 & 4.5592 \\
+conform1 & 16 & 12441 & 6.777e-10 & 0.5688 \\
+mickey & 30 & 227 & 5.722e-11 & 0.0462 \\
+minus & 42 & 816 & 0.0009277 & 0.0554 \\
+polyn1 & 35 & 645 & 0.0007813 & 0.0458 \\
+polyn2 & 15 & 146 & 2.278e-38 & 0.0417 \\
+quadfor2 & 89 & 3772 & 6.248e-17 & 0.1432 \\
+solotarev & 99 & 15162 & 1.489e-15 & 0.6056 \\
+wright & 2286 & 96850 & 3.458e-19 & 4.8842 \\
 \end{tabular}
 \caption{Výsledky pro heuristiku \emph{rand}}
 \label{rand}
@@ -65,12 +70,14 @@ wright & 2286 & 96633 & 3.458e-19 & 4.5592 \\
 \begin{tabular}{lrrrr}
 \hline
 problém & \# půlení & \# zúžení & poměr objemu & čas (s) \\ \hline
-mickey & 30 & 224 & 5.722e-11 & 0.0407 \\
-minus & 42 & 760 & 0.0009277 & 0.0478 \\
-polyn1 & 35 & 608 & 0.0007813 & 0.0442 \\
-quadfor2 & 89 & 3495 & 6.248e-17 & 0.1310 \\
-solotarev & 95 & 11728 & 1.489e-15 & 0.4632 \\
-wright & 2286 & 93533 & 3.458e-19 & 3.9512 \\
+conform1 & 16 & 8185 & 6.777e-10 & 0.3547 \\
+mickey & 30 & 224 & 5.722e-11 & 0.0443 \\
+minus & 42 & 760 & 0.0009277 & 0.0483 \\
+polyn1 & 35 & 608 & 0.0007813 & 0.0463 \\
+polyn2 & 15 & 131 & 0.0007813 & 0.0382 \\
+quadfor2 & 89 & 3495 & 6.248e-17 & 0.1377 \\
+solotarev & 95 & 11728 & 1.489e-15 & 0.5022 \\
+wright & 2286 & 93533 & 3.458e-19 & 4.2201 \\
 \end{tabular}
 \caption{Výsledky pro heuristiku \emph{fifo}}
 \label{fifo}
@@ -83,12 +90,14 @@ wright & 2286 & 93533 & 3.458e-19 & 3.9512 \\
 \begin{tabular}{lrrrr}
 \hline
 problém & \# půlení & \# zúžení & poměr objemu & čas (s) \\ \hline
-mickey & 30 & 240 & 5.722e-11 & 0.0445 \\
-minus & 42 & 767 & 0.0009277 & 0.0561 \\
+conform1 & 16 & 7995 & 6.777e-10 & 0.6239 \\
+mickey & 30 & 240 & 5.722e-11 & 0.0433 \\
+minus & 42 & 767 & 0.0009277 & 0.0538 \\
 polyn1 & 35 & 608 & 0.0007813 & 0.0467 \\
-quadfor2 & 89 & 3126 & 6.248e-17 & 0.1775 \\
-solotarev & 95 & 9493 & 1.489e-15 & 0.6677 \\
-wright & 2286 & 88059 & 3.458e-19 & 8.1608 \\
+polyn2 & 15 & 125 & 0.0007813 & 0.0390 \\
+quadfor2 & 89 & 3126 & 6.248e-17 & 0.1771 \\
+solotarev & 95 & 9493 & 1.489e-15 & 0.6660 \\
+wright & 2286 & 88059 & 3.458e-19 & 8.4097 \\
 \end{tabular}
 \caption{Výsledky pro heuristiku \emph{dom-first}}
 \label{dom-first}
@@ -101,12 +110,34 @@ wright & 2286 & 88059 & 3.458e-19 & 8.1608 \\
 \begin{tabular}{lrrrr}
 \hline
 problém & \# půlení & \# zúžení & poměr objemu & čas (s) \\ \hline
-mickey & 30 & 255 & 5.722e-11 & 0.0480 \\
-minus & 42 & 826 & 0.0009277 & 0.0646 \\
-polyn1 & 35 & 646 & 0.0007813 & 0.0501 \\
-quadfor2 & 89 & 6672 & 6.248e-17 & 0.3639 \\
-solotarev & 95 & 162967 & 1.489e-15 & 11.1730 \\
-wright & 2286 & 98378 & 3.458e-19 & 10.6855 \\
+conform1 & 16 & 10194 & 6.777e-10 & 0.7317 \\
+mickey & 30 & 225 & 5.722e-11 & 0.0435 \\
+minus & 42 & 800 & 0.0009277 & 0.0529 \\
+polyn1 & 35 & 606 & 0.0007813 & 0.0506 \\
+polyn2 & 15 & 128 & 0.0007813 & 0.0465 \\
+quadfor2 & 89 & 3552 & 6.248e-17 & 0.2243 \\
+solotarev & 95 & 20800 & 1.489e-15 & 1.2040 \\
+wright & 2286 & 108977 & 3.458e-19 & 10.4618 \\
+\end{tabular}
+\caption{Výsledky pro heuristiku \emph{nondom-first}}
+\label{nondom-first}
+\end{table}
+
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lrrrr}
+\hline
+problém & \# půlení & \# zúžení & poměr objemu & čas (s) \\ \hline
+conform1 & 16 & 23673 & 6.777e-10 & 1.5826 \\
+mickey & 30 & 255 & 5.722e-11 & 0.0513 \\
+minus & 42 & 826 & 0.0009277 & 0.0639 \\
+polyn1 & 35 & 646 & 0.0007813 & 0.0541 \\
+polyn2 & 15 & 127 & 0.0007813 & 0.0433 \\
+quadfor2 & 89 & 6672 & 6.248e-17 & 0.3859 \\
+solotarev & 95 & 162967 & 1.489e-15 & 11.7988 \\
+wright & 2286 & 98378 & 3.458e-19 & 11.3865 \\
 \end{tabular}
 \caption{Výsledky pro heuristiku \emph{max-right-cand}}
 \label{max-right-cand}
@@ -119,12 +150,14 @@ wright & 2286 & 98378 & 3.458e-19 & 10.6855 \\
 \begin{tabular}{lrrrr}
 \hline
 problém & \# půlení & \# zúžení & poměr objemu & čas (s) \\ \hline
-mickey & 30 & 217 & 5.722e-11 & 0.0466 \\
-minus & 42 & 769 & 0.0009277 & 0.0587 \\
-polyn1 & 35 & 638 & 0.0007813 & 0.0504 \\
-quadfor2 & 169 & 66938 & 6.248e-17 & 3.2366 \\
-solotarev & 116 & 540970 & 3.669e-16 & 32.5066 \\
-wright & 2286 & 96594 & 3.458e-19 & 9.4692 \\
+conform1 & 16 & 23306 & 6.777e-10 & 1.4782 \\
+mickey & 30 & 217 & 5.722e-11 & 0.0481 \\
+minus & 42 & 769 & 0.0009277 & 0.0668 \\
+polyn1 & 35 & 638 & 0.0007813 & 0.0525 \\
+polyn2 & 15 & 478 & 9.243e-35 & 0.0479 \\
+quadfor2 & 169 & 66938 & 6.248e-17 & 3.6092 \\
+solotarev & 116 & 540970 & 3.669e-16 & 34.8202 \\
+wright & 2286 & 96594 & 3.458e-19 & 9.6712 \\
 \end{tabular}
 \caption{Výsledky pro heuristiku \emph{min-right-cand}}
 \label{min-right-cand}
@@ -137,12 +170,14 @@ wright & 2286 & 96594 & 3.458e-19 & 9.4692 \\
 \begin{tabular}{lrrrr}
 \hline
 problém & \# půlení & \# zúžení & poměr objemu & čas (s) \\ \hline
-mickey & 30 & 260 & 5.722e-11 & 0.0484 \\
-minus & 42 & 809 & 0.0009277 & 0.0607 \\
-polyn1 & 35 & 647 & 0.0007813 & 0.0524 \\
-quadfor2 & 169 & 8018 & 6.248e-17 & 0.4456 \\
-solotarev & 95 & 136896 & 1.489e-15 & 8.7906 \\
-wright & 2286 & 119420 & 3.458e-19 & 12.8847 \\
+conform1 & 16 & 15528 & 6.777e-10 & 1.3386 \\
+mickey & 30 & 260 & 5.722e-11 & 0.0758 \\
+minus & 42 & 809 & 0.0009277 & 0.0838 \\
+polyn1 & 35 & 647 & 0.0007813 & 0.0563 \\
+polyn2 & 15 & 130 & 0.0007813 & 0.0488 \\
+quadfor2 & 169 & 7682 & 6.248e-17 & 0.5212 \\
+solotarev & 95 & 136896 & 1.489e-15 & 9.3976 \\
+wright & 2286 & 119420 & 3.458e-19 & 13.4664 \\
 \end{tabular}
 \caption{Výsledky pro heuristiku \emph{large-int-first}}
 \label{large-int-first}
@@ -155,12 +190,14 @@ wright & 2286 & 119420 & 3.458e-19 & 12.8847 \\
 \begin{tabular}{lrrrr}
 \hline
 problém & \# půlení & \# zúžení & poměr objemu & čas (s) \\ \hline
-mickey & 30 & 215 & 5.722e-11 & 0.0472 \\
-minus & 42 & 708 & 0.0009277 & 0.0574 \\
-polyn1 & 35 & 643 & 0.0007813 & 0.0501 \\
-quadfor2 & 9 & 159 & 0 & 0.0474 \\
-solotarev & 116 & 118221 & 3.669e-16 & 7.8209 \\
-wright & 2286 & 86619 & 3.458e-19 & 9.0597 \\
+conform1 & 16 & 36655 & 6.777e-10 & 2.2830 \\
+mickey & 30 & 215 & 5.722e-11 & 0.0435 \\
+minus & 42 & 708 & 0.0009277 & 0.0559 \\
+polyn1 & 35 & 643 & 0.0007813 & 0.0486 \\
+polyn2 & 15 & 477 & 9.243e-35 & 0.0451 \\
+quadfor2 & 169 & 159 & 6.248e-17 & 0.0458 \\
+solotarev & 116 & 118221 & 3.669e-16 & 8.2039 \\
+wright & 2286 & 86619 & 3.458e-19 & 9.3518 \\
 \end{tabular}
 \caption{Výsledky pro heuristiku \emph{small-int-first}}
 \label{small-int-first}
@@ -173,12 +210,14 @@ wright & 2286 & 86619 & 3.458e-19 & 9.0597 \\
 \begin{tabular}{lrrrr}
 \hline
 problém & \# půlení & \# zúžení & poměr objemu & čas (s) \\ \hline
-mickey & 30 & 253 & 5.722e-11 & 0.0482 \\
-minus & 42 & 809 & 0.0009277 & 0.0586 \\
-polyn1 & 35 & 644 & 0.0007813 & 0.0513 \\
-quadfor2 & 169 & 7696 & 6.248e-17 & 0.4226 \\
-solotarev & 95 & 95883 & 1.489e-15 & 6.2605 \\
-wright & 2286 & 127848 & 3.458e-19 & 15.5451 \\
+conform1 & 16 & 15528 & 6.777e-10 & 1.0341 \\
+mickey & 30 & 253 & 5.722e-11 & 0.0457 \\
+minus & 42 & 809 & 0.0009277 & 0.0560 \\
+polyn1 & 35 & 644 & 0.0007813 & 0.0495 \\
+polyn2 & 15 & 137 & 0.0007813 & 0.0399 \\
+quadfor2 & 169 & 7696 & 6.248e-17 & 0.4336 \\
+solotarev & 95 & 95883 & 1.489e-15 & 6.5600 \\
+wright & 2286 & 127848 & 3.458e-19 & 15.9222 \\
 \end{tabular}
 \caption{Výsledky pro heuristiku \emph{shrunk-most-first}}
 \label{shrunk-most-first}
@@ -191,12 +230,14 @@ wright & 2286 & 127848 & 3.458e-19 & 15.5451 \\
 \begin{tabular}{lrrrr}
 \hline
 problém & \# půlení & \# zúžení & poměr objemu & čas (s) \\ \hline
-mickey & 30 & 221 & 5.722e-11 & 0.0497 \\
-minus & 42 & 708 & 0.0009277 & 0.0658 \\
-polyn1 & 35 & 630 & 0.0007813 & 0.0534 \\
-quadfor2 & 89 & 33264 & 6.248e-17 & 1.7716 \\
-solotarev & 116 & 361640 & 3.669e-16 & 22.3640 \\
-wright & 2286 & 79055 & 3.458e-19 & 9.4108 \\
+conform1 & 16 & 36041 & 6.777e-10 & 3.0409 \\
+mickey & 30 & 221 & 5.722e-11 & 0.0445 \\
+minus & 42 & 708 & 0.0009277 & 0.0585 \\
+polyn1 & 35 & 630 & 0.0007813 & 0.0500 \\
+polyn2 & 15 & 167 & 2.278e-38 & 0.0406 \\
+quadfor2 & 89 & 33264 & 6.248e-17 & 1.6815 \\
+solotarev & 116 & 361640 & 3.669e-16 & 23.1700 \\
+wright & 2286 & 79055 & 3.458e-19 & 10.0826 \\
 \end{tabular}
 \caption{Výsledky pro heuristiku \emph{shrunk-least-first}}
 \label{shrunk-least-first}
@@ -209,12 +250,14 @@ wright & 2286 & 79055 & 3.458e-19 & 9.4108 \\
 \begin{tabular}{lrrrr}
 \hline
 problém & \# půlení & \# zúžení & poměr objemu & čas (s) \\ \hline
-mickey & 30 & 236 & 5.722e-11 & 0.0572 \\
-minus & 42 & 767 & 0.0009277 & 0.0837 \\
-polyn1 & 35 & 611 & 0.0007813 & 0.0585 \\
-quadfor2 & 89 & 3065 & 6.248e-17 & 0.6042 \\
-solotarev & 95 & 8208 & 1.489e-15 & 2.4077 \\
-wright & 2286 & 89847 & 3.458e-19 & 49.6575 \\
+conform1 & 16 & 8376 & 6.777e-10 & 3.1547 \\
+mickey & 30 & 236 & 5.722e-11 & 0.0526 \\
+minus & 42 & 767 & 0.0009277 & 0.0766 \\
+polyn1 & 35 & 611 & 0.0007813 & 0.0523 \\
+polyn2 & 15 & 125 & 0.0007813 & 0.0415 \\
+quadfor2 & 89 & 3065 & 6.248e-17 & 0.5714 \\
+solotarev & 95 & 8208 & 1.489e-15 & 2.2684 \\
+wright & 2286 & 89847 & 3.458e-19 & 51.7957 \\
 \end{tabular}
 \caption{Výsledky pro heuristiku \emph{fail-first}}
 \label{fail-first}
@@ -227,12 +270,14 @@ wright & 2286 & 89847 & 3.458e-19 & 49.6575 \\
 \begin{tabular}{lrrrr}
 \hline
 problém & \# půlení & \# zúžení & poměr objemu & čas (s) \\ \hline
-mickey & 30 & 252 & 5.722e-11 & 0.0453 \\
-minus & 42 & 760 & 0.0009277 & 0.0513 \\
-polyn1 & 35 & 639 & 0.0007813 & 0.0461 \\
-quadfor2 & 89 & 3502 & 6.248e-17 & 0.1412 \\
-solotarev & 95 & 10434 & 1.489e-15 & 0.4419 \\
-wright & 2286 & 141514 & 3.458e-19 & 6.5953 \\
+conform1 & 16 & 11787 & 6.777e-10 & 0.6058 \\
+mickey & 30 & 252 & 5.722e-11 & 0.0426 \\
+minus & 42 & 760 & 0.0009277 & 0.0507 \\
+polyn1 & 35 & 639 & 0.0007813 & 0.0465 \\
+polyn2 & 15 & 130 & 0.0007813 & 0.0411 \\
+quadfor2 & 89 & 3502 & 6.248e-17 & 0.1508 \\
+solotarev & 95 & 10434 & 1.489e-15 & 0.5193 \\
+wright & 2286 & 141514 & 3.458e-19 & 6.9660 \\
 \end{tabular}
 \caption{Výsledky pro heuristiku \emph{prefer-add}}
 \label{prefer-add}
@@ -245,16 +290,25 @@ wright & 2286 & 141514 & 3.458e-19 & 6.5953 \\
 \begin{tabular}{lrrrr}
 \hline
 problém & \# půlení & \# zúžení & poměr objemu & čas (s) \\ \hline
-mickey & 30 & 242 & 5.722e-11 & 0.0466 \\
-minus & 42 & 760 & 0.0009277 & 0.0529 \\
-polyn1 & 35 & 605 & 0.0007813 & 0.0464 \\
-quadfor2 & 89 & 3519 & 6.248e-17 & 0.1473 \\
-solotarev & 95 & 8526 & 1.489e-15 & 0.3958 \\
-wright & 2286 & 86273 & 3.458e-19 & 3.9979 \\
+conform1 & 16 & 6777 & 6.777e-10 & 0.3781 \\
+mickey & 30 & 242 & 5.722e-11 & 0.0438 \\
+minus & 42 & 760 & 0.0009277 & 0.0519 \\
+polyn1 & 35 & 605 & 0.0007813 & 0.0452 \\
+polyn2 & 15 & 127 & 0.0007813 & 0.0391 \\
+quadfor2 & 89 & 3519 & 6.248e-17 & 0.1817 \\
+solotarev & 95 & 8526 & 1.489e-15 & 0.4209 \\
+wright & 2286 & 86273 & 3.458e-19 & 3.9737 \\
 \end{tabular}
 \caption{Výsledky pro heuristiku \emph{prefer-mult}}
 \label{prefer-mult}
 \end{table}
+
+
+
+
+
+
+
 
 
 

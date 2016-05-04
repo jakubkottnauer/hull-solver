@@ -1,0 +1,16 @@
+// x^3 - 2x = 0
+// Solutions: x in {0; -sqrt(2); sqrt(2)}
+
+x
+
+x * x = x_2
+x_2 * x = x_3
+a * x = ax
+x_3 - ax = b
+
+a in [2,2]
+b in [0,0]
+x in [-500,500]
+x_2 in [0,10000]
+x_3 in [-1000,10000]
+ax in [-1000,1000]

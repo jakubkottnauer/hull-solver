@@ -74,6 +74,9 @@ module Main =
             | "dom-first" ->
                 { options with heuristic=Heuristics.DominantFirst
                                heuristicName="dominant-first"}
+            | "nondom-first" ->
+                { options with heuristic=Heuristics.NonDominantFirst
+                               heuristicName="nondominant-first"}
             | "max-right-cand" ->
                 { options with heuristic=Heuristics.MaxRightCand
                                heuristicName="max-right-cand"}

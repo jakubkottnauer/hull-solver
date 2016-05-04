@@ -18,14 +18,25 @@ module Heuristics =
 
         /// Selects the first pair containing a dominant variable. Selects the first pair if no such is available.
         static member DominantFirst (q: (Constraint * string) list) pairs (vars: Variable list) =
-            let dominantList = q
-                              |> List.map(fun (c, v) -> vars |> findVar v)
-                              |> List.filter(fun v -> v.IsDominant)
+            let l = q
+                    |> List.map(fun (c, v) -> vars |> findVar v)
+                    |> List.filter(fun v -> v.IsDominant)
 
-            if dominantList.Length = 0 then
+            if l.Length = 0 then
                 0
             else
-                q |> List.findIndex(fun (c, v) -> v = dominantList.Head.Name)
+                q |> List.findIndex(fun (c, v) -> v = l.Head.Name)
+
+        /// Selects the first pair containing a non-dominant variable. Selects the first pair if no such is available.
+        static member NonDominantFirst (q: (Constraint * string) list) pairs (vars: Variable list) =
+            let l = q
+                    |> List.map(fun (c, v) -> vars |> findVar v)
+                    |> List.filter(fun v -> not v.IsDominant)
+
+            if l.Length = 0 then
+                0
+            else
+                q |> List.findIndex(fun (c, v) -> v = l.Head.Name)
 
         /// Selects the pair whose variable's domain has the highest right bound.
         static member MaxRightCand (q: (Constraint * string) list) pairs (vars: Variable list) =

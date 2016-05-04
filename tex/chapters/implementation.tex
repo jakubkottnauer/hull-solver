@@ -102,7 +102,7 @@ Všechny heuristiky se chovají stejně v tom, že v případě existence více 
 \begin{itemize}
   \item \emph{rand} je \uv{heuristika} vybírající pseudonáhodnou dvojici,
   \item \emph{fifo} simuluje FIFO frontu - vybírá dvojici, která je ve frontě nejdéle,
-  \item \emph{dom-first} \cite{feiten10} se snaží nejprve redukovat domény dominantních proměnných - proměnné vyskytující se v~původních nerozložených podmínkách,
+  \item \emph{dom/nondom-first} \cite{feiten10} se snaží nejprve redukovat domény dominantních, resp. nedominantních, proměnných - proměnné vyskytující se v~původních nerozložených podmínkách,
   \item \emph{small/large-int-first} \cite{feiten10} se snaží dále zúžit nejužší, resp. nejširší domény,
   \item \emph{shrunk-most/least-first} \cite{feiten10} vybírá nejprve proměnné, jejichž domény byly nejvíce, resp. nejméně, od začátku běhu algoritmu zmenšeny (vypočítává se kvocient z~původní a aktuální velikosti domény),
   \item \emph{max-right-cand} \cite{feiten10} vybírá proměnnou s~nejvyšší pravou mezí domény. Např. proměnná s~doménou $(1;6)$ může být vybrána dříve než proměnná s~doménou $(1;3)$, protože má vyšší pravou mez,
