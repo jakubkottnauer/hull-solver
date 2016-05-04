@@ -16,6 +16,7 @@
 \usepackage{xr}
 \usepackage{fancyvrb}
 
+
 % % list of acronyms
 % \usepackage[acronym,nonumberlist,toc,numberedsection=autolabel]{glossaries}
 % \iflanguage{czech}{\renewcommand*{\acronymname}{Seznam pou{\v z}it{\' y}ch zkratek}}{}
@@ -40,7 +41,7 @@
 \supervisor{doc. Ing. Stefan Ratschan}
 \acknowledgements{Děkuji doc. Ing. Stefanu Ratschanovi za vedení mé bakalářské práce a za ochotu poradit s jakýmkoliv problémem při její tvorbě.}
 \abstractCS{Problém splnitelnosti omezujících podmínek (CSP) je problém o~nalezení hodnot proměnných tak, aby byly splněny všechny zadané omezující podmínky, což jsou relace mezi proměnnými omezující množiny hodnot, kterých mohou proměnné nabývat. Hlavním cílem práce je otestování vlivu heuristik na~efektivitu řešení numerických CSP pomocí propagací intervalů. Součástí práce byl napsán řešič v~jazyce F\# implementující algoritmy HC3 a branch-and-prune s~podporou pro podmínky s~operacemi sčítání, odčítání a~násobení. Byly nalezeny podstatné parametry algoritmu ovlivňující jeho účinnost a~následně byly s~dvanácti heuristikami provedeny výpočetní experimenty a~jejich výsledky porovnány. Výstup práce bude možno využít při rozvažování, kterou heuristiku použít při řešení soustav omezujících podmínek převeditelných na~podmínky s~výše uvedenými operacemi.}
-\abstractEN{A constraint safisfaction problem (CSP) is a~problem of finding the~values of variables while satisfying all the given constraints. A constraint is a relation between variables which reduces the set of values that can be assigned to a variable. The~main goal of this thesis is to test the influence of various heuristics on the efficiency of solving numerical CSP problems by interval propagation. A~problem solver written in the F\# language utilizing the HC3 algorithm and a branch-and-prune algorithm has been created, important aspects of the HC3 algorithm influencing its efficiency have been found and then experiments with twelve different heuristics were performed. The results found in the thesis can be used when deciding which heuristic to use for solving constraint systems.}
+\abstractEN{A constraint is a relation between variables which reduces the set of values that can be assigned to a variable. A constraint safisfaction problem (CSP) is the~problem of finding values for the variables in a given constraint that satisfy the constraint. The~main goal of this thesis is to test the influence of various heuristics on the efficiency of solving numerical CSP problems by interval propagation. A~solver written in the F\# language utilizing the HC3 algorithm and a branch-and-prune algorithm was created, important aspects of the HC3 algorithm influencing its efficiency were found and then experiments with twelve different heuristics were performed. The results found in the thesis can be used when deciding which heuristic to use for solving constraint satisfaction problems.}
 \placeForDeclarationOfAuthenticity{V~Praze}
 \declarationOfAuthenticityOption{4} %volba Prohlášení (číslo 1-6)
 \keywordsCS{propagace intervalů, algoritmus HC3, branch and prune, problém splnitelnosti, omezující podmínky, heuristiky, konzistenční techniky, funkcionální programování, FSharp}

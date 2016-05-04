@@ -12,10 +12,12 @@ Tato část práce nejprve popisuje použité technologie a~algoritmy v~programu
 Jako jazyk pro implementaci byl zvolen funkcionální jazyk \texttt{F\#} (čteno jako F Sharp) běžící na~platformě .NET, který se v~posledních letech stal velmi populární pro vědecké využití. Tento jazyk byl poprvé uveden v~roce 2005 společností Microsoft, v~roce 2013 byla ale založena nezisková společnost \texttt{F\#} Software Foundation, která má na~starosti jeho další vývoj. Od~té doby se z~jazyka stal open-source a díky projektu Mono je možné aplikace napsané v~\texttt{F\#} spouštět i na~jiných platformách, než pouze na~Microsoft Windows.
 
 \section{Algoritmy}
-
+\label{ch:algorithms}
 S~vedoucím práce bylo dohodnuto, že řešič bude podporovat omezující podmínky s~operacemi sčítání, odčítání a násobení.
 
 Řešení vstupních problémů probíhá s~využitím algoritmu HC3 s~malou úpravou pro pestřejší možnosti využití heuristik. Zatímco originální algoritmus vždy vybere z~množiny podmínek jednu náhodnou a zredukuje domény všech proměnných v~ní obsažených, upravený algoritmus na vstupu přijímá množinu všech dvojic $(c, x)$ (kde $c$ je omezující podmínka definovaná nad proměnnou $x$) a z~této množiny heuristicky vybírá jednu dvojici. Následně podle podmínky $c$ zúží doménu proměnné $x$. Omezující podmínka $c$ se tedy na~vstupu objeví tolikrát, nad~kolika proměnnými je nadefinována - v~případě programu HullSolver vždy právě třikrát, neboť program podporuje pouze ternární omezující podmínky. Algoritmus~\ref{HC3AlgorithmAltered} uvádí pseudokód takto upraveného algoritmu HC3.
+
+Oba algoritmy nalézající se v této kapitole přijímají seznam dvojic omezujících podmínek a proměnných z CSP, a množinu domén proměnných z CSP. Tyto parametry spojené dohromady odpovídají CSP problému, jen je u těchto algoritmů praktičtější definovat CSP v této alternativní formě.
 
 \begin{algorithm}
 \caption{Upravený algoritmus HC3}
@@ -26,13 +28,13 @@ S~vedoucím práce bylo dohodnuto, že řešič bude podporovat omezující podm
 \Procedure{HC3}{$P, D$}
 \State $Q \gets P$
 \While{$Q \neq \emptyset$ }
-\State Pomocí heuristiky vyber z $Q$ pár $p = (c, x)$.
+\State Pomocí heuristiky vyber z $Q$ pár $p = (c, x)$. \label{HC3AlgorithmAltered:heuristicLine}
 \State $Q \gets Q \setminus \left\{ p \right\}$
 \State $D_x' \gets$ Zredukuj doménu $D_x \in D$ proměnné $x \in p$ podle $c$.
 \If{$D_x' = \emptyset $}
 \State \Return CSP je nekonzistentní.
 \EndIf
-\If{$D_x \neq D_x'$}
+\If{$D_x \neq D_x'$} \label{HC3AlgorithmAltered:comparisonLine}
 \State $D_x \gets D_x'$
 \State Přidej do $Q$ pár $p$ a všechny další dvojice z $P$, které obsahují $x$.
 \EndIf
@@ -42,7 +44,7 @@ S~vedoucím práce bylo dohodnuto, že řešič bude podporovat omezující podm
 \end{algorithmic}
 \end{algorithm}
 
-Na řádku č.~7 v algoritmu \ref{HC3AlgorithmAltered} jsou pro rovnost porovnávány dvě domény. Vzhledem k tomu, že jsou zde domény tvořeny reálnými intervaly, nemusí být jejich meze celá čísla a v počítači tak nebudou uložena přesně (v programu je pro reprezentaci mezí využit 64-bitový typ \verb|double|). Rovnost je v programu ověřována nepřesně, jak ukazuje následující kód (jako \verb|ZERO_EPSILON| je použita hodnota $10^{-30}$):
+Na řádku č.~\ref{HC3AlgorithmAltered:comparisonLine} v algoritmu \ref{HC3AlgorithmAltered} jsou pro rovnost porovnávány dvě domény. Vzhledem k tomu, že jsou zde domény tvořeny reálnými intervaly, nemusí být jejich meze celá čísla a v počítači tak nebudou uložena přesně (v programu je pro reprezentaci mezí využit 64-bitový typ \verb|double|). Rovnost je v programu ověřována nepřesně, jak ukazuje následující kód (jako \verb|ZERO_EPSILON| je použita hodnota $10^{-30}$):
 
 \begin{Verbatim}[samepage=true]
 member this.EqualTo y =
@@ -50,18 +52,18 @@ member this.EqualTo y =
   && abs(this.b - y.b) < ZERO_EPSILON
 \end{Verbatim}
 
-Nad algoritmem HC3 je postaven jednoduchý branch-and-prune algoritmus (viz Algoritmus \ref{BranchPrune}), který zároveň tvoří hlavní funkci řešiče. Tento algoritmus přibližně kopíruje strukturu algoritmu~\ref{alg:GeneralSolutionAlg} (str.~\pageref{alg:GeneralSolutionAlg}), jen je zde využit rekurzivní zápis. Při spuštění je mu předána množina dvojic omezujících podmínek a proměnných v~nich obsažených.
+Nad algoritmem HC3 je postaven jednoduchý branch-and-prune algoritmus (viz Algoritmus \ref{BranchPrune}), který zároveň tvoří hlavní funkci řešiče. Tento algoritmus přibližně kopíruje strukturu algoritmu~\ref{alg:GeneralSolutionAlg} (str.~\pageref{alg:GeneralSolutionAlg}). Při spuštění je mu předána množina dvojic omezujících podmínek a proměnných v~nich obsažených.
 
 \begin{algorithm}
-\caption{Rekurzivní algoritmus Solve}
+\caption{Upravený algoritmus Solve}
 \label{BranchPrune}
 \begin{algorithmic}[1]
 \Require Seznam $P$ dvojic $(c, x)$, kde $c$ je omezující podmínka definovaná nad proměnnou $x$, a množina domén $D$ z CSP.
-\Ensure Seznam nalezených boxů.
+\Ensure Seznam nalezených boxů obsahující všechna řešení.
 \Procedure{Solve}{$P, D$}
 \If{Problém není dostatečně malý}
 \State $P' \gets HC3(P)$
-\State $(P_1, P_2) \gets $ rozděl box tvořený doménami dominantních proměnných z $D$ na poloviny.
+\State $(P_1, P_2) \gets $ rozděl box tvořený doménami dominantních proměnných z $D$ na poloviny. \label{BranchPrune:splitLine}
 \State Solve($P_1$)
 \State Solve($P_2$)
 \Else
@@ -81,7 +83,7 @@ member this.AllFraction eps =
 \end{Verbatim}
 
 
-Druhým prvkem algoritmu \verb|Solve|, jehož implementace je potřeba upřesnit, je rozpůlení boxu na~řádku č.~4. Box, jak je popsáno v kapitole \ref{ch:ncsp}, ohraničuje řešení a je tvořen doménami proměnných z~CSP. Algoritmus box rozpůlí tím, že rozpůlí doménu jedné dominantní proměnné. Ve~vstupním souboru uživatel označí dominantní proměnné a algoritmus je půlí metodou round-robin ve~stejném pořadí, jako jsou zapsány ve~vstupním souboru (při rozpůlení poslední dominantní proměnné přeskočí opět na~první).
+Druhým prvkem algoritmu \verb|Solve|, jehož implementace je potřeba upřesnit, je rozpůlení boxu na~řádku č.~\ref{BranchPrune:splitLine}. Box, jak je popsáno v kapitole \ref{ch:ncsp}, ohraničuje řešení a je tvořen doménami proměnných z~CSP. Algoritmus box rozpůlí tím, že rozpůlí doménu jedné dominantní proměnné. Ve~vstupním souboru uživatel označí dominantní proměnné a algoritmus je půlí metodou round-robin ve~stejném pořadí, jako jsou zapsány ve~vstupním souboru (při rozpůlení poslední dominantní proměnné přeskočí opět na~první).
 
 
 \section{Architektura}
@@ -93,7 +95,7 @@ Zatímco první dva soubory obsahují především deklarace typů a definují j
 
 \section{Použité heuristiky}
 \label{ch:usedHeuristics}
-Níže jsou uvedeny heuristiky, které jsou využité v~programu HullSolver. Každá heuristika má svůj krátký název, kterým je identifikována ve~výsledcích experimentů. Heuristiky převzaté z~literatury jsou označeny odkazem na~použitý zdroj.
+Níže jsou uvedeny heuristiky, které jsou využité v~programu HullSolver v algoritmu č.~\ref{HC3AlgorithmAltered} na řádce~\ref{HC3AlgorithmAltered:heuristicLine}. Každá heuristika má svůj krátký název, kterým je identifikována ve~výsledcích experimentů. Heuristiky převzaté z~literatury jsou označeny odkazem na~použitý zdroj.
 
 Všechny heuristiky se chovají stejně v tom, že v případě existence více než jedné dvojice splňující jejich kritéria vždy vyberou dvojici nacházející se v seznamu $Q$ jako první (prohledávání seznamu probíhá zleva doprava).
 
@@ -123,7 +125,7 @@ V průběhu řešení problémů je sledováno několik tzv. indikátorů. To js
 
 
 
-\section{Vylepšení programu}
+\section{Možná vylepšení programu}
 Program v~této době neumí sám dekomponovat omezující podmínky v~komplexním tvaru a je proto nutné je zadávat v~primitivním tvaru. HullSolver rovněž neprovádí detekci redundantních podmínek.
 
 Dalším vylepšením by mohlo být přidání grafického rozhraní (vykreslování grafů s řešením).
@@ -134,6 +136,6 @@ Dalším vylepšením by mohlo být přidání grafického rozhraní (vykreslov�
 
 
 \section{Existující řešení}
-Vzhledem k obecnosti termínu CSP existuje velké množství aplikací řešících problémy s~omezujícími podmínkami - lze nalézt nespočet řešičů sudoku i řešičů SAT problému. Vzniklo také několik obecných řešičů, například \emph{Geocode}\footnote{http://www.gecode.org} a \emph{Microsoft Solver Foundation}\footnote{https://msdn.microsoft.com/en-us/library/ff524509(v=vs.93).aspx}.
+Vzhledem k obecnosti termínu CSP existuje velké množství aplikací řešících problémy s~omezujícími podmínkami - lze nalézt nespočet řešičů sudoku i řešičů SAT problému. Vzniklo také několik obecných řešičů, například \emph{Gecode}\footnote{http://www.gecode.org} a \emph{Microsoft Solver Foundation}\footnote{https://msdn.microsoft.com/en-us/library/ff524509(v=vs.93).aspx}.
 
 Řešení NCSP problémů pomocí propagace intervalů je již poměrně specifická oblast a tak těchto řešičů není mnoho. Na~službě GitHub patří mezi nejznámější řešiče projekt \emph{JaCoP}\footnote{\url{https://github.com/radsz/jacop}}, dále existují například \emph{IASolver}\footnote{\url{http://www.cs.brandeis.edu/~tim/Applets/IAsolver.html}}, \emph{RSolver}\footnote{\url{http://rsolver.sourceforge.net}} a \emph{RealPaver}\footnote{\url{https://github.com/lcgutierrez/Realpaver-0\_4-Windows}}. První dva projekty jsou napsány v~Javě, třetí v~jazyce OCaml a čtvrtý v~C. Žádný z~nich ale není dále vyvíjen.
