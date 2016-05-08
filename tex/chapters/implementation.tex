@@ -17,7 +17,7 @@ S~vedoucím práce bylo dohodnuto, že řešič bude podporovat omezující podm
 
 Řešení vstupních problémů probíhá s~využitím algoritmu HC3 s~malou úpravou pro pestřejší možnosti využití heuristik. Zatímco originální algoritmus vždy vybere z~množiny podmínek jednu náhodnou a zredukuje domény všech proměnných v~ní obsažených, upravený algoritmus na vstupu přijímá množinu všech dvojic $(c, x)$ (kde $c$ je omezující podmínka definovaná nad proměnnou $x$) a z~této množiny heuristicky vybírá jednu dvojici. Následně podle podmínky $c$ zúží doménu proměnné $x$. Omezující podmínka $c$ se tedy na~vstupu objeví tolikrát, nad~kolika proměnnými je nadefinována - v~případě programu HullSolver vždy právě třikrát, neboť program podporuje pouze ternární omezující podmínky. Algoritmus~\ref{HC3AlgorithmAltered} uvádí pseudokód takto upraveného algoritmu HC3.
 
-Oba algoritmy nalézající se v této kapitole přijímají seznam dvojic omezujících podmínek a proměnných z CSP, a množinu domén proměnných z CSP. Tyto parametry spojené dohromady odpovídají CSP problému, jen je u těchto algoritmů praktičtější definovat CSP v této alternativní formě.
+Oba algoritmy nalézající se v~této kapitole přijímají seznam dvojic omezujících podmínek a proměnných z~CSP, a množinu domén proměnných z~CSP. Tyto parametry spojené dohromady odpovídají CSP problému, jen je u~těchto algoritmů praktičtější definovat CSP v~této alternativní formě.
 
 \begin{algorithm}
 \caption{Upravený algoritmus HC3}
@@ -30,7 +30,7 @@ Oba algoritmy nalézající se v této kapitole přijímají seznam dvojic omezu
 \While{$Q \neq \emptyset$ }
 \State Pomocí heuristiky vyber z $Q$ pár $p = (c, x)$. \label{HC3AlgorithmAltered:heuristicLine}
 \State $Q \gets Q \setminus \left\{ p \right\}$
-\State $D_x' \gets$ Zredukuj doménu $D_x \in D$ proměnné $x \in p$ podle $c$.
+\State $D_x' \gets$ Zredukuj doménu $D_x \in D$ proměnné $x \in p$ podle $c$. \label{HC3AlgorithmAltered:reduce}
 \If{$D_x' = \emptyset $}
 \State \Return CSP je nekonzistentní.
 \EndIf
@@ -61,7 +61,7 @@ Nad algoritmem HC3 je postaven jednoduchý branch-and-prune algoritmus (viz Algo
 \Require Seznam $P$ dvojic $(c, x)$, kde $c$ je omezující podmínka definovaná nad proměnnou $x$, a množina domén $D$ z CSP.
 \Ensure Seznam nalezených boxů obsahující všechna řešení.
 \Procedure{Solve}{$P, D$}
-\If{Problém není dostatečně malý}
+\If{Problém není dostatečně malý} \label{BranchPrune:smallEnough}
 \State $P' \gets HC3(P)$
 \State $(P_1, P_2) \gets $ rozděl box tvořený doménami dominantních proměnných z $D$ na poloviny. \label{BranchPrune:splitLine}
 \State Solve($P_1$)
@@ -73,7 +73,7 @@ Nad algoritmem HC3 je postaven jednoduchý branch-and-prune algoritmus (viz Algo
 \end{algorithmic}
 \end{algorithm}
 
-V použité variantě algoritmu \verb|Solve| je kontrolováno, zda je problém již dostatečně zmenšen. V programu se konkrétně kontroluje, jestli se již podařilo domény všech dominantních proměnných dostatečně zúžit vzhledem k původní velikosti. Jako koeficient pro porovnání se využívá parametr \verb|eps|, který je specifikován uživatelem při spuštění řešiče přepínačem \verb|-p| (viz manuál).
+V použité variantě algoritmu \verb|Solve| je kontrolováno, zda je problém již dostatečně zmenšen (řádek č.~\ref{BranchPrune:smallEnough}). V~programu se konkrétně kontroluje, jestli se již podařilo domény všech dominantních proměnných dostatečně zúžit vzhledem k původní velikosti. Jako koeficient pro porovnání se využívá parametr \verb|eps|, který je specifikován uživatelem při spuštění řešiče přepínačem \verb|-p| (viz manuál).
 
 \begin{Verbatim}[samepage=true]
 member this.AllFraction eps =
@@ -86,18 +86,24 @@ member this.AllFraction eps =
 Druhým prvkem algoritmu \verb|Solve|, jehož implementace je potřeba upřesnit, je rozpůlení boxu na~řádku č.~\ref{BranchPrune:splitLine}. Box, jak je popsáno v kapitole \ref{ch:ncsp}, ohraničuje řešení a je tvořen doménami proměnných z~CSP. Algoritmus box rozpůlí tím, že rozpůlí doménu jedné dominantní proměnné. Ve~vstupním souboru uživatel označí dominantní proměnné a algoritmus je půlí metodou round-robin ve~stejném pořadí, jako jsou zapsány ve~vstupním souboru (při rozpůlení poslední dominantní proměnné přeskočí opět na~první).
 
 
+\subsection{Efektivita algoritmů}
+Nejslabším místem použité varianty algoritmu HC3 je řádek č.~\ref{HC3AlgorithmAltered:heuristicLine}, protože výpočet složité heuristiky může algoritmus velmi zpomalit. Druhým potenciálně rizikovým místem je řádek č.~\ref{HC3AlgorithmAltered:reduce}, protože závisí na konkrétní implementaci zužovací funkce. V~aktuální verzi programu HullSolver by ale nemělo docházet k~problémům díky tomu, že podporuje pouze sčítání a násobení v~omezujících podmínkách, a ty se dají zužovat podle jednoduchých pravidel (navíc je přítomna optimalizace pro zužování podle druhé mocniny).
+
+U branch-and-prune algoritmu \verb|Solve| jsou rovněž dvě potenciálně riziková místa, a to řádky č.~\ref{BranchPrune:smallEnough} a~\ref{BranchPrune:splitLine}. Konkétní implementace popsána výše by ale neměla způsobovat žádné výkonnostní problémy.
+
+
 \section{Architektura}
 Celý program se skládá ze čtyř souborů - \verb|DomainTypes.fs|, \verb|Heuristics.fs|, \verb|Solver.fs|, \verb|Program.fs|. Při kompilování programu napsaného v~\texttt{F\#} záleží na~pořadí souborů a v~tomto případě jsou soubory zpracovávany v~tomto pořadí. Braním ohledu na~pořadí souborů kompilátor zabraňuje tvorbě kruhových závislostí mezi částmi programu, protože soubor později ve frontě může využívat pouze typy z~již zpracovaného souboru. Kód se tak stává modulárnější a přehlednější, protože přirozeně dochází ke striktnímu oddělení \uv{high-level} částí programů od \uv{low-level} částí.
 
 Dalším důsledkem je odlišná organizace kódu v~podobných jazycích jako \texttt{F\#} od klasických procedurálních či objektově orientovaných jazyků. V~\texttt{F\#} se typicky nevytváří samostatný soubor pro každý typ (typ přibližně odpovídá třídě z~objektově orientovaného programování), ale všechny typy se shlukují do jednoho modulu často nazývaného \verb|DomainTypes|. V~případě HullSolveru jsou doménovými typy \verb|Interval|, \verb|Variable|, \verb|Constraint|, \verb|Problem| a~\verb|Heuristic|, z~nichž poslední se pro~přehlednost nachází v~samostatném souboru \verb|Heuristics.fs|.
 
-Zatímco první dva soubory obsahují především deklarace typů a definují jejich funkce, soubor \verb|Solver.fs| tvoří hlavní výpočetní jádro programu - zde jsou implementace branch-and-prune algoritmu a algoritmu HC3. Posledním souborem je \verb|Program.fs|, který se už stará jen o ošetření a zpracování vstupu a spouští řešící algoritmy.
+Zatímco první dva soubory obsahují především deklarace typů a definují jejich funkce, soubor \verb|Solver.fs| tvoří hlavní výpočetní jádro programu - zde jsou implementace branch-and-prune algoritmu a algoritmu HC3. Posledním souborem je \verb|Program.fs|, který se už stará jen o~ošetření a zpracování vstupu a spouští řešící algoritmy.
 
 \section{Použité heuristiky}
 \label{ch:usedHeuristics}
 Níže jsou uvedeny heuristiky, které jsou využité v~programu HullSolver v algoritmu č.~\ref{HC3AlgorithmAltered} na řádce~\ref{HC3AlgorithmAltered:heuristicLine}. Každá heuristika má svůj krátký název, kterým je identifikována ve~výsledcích experimentů. Heuristiky převzaté z~literatury jsou označeny odkazem na~použitý zdroj.
 
-Všechny heuristiky se chovají stejně v tom, že v případě existence více než jedné dvojice splňující jejich kritéria vždy vyberou dvojici nacházející se v seznamu $Q$ jako první (prohledávání seznamu probíhá zleva doprava).
+Všechny heuristiky se chovají stejně v~tom, že v~případě existence více než jedné dvojice splňující jejich kritéria vždy vyberou dvojici nacházející se v~seznamu $Q$ jako první (prohledávání seznamu probíhá zleva doprava).
 
 \begin{itemize}
   \item \emph{rand} je \uv{heuristika} vybírající pseudonáhodnou dvojici,
@@ -108,21 +114,20 @@ Všechny heuristiky se chovají stejně v tom, že v případě existence více 
   \item \emph{max-right-cand} \cite{feiten10} vybírá proměnnou s~nejvyšší pravou mezí domény. Např. proměnná s~doménou $(1;6)$ může být vybrána dříve než proměnná s~doménou $(1;3)$, protože má vyšší pravou mez,
   \item \emph{min-right-cand} \cite{feiten10} vybírá proměnnou s~nejmenší pravou mezí domény,
   \item \emph{fail-first} vybírá proměnnou, která je přítomna v~největším počtu omezujících podmínek,
-  \item \emph{prefer-add/mult} vybírá omezující podmínku s operací sčítání, resp. násobení.
+  \item \emph{prefer-add/mult} vybírá omezující podmínku s~operací sčítání, resp. násobení.
 \end{itemize}
 
 \section{Výstup programu a indikátory}
 \label{ch:indicators}
-V průběhu řešení problémů je sledováno několik tzv. indikátorů. To jsou různé zajímavé metriky, pomocí kterých se dá následně porovnat efektivita heuristik. Kromě času běhu algoritmu (který je ale spíše pouze ilustrativní, protože se může měnit mezi jednotlivými spuštěními) jsou sledovány indikátory:
-
+V průběhu řešení problémů je sledováno několik tzv.~indikátorů. To jsou různé zajímavé metriky, pomocí kterých se dá následně porovnat efektivita heuristik. Sledovány jsou následující indikátory:
 \begin{itemize}
+    \item doba běhu,
     \item počet rozpůlení řešení,
-    \item počet zúžení intervalů,
+    \item počet zúžení intervalů (kolikrát byla zavolána funkce pro zúžení domény podle podmínky),
     \item poměr objemu řešení k objemu vstupního CSP.
 \end{itemize}
 
-
-
+Doba běhu je závislá na~konkrétním hardware a může se měnit během jednotlivými spuštěními programu, pro hrubé porovnání heuristik ale poslouží dobře.
 
 
 \section{Možná vylepšení programu}

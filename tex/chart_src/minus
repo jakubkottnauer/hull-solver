@@ -1,0 +1,14 @@
+# label heuristic narrowings time
+0 rand 816 0.0554
+1 fifo 760 0.0483
+2 dom-first	767 0.0538
+3 nondom-first 800 0.0529
+4 max-right-cand 826 0.0639
+5 min-right-cand 769 0.0668
+6 large-int-first 809 0.0838
+7 small-int-first 708 0.0559
+8 shrunk-most-first	809 0.0560
+9 shrunk-least-first 708 0.0585
+10 fail-first	767 0.0766
+11 prefer-add	760 0.0507
+12 prefer-mult 760 0.0519

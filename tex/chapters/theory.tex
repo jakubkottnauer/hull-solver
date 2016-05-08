@@ -69,7 +69,7 @@ v_1 = 2y \quad \wedge \quad v_2 = z - 1 \quad \wedge \quad v_3 = x + v_1 \quad \
 
 Tato práce se zabývá řešením \emph{numerických CSP} (\emph{NCSP}, \emph{numerical CSP}), což je podmnožina CSP problémů, jejichž domény jsou spojité (nejčastěji jsou to intervaly) a které se dají reprezentovat soustavami rovnic či nerovnic. Rovnice nebo nerovnice vlastně kladou na~proměnné nějaká omezení a zmenšují tak množiny hodnot, kterých mohou nabývat \cite{rueherDependency}.
 
-Domény proměnných v~NCSP problémech jsou reálné intervaly, a cílem řešiče je co nejvíce tyto intervaly zúžit (zúžení domény podle omezující podmínky se říká \emph{propagace omezující podmínky}, v případě NCSP se tento proces někdy nazývá \emph{propagace intervalů}), při zachování všech řešení soustavy rovnic tvořené omezujícími podmínkami. To ukazuje následující jednoduchý příklad \ref{eq:simpleConstraint}.
+Domény proměnných v~NCSP problémech jsou reálné intervaly, a cílem řešiče je co nejvíce tyto intervaly zúžit (zúžení domény podle omezující podmínky se říká \emph{propagace omezující podmínky}, v případě NCSP se tento proces někdy nazývá \emph{propagace intervalů}), při zachování všech řešení soustavy rovnic tvořené omezujícími podmínkami. To ukazuje následující jednoduchý příklad~\ref{eq:simpleConstraint}.
 
 \begin{equation} \label{eq:simpleConstraint}
 x^2 = 1\qquad x \in \boldsymbol{R}
@@ -94,7 +94,7 @@ Intervalová aritmetika je rozšířením aritmetiky reálných čísel na~inter
     \item $(a;b) \equiv \{ x \in R | a < x < b \}$ - otevřený interval
 \end{itemize}
 
-Pro sčítání, odčítání, násobení a dělení intervalů platí následující vztahy ($x = \langle a; b \rangle$ a $y = \langle c; d \rangle$ jsou intervaly a odpovídající vztahy platí i pro otevřené intervaly):
+Pro sčítání, odčítání, násobení a~dělení intervalů platí následující vztahy ($x = \langle a; b \rangle$ a $y = \langle c; d \rangle$ jsou intervaly a~odpovídající vztahy platí i pro otevřené intervaly):
 
 \begin{subequations}
 \begin{align}
@@ -125,7 +125,7 @@ Dalšími potřebnými operacemi jsou průnik a sjednocení:
 
 Jako \emph{intervalový obal} (\emph{interval hull}, značeno $H$) se označuje nejmenší interval \uv{obalující} podmnožinu reálných čísel. Například platí, že $H(\{2,5,8\}) = \langle 2; 8 \rangle$, $H((1;3) \cup (5;7)) = (1;7)$.
 
-V souvislosti s intervaly je třeba zmínit ještě tzv.~\emph{dependency problem} (problém závislosti). To je situace, kdy se jeden interval vyskytuje na více místech výrazu a výsledný interval může být zbytečně široký. Dependency problem se projeví i na~velmi jednoduché rovnici $x - x = 0, x \in \langle 0;10 \rangle$. Na první pohled je správným řešením interval $\langle 0;0\rangle$, podle pravidel pro součet v~intervalové aritmetice bude ale výsledek $\langle 0;10 \rangle - \langle 0;10\rangle = \langle -10; 10 \rangle$.
+V souvislosti s intervaly je třeba zmínit ještě tzv.~\emph{dependency problem} (problém závislosti). To je situace, kdy se jeden interval vyskytuje na více místech výrazu a výsledný interval může být zbytečně široký. Dependency problem se projeví i na~velmi jednoduché rovnici $x - x = 0, x \in \langle 0;10 \rangle$. Na~první pohled je správným řešením interval $\langle 0;0\rangle$, podle pravidel pro součet v~intervalové aritmetice bude ale výsledek $\langle 0;10 \rangle - \langle 0;10\rangle = \langle -10; 10 \rangle$.
 
 
 
@@ -153,7 +153,7 @@ P_1 = ((x, y), (\{-1,0,1,2,3\}, \{1,2,3\}), \{x - y = 0\}) \\
 P_2 = ((x, y), (\{1,2,3\}, \{1,2,3\}), \{x - y = 0\})
 \end{align*}
 
-jsou ekvivalentní a splnitelné. Na stejném příkladu lze demonstrovat i redukci problému. Redukce problému je transformace na~ekvivalentní a jednodušší CSP \cite[s.~23]{Vu2005}. Problém $P_2$ tak mohl vzniknout z~problému $P_1$ redukcí domény proměnné $x$, přičemž byly z~domény dané proměnné odebrány tzv.~\emph{nekonzistentní} hodnoty (hodnoty, pro které neexistuje řešení). Jak redukce může probíhat vysvětluje kapitola \ref{ch:narrowingHowWorks}, v~tuto chvíli ji stačí považovat za~černou skříňku, která na~vstupu přijme CSP a vrátí ekvivalentní zredukovaný problém.
+jsou ekvivalentní a~splnitelné. Na stejném příkladu lze demonstrovat i~redukci problému. Redukce problému je transformace na~ekvivalentní a jednodušší CSP \cite[s.~23]{Vu2005}. Problém $P_2$ tak mohl vzniknout z~problému $P_1$ redukcí domény proměnné $x$, přičemž byly z~domény dané proměnné odebrány tzv.~\emph{nekonzistentní} hodnoty (hodnoty, pro které neexistuje řešení). Jak redukce může probíhat vysvětluje kapitola \ref{ch:narrowingHowWorks}. V~tuto chvíli ji stačí považovat za~černou skříňku, která na~vstupu přijme CSP a vrátí ekvivalentní zredukovaný problém.
 
 \subsection{Branch-and-prune algoritmus}
 
@@ -191,7 +191,7 @@ Algoritmus \verb|Solve| má tři důležité části - volání \verb|Happy| fun
 \begin{enumerate}
     \item Funkce \verb|Happy| ověřuje, jestli je program \uv{spokojený} s~aktuálním výsledkem a jestli může skončit. To může znamenat například to, jestli byl nalezen dostatečný počet řešení, nebo jestli bylo dokázáno, že žádné řešení neexistuje, apod.
     \item Ověření atomicity je kontrola, zda je zredukovaný problém již dostatečně malý, aby byl přijat jako řešení. Pro určení velikosti problému lze využít několik metrik, v~případě NCSP se nejčastěji používá měření velikosti domén dominantních proměnných a to buďto absolutní, nebo relativní vzhledem k~původní velikosti (například požadavek na~zmenšení domény na~tisícinu původní velikosti).
-    \item Nebyl-li problém dostatečně zmenšen, dojde k~jeho rozdělení na~více částí (resp. na~několik menších CSP). To v~praxi nejčastěji znamená, že dojde k~rozdělení domén podle nějakého pravidla, kterých lze vymyslet poměrně velké množství: u~CSP s~diskrétními doménami je jedno z~možných rozdělení takové, kdy se z~domény nějaké proměnné vyjme jedna hodnota a ta se použije u problému $P_1$ a zbytek hodnot z~domény se použije u problému $P_2$. U problému $P_1$ pak lze velmi rychle rozhodnout, zda patří do~řešení, nebo ne. U numerických CSP problémů je nejjednodušší nějakým způsobem rozdělit jeden či více intervalů (domén). V~programu vytvořeném pro tuto práci je při každém rozdělení rozpůlena doména jedné proměnné, která je vybrána metodou \emph{round-robin}. To znamená, že jsou voleny jedna po~druhé, tak jak jdou za sebou v~definici problému zadaného uživatelem.
+    \item Nebyl-li problém dostatečně zmenšen, dojde k~jeho rozdělení na~více částí (resp. na~několik menších CSP). To v~praxi nejčastěji znamená, že dojde k~rozdělení domén podle nějakého pravidla, kterých lze vymyslet poměrně velké množství: u~CSP s~diskrétními doménami je jedno z~možných rozdělení takové, kdy se z~domény nějaké proměnné vyjme jedna hodnota a ta se použije u problému $P_1$ a zbytek hodnot z~domény se použije u problému $P_2$. U~problému $P_1$ pak lze velmi rychle rozhodnout, zda patří do~řešení, nebo ne. U numerických CSP problémů je nejjednodušší nějakým způsobem rozdělit jeden či více intervalů (domén). V~programu vytvořeném pro tuto práci je při každém rozdělení rozpůlena doména jedné proměnné, která je vybrána metodou \emph{round-robin}. To znamená, že jsou voleny jedna po~druhé, tak jak jdou za sebou v~definici problému zadaného uživatelem.
 \end{enumerate}
 
 Ohledně rozdělení problému na~menší části se možná nabízí otázka, proč je to vůbec potřeba, když redukce problému (řádek č.~\ref{alg:generalSolutionAlg:Reduction} v~pseudokódu) by měla být schopná odstranit nekonzistentní hodnoty z~domén. V~některých typech problému (a je to případ i NCSP problémů řešených zde) a v~závislosti na~použitém algoritmu se může stát, že se algoritmus zastaví na~krajních hodnotách domény. Obrázek č.~\ref{img:solving} znázorňuje průběh řešení NCSP problému s~využitím splittingu.
@@ -249,7 +249,7 @@ V několika jednoduchých krocích (a to pouze s~využitím pravidel intervalov�
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Konzistenční techniky a algoritmy}
-Konzistenční techniky slouží k~rychlému odebrání nekonzistentních (neplatných) hodnot z~domén proměnných a jejich cílem je dostat CSP do \emph{konzistentního stavu}, kdy domény neobsahují žádné nekonzistentní hodnoty. V~této kapitole je popsáno několik základních technik využitelných především pro nenumerické CSP a je ukázán přechod od nich na~techniku zvanou \emph{hull consistency}, používanou pro NCSP, která je pro tuto práci nejdůležitější, protože právě ona je využita v~praktické části.
+Konzistenční techniky slouží k~rychlému odebrání nekonzistentních (neplatných) hodnot z~domén proměnných a jejich cílem je dostat CSP do \emph{konzistentního stavu}, kdy domény neobsahují žádné nekonzistentní hodnoty. V~této kapitole je popsáno několik základních technik využitelných především pro nenumerické CSP a~je ukázán přechod od~nich na~techniku zvanou \emph{hull consistency}, používanou pro NCSP, která je pro tuto práci nejdůležitější, protože právě ona je využita v~praktické části.
 
 \subsection{Node consistency}
 
@@ -414,7 +414,7 @@ Heuristiky využívající dynamické parametry mohou brát ohled na:
     \item zda se omezující podmínka již použila ke zredukování domény.
 \end{itemize}
 
-U dynamických parametrů se může vyplatit ukládat posloupnost změn hodnot tak, jak se měnily během běhu programu. V~praxi se ale při rozhodování nepoužívá celá posloupnost, jen její část. Následující parametry pracují s~historií změn:
+U~dynamických parametrů se může vyplatit ukládat posloupnost změn hodnot tak, jak se měnily během běhu programu. V~praxi se ale při rozhodování nepoužívá celá posloupnost, jen její část. Následující parametry pracují s~historií změn:
 
 \begin{itemize}
   \item poměr velikosti domény či problému k~původní velikosti,
@@ -427,7 +427,7 @@ U dynamických parametrů se může vyplatit ukládat posloupnost změn hodnot t
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Charakteristiky problémových instancí pro algoritmus HC3}
 
-Problémy k~řešení mají některé vlastnosti, které přispívají k~nižší efektivitě při řešení. Jsou jimi například:
+Problémy k~řešení mají některé vlastnosti, které přispívají k~nižší efektivitě při řešení. Mohou jimi být například:
 
 
 \begin{itemize}
@@ -436,6 +436,4 @@ Problémy k~řešení mají některé vlastnosti, které přispívají k~nižš�
   \item počet proměnných,
   \item počet omezujících podmínek.
 \end{itemize}
-
-V~praktické části je ověřen vliv uvedených vlastností.
 

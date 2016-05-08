@@ -15,6 +15,7 @@
 \usepackage{hyperref}
 \usepackage{xr}
 \usepackage{fancyvrb}
+\usepackage{svg}
 
 
 % % list of acronyms
@@ -55,7 +56,7 @@
 \begin{introduction}
 V mnoha oblastech lidské činnosti, ať už je to věda, podnikání, či sport, existují problémy, které kladou na svá řešení nějaká omezení. Takovým problémům se obecně říká problémy splnitelnosti omezujících podmínek (\emph{constraint satisfaction problems}). Omezující podmínky zde zužují množiny hodnot, kterých mohou nabývat proměnné vyskytující se v problému.
 
-Tato bakalářská práce se zabývá speciálním typem CSP problémů, nazývaných numerické CSP problémy. Numerické CSP jsou takové problémy, které se dají popsat soustavou rovnic a nerovnic a jejichž proměnné nabývají hodnot z reálných intervalů. Jedna z možností, jak tyto problémy řešit, se nazývá \emph{propagace intervalů}. Tyto metody postupně zmenšují intervaly jednotlivých proměnných, až je dosaženo dostatečné přesnosti řešení. K rozhodnutí, v jakém pořadí zmenšovat intervaly a zpracovávat omezující podmínky, pomáhají heuristiky.
+Tato bakalářská práce se zabývá speciálním typem CSP problémů, nazývaných numerické CSP problémy. Numerické CSP jsou takové problémy, které se dají popsat soustavou rovnic a~nerovnic a~jejichž proměnné nabývají hodnot z~reálných intervalů. Jedna z~možností, jak tyto problémy řešit, se nazývá \emph{propagace intervalů}. Tyto metody postupně zmenšují intervaly jednotlivých proměnných, až je dosaženo dostatečné přesnosti řešení. K~rozhodnutí, v~jakém pořadí zmenšovat intervaly a~zpracovávat omezující podmínky, pomáhají heuristiky.
 
 Hlavním cílem této práce je otestovat vliv různých heuristik na efektivitu hledání řešení numerických CSP problémů, přičemž jednotlivé heuristiky budou porovnány na základě několika indikátorů naměřených v průběhu experimentů.
 
@@ -72,7 +73,7 @@ Součástí dokumentu jsou také tři přílohy. V příloze A jsou vysvětleny 
 \input{chapters/experiments}
 
 \begin{conclusion}
-Hlavním cílem bakalářské práce byla implementace řešiče numerických CSP problémů a~otestování vlivu heuristik na~efektivitu řešení numerických CSP pomocí propagace intervalů. Tento cíl byl splněn - v~jazyce \texttt{F\#} byl vytvořen volně dostupný program HullSolver, který je schopen pomocí algoritmu HC3 řešit problémy ve~tvaru soustav polynomiálních rovnic s operacemi sčítání, odčítání a násobení. Pomocí této aplikace byl otestován vliv celkem třinácti heuristik na~osmi benchmarkových úlohách a~výsledky byly zpracovány.
+Hlavním cílem bakalářské práce byla implementace řešiče numerických CSP problémů a~otestování vlivu heuristik na~efektivitu řešení numerických CSP pomocí propagace intervalů. Tento cíl byl splněn - v~jazyce \texttt{F\#} byl vytvořen volně dostupný program HullSolver, který je schopen pomocí algoritmu HC3 řešit problémy ve~tvaru soustav polynomiálních rovnic s operacemi sčítání, odčítání a násobení. Pomocí této aplikace byl otestován vliv celkem třinácti heuristik na~osmi benchmarkových úlohách a~výsledky byly zpracovány. Několik heuristik se podařilo označit za špatné, zatímco některé se ukázaly být oproti ostatním velmi dobré.
 
 V samotném programu je velký prostor pro další vývoj a~byla by škoda v~něm nepokračovat, protože neexistuje jiný program, který by se specializoval na~testování heuristik při řešení NCSP problémů. Prvním krokem by mohlo být přidání podpory pro~více aritmetických operací a~přidání automatického rozkladu komplexních podmínek do primitivního tvaru. V~rámci dalšího vývoje by bylo také možné přidat některé další algoritmy, které by si mohly lépe poradit s~nalezenými problémovými instancemi, a~přidat grafický výstup programu, neboť aktuální verze komunikuje s~uživatelem pouze prostřednictvím příkazové řádky.
 
@@ -100,7 +101,7 @@ V samotném programu je velký prostor pro další vývoj a~byla by škoda v~ně
 \section{Kompilace}
 Pro zkompilování zdrojových kódu na Windows lze použít kompilátor \verb|fsc.exe| (\verb|fsc HullSolver.sln|) dodávaný společně s Microsoft Visual Studio. Pro spuštění je potřeba mít nainstalovaný .NET framework ve verzi minimálně 4.5.2.
 
-Na~Linuxu a OS~X je potřeba nejprve nainstalovat Mono, které umožňuje kompilovat a spouštět .NET aplikace i na~ostatních platformách, než jen Windows. Na Linuxu, resp. OS~X jej lze nainstalovat příkazem \\ \verb|apt-get install mono-complete fsharp|, resp. \verb|brew install mono|. Poté již půjde zdrojové kódy zkompilovat příkazem \verb|xbuild HullSolver.sln|. Oba kompilátory uloží zkompilovanou aplikaci do adresáře \verb|bin/Debug|.
+Na~Linuxu a OS~X je potřeba nejprve nainstalovat Mono\footnote{\url{http://www.mono-project.com}}, které umožňuje kompilovat a spouštět .NET aplikace i na~ostatních platformách, než jen Windows. Na Linuxu, resp. OS~X jej lze nainstalovat příkazem \\ \verb|apt-get install mono-complete fsharp|, resp. \verb|brew install mono|. Poté již půjde zdrojové kódy zkompilovat příkazem \verb|xbuild HullSolver.sln|. Oba kompilátory uloží zkompilovanou aplikaci do adresáře \verb|bin/Debug|.
 
 \section{Spuštění}
 
@@ -118,7 +119,7 @@ V případě spuštění bez přepínače \verb|-h| bude využita heuristika \ve
 V~repozitáři se dále nachází dva dávkové souborů pro Windows, které umožňují pohodlnější opakované spouštění programu - spustí jej postupně se všemi heuristikami pro všechny vstupní problémy a naměřené hodnoty uloží do adresáře \verb|./out|.
 
 \section{Vstup}
-Vstupem programu HullSolver jsou textové soubory, které deklarativně popisují CSP problém, který chce uživatel vyřešit. V souboru jsou nejprve uvedeny dominantní proměnné následované seznamem omezujících podmínek v primitivním tvaru a nakonec jsou uvedeny domény jednotlivých proměnných. Podporovány jsou komentáře uvozené znaky \verb|//|.
+Vstupem programu HullSolver jsou textové soubory, které deklarativně popisují CSP problém, který chce uživatel vyřešit. V souboru jsou nejprve uvedeny dominantní proměnné následované seznamem omezujících podmínek v~primitivním tvaru a~nakonec jsou uvedeny domény jednotlivých proměnných. Podporovány jsou komentáře uvozené znaky \verb|//|.
 
 Příklad vstupního souboru:
 
@@ -163,14 +164,11 @@ a in [1,1]
 
 \begin{figure}
 	\dirtree{%
-		.1 README.md\DTcomment{stručný manuál k programu a popis obsahu CD}.
-		.1 bin.
-		.2 linux\DTcomment{spustitelný program pro Linux}.
-		.2 osx\DTcomment{spustitelný program pro OS~X}.
-		.2 win\DTcomment{spustitelný program pro Windows}.
+		.1 README.txt\DTcomment{popis obsahu CD}.
 		.1 src.
-		.2 hullsolver\DTcomment{zdrojové kódy implementace}.
+		.2 hullsolver\DTcomment{zdrojové kódy programu}.
 		.2 thesis\DTcomment{zdrojová forma práce ve formátu \LaTeX{}}.
+		.1 tests \DTcomment{vstupní testovací úlohy}.
 		.1 text.
 		.2 thesis.pdf\DTcomment{text práce ve formátu PDF}.
 		.2 thesis.ps\DTcomment{text práce ve formátu PS}.

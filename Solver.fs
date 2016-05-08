@@ -44,7 +44,7 @@ module Solver =
                            |> List.find (fun (item:Variable) -> item.Name = variableName)
 
             let reducedVariable = cons.Propagate variable vars
-
+            ind_narrowing_count <- ind_narrowing_count + 1
             match reducedVariable.Domain with
             | this when this.IsEmpty ->
                 [] // The CSP is inconsistent, terminate.
@@ -53,7 +53,6 @@ module Solver =
                 hc3Rec q pairs vars options // The variable's domain has not changed - continue.
 
             | _ ->
-               ind_narrowing_count <- ind_narrowing_count + 1
                let filteredVars = reducedVariable::(vars
                                                |> List.filter (fun v -> v.Name <> reducedVariable.Name))
 
