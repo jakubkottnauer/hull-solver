@@ -6,7 +6,7 @@ module Heuristics =
 
     open DomainTypes
     let private rnd = Random DateTime.Now.Millisecond
-    let private filteredVars q vars = 
+    let private filteredVars q vars =
         q |> List.map(fun (c, v) -> vars |> findVar v)
 
     /// Heuristics for selecting constraint-variable pairs.

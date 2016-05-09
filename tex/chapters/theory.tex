@@ -351,7 +351,7 @@ Původní algoritmus HC3 navržený v~článku \cite{Benhamou97applyinginterval}
 \subsubsection{HC4}
 Výhoda algoritmu HC4 oproti HC3 spočívá ve~faktu, že umí přímo pracovat s~komplexními podmínkami a není tak potřeba jejich rozklad, což ve~výsledku zkracuje i dobu běhu algoritmu \cite{Benhamou99revisinghull}. Nevýhodou je ovšem mnohem složitější implementace, která se skládá ze dvou fází: dopředného průchodu (\emph{ForwardEvaluation}) a zpětného průchodu (\emph{BackwardEvaluation}).
 
-Celý algoritmus funguje tak, že prochází syntaktický strom výrazu a při dopředném průchodu od listů ke kořeni odhaduje domény rodičovských uzlů podle domén synů (s pomocí intervalové aritmetiky). Průběh pro omezující podmínku $2x = z - y^2$ s~doménami $D_x = \langle 0;20\rangle$, $D_y = \langle -10;10\rangle$ a $D_z = \langle 0;16\rangle$ ukazuje obrázek č.~\ref{img:forwardPropag}.
+Celý algoritmus funguje tak, že prochází syntaktický strom výrazu a při dopředném průchodu od listů ke kořeni odhaduje domény rodičovských uzlů podle domén synů (s~pomocí intervalové aritmetiky). Průběh pro omezující podmínku $2x = z - y^2$ s~doménami $D_x = \langle 0;20\rangle$, $D_y = \langle -10;10\rangle$ a $D_z = \langle 0;16\rangle$ ukazuje obrázek č.~\ref{img:forwardPropag}.
 
 \begin{figure}
 \centering
@@ -360,7 +360,7 @@ Celý algoritmus funguje tak, že prochází syntaktický strom výrazu a při d
 \label{img:forwardPropag}
 \end{figure}
 
-Při zpětném průchodu (obrázek č.~\ref{img:backwardPropag}) od kořene k~listům se pak zpřesňuje výsledná doména - podle rodičovského uzlu se zúží domény synů. Algoritmus u~kořene provede stromu z~předchozího příkladu provede průnik (kvůli rovnosti v~kořeni stromu) domén obou synů ($\langle 0;40\rangle \cap \langle -100;16\rangle$), které byly vypočteny při dopředném průchodu. Tímto je kořen zpracován a zpětný průchod se může spustit rekurzivně pro oba podstromy. V~případě levého podstromu je novým kořenem uzel s~operací násobení a doménou $\langle 0;16 \rangle$. Nyní je již snadné zúžit doménu proměnné $x$ na~její finální hodnotu, $\langle 0;8 \rangle$. Stejným postupem se podaří zúžit i domény proměnných $y$ a $z$ na~$\langle -4;4 \rangle$, resp. $\langle 0;16 \rangle$.
+Při zpětném průchodu (obrázek č.~\ref{img:backwardPropag}) od kořene k~listům se pak zpřesňuje výsledná doména - podle rodičovského uzlu se zúží domény synů. Algoritmus u~kořene provede stromu z~předchozího příkladu provede průnik (kvůli rovnosti v~kořeni stromu) domén obou synů ($\langle 0;40\rangle \cap \langle -100;16\rangle$), které byly vypočteny při dopředném průchodu. Tímto je kořen zpracován a zpětný průchod se může spustit rekurzivně pro oba podstromy. V~případě levého podstromu je novým kořenem uzel s~operací násobení a doménou $\langle 0;16 \rangle$. Nyní je již snadné zúžit doménu proměnné $x$ na~její finální hodnotu, $\langle 0;8 \rangle$. Stejným postupem se podaří zúžit i~domény proměnných $y$ a $z$ na~$\langle -4;4 \rangle$, resp. $\langle 0;16 \rangle$.
 
 \begin{figure}
 \centering

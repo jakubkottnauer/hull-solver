@@ -163,8 +163,6 @@ module DomainTypes =
             let varY = allVars |> findVar y
             let varZ = allVars |> findVar z
 
-            //printfn "%s + %s = %s; reducing the domain of %s" varX.Name varY.Name varZ.Name var.Name
-
             if var.Name = X then
                 let ZminusY = varZ.Domain - varY.Domain
                 let domain = ZminusY <*> varX.Domain
@@ -239,10 +237,8 @@ module DomainTypes =
             if y1 < 0.0 && y2 > 0.0 then
                 if x1 > 0.0 then
                     ({ a = Double.NegativeInfinity;  b = Double.PositiveInfinity}, true)
-                    //({ a = div_hi(x1, y1);  b = div_lo(x1, y2)}, false)
                 elif x2 < 0.0 then
                     ({ a = Double.NegativeInfinity;  b = Double.PositiveInfinity}, true)
-                    //({ a = div_hi(x2,y2);  b = div_lo(x2,y1)}, false)
                 else
                     ({ a = Double.NegativeInfinity;  b = Double.PositiveInfinity}, true)
 
@@ -270,8 +266,6 @@ module DomainTypes =
             let varX = allVars |> findVar x
             let varY = allVars |> findVar y
             let varZ = allVars |> findVar z
-
-            //printfn "%s * %s = %s; reducing the domain of %s" varX.Name varY.Name varZ.Name var.Name
 
             if var.Name = X then
                 if varX.Name = varY.Name then // square

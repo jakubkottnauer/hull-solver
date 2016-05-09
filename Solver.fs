@@ -139,5 +139,3 @@ module Solver =
         stopWatch.Stop()
 
         printResults options p stopWatch.Elapsed.TotalSeconds
-
-        
